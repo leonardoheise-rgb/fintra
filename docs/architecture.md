@@ -4,6 +4,7 @@
 
 - Frontend: React + TypeScript + Vite
 - Routing: React Router
+- Authentication: Supabase Auth with a local preview fallback during setup
 - Testing: Vitest + Testing Library
 - Linting: ESLint (flat config)
 - Database target: Supabase / PostgreSQL
@@ -18,7 +19,7 @@
 ## Frontend structure
 
 - `src/app/`: app composition, routing, layout, and navigation
-- `src/features/`: feature-level UI modules
+- `src/features/`: feature-level UI modules such as `auth` and `dashboard`
 - `src/shared/`: reusable utilities and global styles
 
 ## Design direction

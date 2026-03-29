@@ -13,6 +13,10 @@ npm ci
 1. Copy `frontend/.env.example` to `frontend/.env`
 2. Replace the placeholder Supabase values with your project settings
 
+If you leave the placeholder Supabase values in place, Fintra uses a local preview auth mode so
+you can still test sign-in, sign-up, redirects, and the protected shell before connecting a real
+project.
+
 ## 3. Start the app
 
 ```bash
@@ -28,6 +32,8 @@ npm run lint
 npm run test:run
 npm run build
 ```
+
+For a fuller automated and manual QA workflow, see `docs/testing.md`.
 
 ## 5. Enable the local pre-commit hook
 
@@ -46,6 +52,12 @@ The frontend currently expects:
 - `VITE_SUPABASE_ANON_KEY`
 - `VITE_DEFAULT_CURRENCY`
 - `VITE_DEFAULT_LOCALE`
+
+## Authentication behavior
+
+- Real Supabase auth is used when `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are configured
+- Local preview auth is used when those values are still placeholders
+- Preview auth stores the session locally so Sprint 1 routes and guards remain testable
 
 ## Deployment flow
 
