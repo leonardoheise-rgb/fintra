@@ -1,8 +1,6 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-
+import { createSupabaseBrowserClient } from '../../../shared/supabase/client';
 import type { AuthCredentials, AuthSession, AuthUser } from '../auth.types';
 import type { AuthService, AuthStateListener, SignUpResult } from './authService';
-import { getAuthEnvironment } from './authEnvironment';
 
 function mapUser(user: { id: string; email?: string | null }): AuthUser | null {
   if (!user.email) {
@@ -31,18 +29,8 @@ function mapSession(session: { user: { id: string; email?: string | null } } | n
   };
 }
 
-function createSupabaseClient(): SupabaseClient {
-  const environment = getAuthEnvironment();
-
-  if (!environment.isConfigured || !environment.url || !environment.anonKey) {
-    throw new Error('Supabase environment variables are not configured.');
-  }
-
-  return createClient(environment.url, environment.anonKey);
-}
-
 export function createSupabaseAuthService(): AuthService {
-  const client = createSupabaseClient();
+  const client = createSupabaseBrowserClient();
 
   return {
     mode: 'supabase',

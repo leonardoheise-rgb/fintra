@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 import { App } from './app/App';
+import './features/finance/finance.css';
 import './shared/styles/tokens.css';
 import './shared/styles/global.css';
 

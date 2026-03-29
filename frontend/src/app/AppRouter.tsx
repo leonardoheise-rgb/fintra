@@ -5,13 +5,18 @@ import { PublicOnlyRoute } from '../features/auth/components/PublicOnlyRoute';
 import { SignInPage } from '../features/auth/pages/SignInPage';
 import { SignUpPage } from '../features/auth/pages/SignUpPage';
 import { DashboardPage } from '../features/dashboard/pages/DashboardPage';
+import { FinanceDataProvider } from '../features/finance/FinanceDataContext';
+import { CategoriesPage } from '../features/finance/pages/CategoriesPage';
+import { TransactionsPage } from '../features/finance/pages/TransactionsPage';
 import { AppLayout } from './layout/AppLayout';
 
 function AppShell() {
   return (
-    <AppLayout>
-      <Outlet />
-    </AppLayout>
+    <FinanceDataProvider>
+      <AppLayout>
+        <Outlet />
+      </AppLayout>
+    </FinanceDataProvider>
   );
 }
 
@@ -26,6 +31,8 @@ export function AppRouter() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppShell />}>
           <Route index element={<DashboardPage />} />
+          <Route path="/transactions" element={<TransactionsPage />} />
+          <Route path="/categories" element={<CategoriesPage />} />
         </Route>
       </Route>
     </Routes>

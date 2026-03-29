@@ -1,7 +1,7 @@
 import type { AuthService } from './authService';
-import { getAuthEnvironment } from './authEnvironment';
 import { createLocalPreviewAuthService } from './localPreviewAuthService';
 import { createSupabaseAuthService } from './supabaseAuthService';
+import { getSupabaseEnvironment } from '../../../shared/supabase/client';
 
 /**
  * The preview fallback keeps Sprint 1 runnable before a real Supabase project
@@ -9,7 +9,7 @@ import { createSupabaseAuthService } from './supabaseAuthService';
  * automatically uses the Supabase-backed implementation.
  */
 export function createAuthService(): AuthService {
-  const environment = getAuthEnvironment();
+  const environment = getSupabaseEnvironment();
 
   if (environment.isConfigured) {
     return createSupabaseAuthService();

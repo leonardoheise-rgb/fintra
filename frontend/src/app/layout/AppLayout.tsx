@@ -1,11 +1,18 @@
 import type { PropsWithChildren } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 
 import { useAuth } from '../../features/auth/useAuth';
 import { navigationItems } from '../navigation/navigationItems';
 
+const pageTitles: Record<string, string> = {
+  '/': 'Monthly command center',
+  '/transactions': 'Transaction ledger',
+  '/categories': 'Category manager',
+};
+
 export function AppLayout({ children }: PropsWithChildren) {
   const auth = useAuth();
+  const location = useLocation();
 
   return (
     <div className="app-shell">
@@ -20,7 +27,7 @@ export function AppLayout({ children }: PropsWithChildren) {
 
         <nav className="sidebar__nav">
           {navigationItems.map((item) =>
-            item.href === '/' ? (
+            item.isEnabled ? (
               <NavLink
                 className={({ isActive }) => `sidebar__item${isActive ? ' sidebar__item--active' : ''}`}
                 key={item.label}
@@ -49,8 +56,8 @@ export function AppLayout({ children }: PropsWithChildren) {
         </nav>
 
         <div className="sidebar__footnote">
-          Phase 1 authentication
-          <span>Protected routing is active and the shell is now session-aware.</span>
+          Phase 2 transactions
+          <span>Categories, subcategories, and CRUD records are now wired into the app shell.</span>
         </div>
       </aside>
 
@@ -58,7 +65,9 @@ export function AppLayout({ children }: PropsWithChildren) {
         <header className="topbar">
           <div>
             <p className="topbar__eyebrow">Editorial ledger</p>
-            <h2 className="topbar__title">Monthly command center</h2>
+            <h2 className="topbar__title">
+              {pageTitles[location.pathname] ?? 'Protected workspace'}
+            </h2>
           </div>
 
           <div className="topbar__meta">

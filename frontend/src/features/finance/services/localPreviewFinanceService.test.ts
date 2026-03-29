@@ -1,0 +1,74 @@
+import { createLocalPreviewFinanceService } from './localPreviewFinanceService';
+
+describe('localPreviewFinanceService', () => {
+  it('seeds a preview workspace on first load', async () => {
+    const service = createLocalPreviewFinanceService('user-1');
+
+    const workspace = await service.getWorkspace();
+
+    expect(workspace.categories.length).toBeGreaterThan(0);
+    expect(workspace.transactions.length).toBeGreaterThan(0);
+  });
+
+  it('prevents duplicate category names', async () => {
+    const service = createLocalPreviewFinanceService('user-1');
+
+    await expect(service.createCategory({ name: 'Housing' })).rejects.toThrow(
+      'Category names must be unique.',
+    );
+  });
+
+  it('rejects transactions when the subcategory does not belong to the chosen category', async () => {
+    const service = createLocalPreviewFinanceService('user-1');
+
+    await expect(
+      service.createTransaction({
+        amount: 40,
+        type: 'expense',
+        categoryId: 'category-transport',
+        subcategoryId: 'subcategory-groceries',
+        date: '2026-03-09',
+        description: 'Invalid assignment',
+      }),
+    ).rejects.toThrow('The selected subcategory does not belong to the selected category.');
+  });
+
+  it('blocks category deletion while related transactions exist', async () => {
+    const service = createLocalPreviewFinanceService('user-1');
+
+    await expect(service.deleteCategory('category-housing')).rejects.toThrow(
+      'Delete subcategories before removing this category.',
+    );
+  });
+
+  it('creates, updates, and deletes a transaction', async () => {
+    const service = createLocalPreviewFinanceService('user-1');
+
+    const createdTransaction = await service.createTransaction({
+      amount: 55,
+      type: 'expense',
+      categoryId: 'category-food',
+      subcategoryId: 'subcategory-restaurants',
+      date: '2026-03-11',
+      description: 'Lunch',
+    });
+
+    expect(createdTransaction.description).toBe('Lunch');
+
+    const updatedTransaction = await service.updateTransaction(createdTransaction.id, {
+      amount: 60,
+      type: 'expense',
+      categoryId: 'category-food',
+      subcategoryId: 'subcategory-restaurants',
+      date: '2026-03-11',
+      description: 'Team lunch',
+    });
+
+    expect(updatedTransaction.description).toBe('Team lunch');
+
+    await service.deleteTransaction(createdTransaction.id);
+
+    const workspace = await service.getWorkspace();
+    expect(workspace.transactions.find((item) => item.id === createdTransaction.id)).toBeUndefined();
+  });
+});

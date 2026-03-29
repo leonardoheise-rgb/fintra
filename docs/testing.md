@@ -41,6 +41,8 @@ npm run build
 The current suite validates:
 
 - app bootstrapping and key dashboard shell content
+- category and transaction route rendering
+- category and transaction preview persistence rules
 - budget summary calculation behavior
 - currency formatting behavior
 - month label formatting behavior
@@ -65,15 +67,18 @@ full route-guard flow locally.
 3. Confirm the sign-in page renders a `Sign in` heading and form fields for email and password.
 4. Confirm the sign-up page renders a `Create your account` heading and the confirmation field.
 5. Confirm signing in takes you to the dashboard.
-6. Confirm the left sidebar shows `Fintra` and the dashboard navigation item appears active.
-7. Confirm the top header shows `Monthly command center`.
-8. Confirm the top shell shows the current user email and a `Sign out` button.
-9. Confirm the hero section shows `Wealth in motion`.
-10. Confirm the hero section shows a primary button labeled `Configure monthly plan`.
-11. Confirm the category cards render for Housing, Food and dining, Transport, Entertainment, and Shopping.
-12. Confirm signing out returns you to the sign-in page.
-13. Confirm the layout remains readable on a narrow browser width similar to a phone.
-14. Confirm there are no obvious overlapping panels, clipped text, or horizontal scrollbars.
+6. Confirm the left sidebar shows enabled links for Dashboard, Transactions, and Categories.
+7. Confirm the top shell shows the current user email and a `Sign out` button.
+8. Confirm the dashboard still loads from the protected root route.
+9. Open `/categories` and confirm preview categories such as Housing and Food and dining are visible.
+10. Create a new category and confirm it appears immediately in the list.
+11. Open `/transactions` and confirm preview transactions such as Monthly salary are visible.
+12. Create a new transaction and confirm it appears immediately in the ledger.
+13. Edit a transaction and confirm the updated description or amount is rendered.
+14. Delete a transaction and confirm it disappears from the ledger.
+15. Confirm signing out returns you to the sign-in page.
+16. Confirm the layout remains readable on a narrow browser width similar to a phone.
+17. Confirm there are no obvious overlapping panels, clipped text, or horizontal scrollbars.
 
 ### Regression checks after UI edits
 
@@ -89,6 +94,7 @@ Add new unit tests when:
 
 - a formatter or calculator gets new logic
 - a shared component gains branching behavior
+- finance service validation or persistence rules change
 - a bug fix changes rendered output or validation rules
 
 When auth and data flows are added, expand this guide with route protection, loading state, and form validation checks.

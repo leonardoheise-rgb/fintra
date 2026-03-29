@@ -59,6 +59,12 @@ The frontend currently expects:
 - Local preview auth is used when those values are still placeholders
 - Preview auth stores the session locally so Sprint 1 routes and guards remain testable
 
+## Finance data behavior
+
+- Preview mode stores categories, subcategories, and transactions in local storage per signed-in preview user
+- Supabase mode expects the Sprint 2 migrations inside `database/migrations/` to be applied
+- The app now includes protected routes for `/transactions` and `/categories`
+
 ## Deployment flow
 
 ### Frontend
