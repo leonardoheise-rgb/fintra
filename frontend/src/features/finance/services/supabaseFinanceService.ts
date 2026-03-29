@@ -215,7 +215,7 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
           category_id: input.categoryId,
           subcategory_id: input.subcategoryId,
           date: input.date,
-          description: input.description.trim() || null,
+          description: input.description.trim(),
         })
         .select('id, amount, type, category_id, subcategory_id, date, description')
         .single();
@@ -235,7 +235,7 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
           category_id: input.categoryId,
           subcategory_id: input.subcategoryId,
           date: input.date,
-          description: input.description.trim() || null,
+          description: input.description.trim(),
         })
         .eq('id', transactionId)
         .eq('user_id', userId)

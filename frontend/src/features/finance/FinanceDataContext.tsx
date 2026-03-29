@@ -6,6 +6,7 @@ import {
   type PropsWithChildren,
 } from 'react';
 
+import { getErrorMessage } from '../../shared/lib/errors/getErrorMessage';
 import { useAuth } from '../auth/useAuth';
 import { FinanceDataContext, type FinanceDataContextValue, type FinanceDataStatus } from './financeContextValue';
 import type { FinanceWorkspace } from './finance.types';
@@ -19,11 +20,7 @@ const emptyWorkspace: FinanceWorkspace = {
 };
 
 function normalizeServiceError(error: unknown) {
-  if (error instanceof Error && error.message) {
-    return error.message;
-  }
-
-  return 'Something went wrong while handling finance data.';
+  return getErrorMessage(error, 'Something went wrong while handling finance data.');
 }
 
 type FinanceDataProviderProps = PropsWithChildren<{
