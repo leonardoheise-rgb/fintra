@@ -20,12 +20,26 @@ export function getSupabaseEnvironment() {
   };
 }
 
-export function createSupabaseBrowserClient(): SupabaseClient {
+let sharedSupabaseBrowserClient: SupabaseClient | null = null;
+
+export function getSupabaseBrowserClient(): SupabaseClient {
+  if (sharedSupabaseBrowserClient) {
+    return sharedSupabaseBrowserClient;
+  }
+
   const environment = getSupabaseEnvironment();
 
   if (!environment.isConfigured || !environment.url || !environment.anonKey) {
     throw new Error('Supabase environment variables are not configured.');
   }
 
-  return createClient(environment.url, environment.anonKey);
+  sharedSupabaseBrowserClient = createClient(environment.url, environment.anonKey, {
+    auth: {
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      persistSession: true,
+    },
+  });
+
+  return sharedSupabaseBrowserClient;
 }

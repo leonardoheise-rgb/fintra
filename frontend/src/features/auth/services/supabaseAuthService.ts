@@ -1,4 +1,4 @@
-import { createSupabaseBrowserClient } from '../../../shared/supabase/client';
+import { getSupabaseBrowserClient } from '../../../shared/supabase/client';
 import type { AuthCredentials, AuthSession, AuthUser } from '../auth.types';
 import type { AuthService, AuthStateListener, SignUpResult } from './authService';
 
@@ -30,7 +30,7 @@ function mapSession(session: { user: { id: string; email?: string | null } } | n
 }
 
 export function createSupabaseAuthService(): AuthService {
-  const client = createSupabaseBrowserClient();
+  const client = getSupabaseBrowserClient();
 
   return {
     mode: 'supabase',

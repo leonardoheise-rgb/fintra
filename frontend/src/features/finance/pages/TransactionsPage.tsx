@@ -52,6 +52,12 @@ export function TransactionsPage() {
         <CategoriesSummaryCard label="Expenses" value={formatCurrency(totalExpense)} />
       </section>
 
+      {financeData.errorMessage ? (
+        <section className="finance-panel">
+          <p className="finance-message finance-message--error">{financeData.errorMessage}</p>
+        </section>
+      ) : null}
+
       {financeData.status === 'loading' ? (
         <section className="finance-panel">
           <p className="finance-empty-state">Loading transactions...</p>

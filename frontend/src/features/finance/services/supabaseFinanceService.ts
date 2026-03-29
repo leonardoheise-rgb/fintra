@@ -1,4 +1,4 @@
-import { createSupabaseBrowserClient } from '../../../shared/supabase/client';
+import { getSupabaseBrowserClient } from '../../../shared/supabase/client';
 import type {
   CategoryInput,
   CategoryRecord,
@@ -49,13 +49,52 @@ function mapTransaction(record: {
   };
 }
 
+async function withTimeout<T>(operation: Promise<T>, timeoutInMilliseconds = 12000): Promise<T> {
+  let timer: number | undefined;
+
+  const timeoutPromise = new Promise<never>((_resolve, reject) => {
+    timer = window.setTimeout(() => {
+      reject(
+        new Error(
+          'Supabase is taking too long to answer. Check your migrations, RLS policies, and browser network tab.',
+        ),
+      );
+    }, timeoutInMilliseconds);
+  });
+
+  try {
+    return await Promise.race([operation, timeoutPromise]);
+  } finally {
+    if (timer) {
+      window.clearTimeout(timer);
+    }
+  }
+}
+
 export function createSupabaseFinanceService(userId: string): FinanceService {
-  const client = createSupabaseBrowserClient();
+  const client = getSupabaseBrowserClient();
 
   return {
     async getWorkspace(): Promise<FinanceWorkspace> {
-      const [{ data: categories, error: categoriesError }, { data: subcategories, error: subcategoriesError }, { data: transactions, error: transactionsError }] =
-        await Promise.all([
+      const {
+        data: { session },
+        error: sessionError,
+      } = await client.auth.getSession();
+
+      if (sessionError) {
+        throw sessionError;
+      }
+
+      if (!session) {
+        throw new Error('No active Supabase session was found. Sign out and sign in again.');
+      }
+
+      const [
+        { data: categories, error: categoriesError },
+        { data: subcategories, error: subcategoriesError },
+        { data: transactions, error: transactionsError },
+      ] = await withTimeout(
+        Promise.all([
           client.from('categories').select('id, name').eq('user_id', userId).order('name'),
           client
             .from('subcategories')
@@ -67,7 +106,8 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
             .select('id, amount, type, category_id, subcategory_id, date, description')
             .eq('user_id', userId)
             .order('date', { ascending: false }),
-        ]);
+        ]),
+      );
 
       if (categoriesError || subcategoriesError || transactionsError) {
         throw categoriesError ?? subcategoriesError ?? transactionsError;

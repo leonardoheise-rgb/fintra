@@ -3,9 +3,12 @@ dist/
 coverage/
 .vite/
 .env
+.env.*
 .env.local
 .env.*.local
 *.log
 *.tsbuildinfo
 .DS_Store
 Thumbs.db
+pw.md
+pwd.md
