@@ -1,0 +1,21 @@
+:root {
+  --color-primary: #00193c;
+  --color-primary-container: #002d62;
+  --color-primary-fixed: #d7e2ff;
+  --color-primary-fixed-dim: #abc7ff;
+  --color-secondary: #006c48;
+  --color-secondary-container: #8bf8c2;
+  --color-secondary-fixed: #8bf8c2;
+  --color-surface: #f8f9fa;
+  --color-surface-container: #edeeef;
+  --color-surface-container-low: #f3f4f5;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-highest: #e1e3e4;
+  --color-on-primary: #ffffff;
+  --color-on-surface: #191c1d;
+  --color-on-surface-variant: #43474f;
+  --color-error: #ba1a1a;
+  --color-tertiary-fixed: #ffdad7;
+  --font-headline: 'Manrope', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
