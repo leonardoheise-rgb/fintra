@@ -21,7 +21,7 @@ export function AnalyticsComparisonPanel({
   comparison,
 }: AnalyticsComparisonPanelProps) {
   return (
-    <section className="finance-panel analytics-panel">
+    <section className="finance-panel analytics-panel analytics-panel--feature">
       <div className="finance-panel__heading">
         <div>
           <p className="finance-panel__eyebrow">Comparison engine</p>

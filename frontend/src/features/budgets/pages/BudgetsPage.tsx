@@ -75,10 +75,10 @@ export function BudgetsPage() {
   }
 
   return (
-    <div className="finance-page">
+    <div className="finance-page finance-page--budgets">
       <FinancePageHeader
-        description="Define default monthly budgets, then override them for a selected month without changing the base plan. The dashboard now resolves effective values from this same screen."
-        eyebrow="Sprint 4"
+        description="Shape your monthly allowance, tune override moments, and review category pacing with the same architectural calm as the dashboard."
+        eyebrow="Monthly budgets"
         title="Budgets"
       />
 

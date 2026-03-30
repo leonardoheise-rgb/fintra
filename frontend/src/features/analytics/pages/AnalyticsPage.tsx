@@ -101,10 +101,10 @@ export function AnalyticsPage() {
   const hasActivityInSelectedRange = hasRangeActivity(monthlySeries);
 
   return (
-    <div className="finance-page">
+    <div className="finance-page finance-page--analytics">
       <FinancePageHeader
-        description="Explore historical income, expenses, savings rate, and category drift with reusable range filters and chart-ready transformations."
-        eyebrow="Sprint 5"
+        description="Read historical velocity, category drift, and savings behavior through a calmer long-view analysis surface."
+        eyebrow="Performance summary"
         title="Analytics"
       />
 

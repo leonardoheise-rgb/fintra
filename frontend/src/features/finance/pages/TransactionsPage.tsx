@@ -36,10 +36,10 @@ export function TransactionsPage() {
   }
 
   return (
-    <div className="finance-page">
+    <div className="finance-page finance-page--transactions">
       <FinancePageHeader
-        description="Create, edit, and delete records with category and subcategory assignments. Preview mode persists data locally so the full CRUD flow stays testable before Supabase tables are connected."
-        eyebrow="Sprint 2"
+        description="A definitive record of wealth circulation. Review the ledger, shape new entries, and keep every movement tied to the same live workspace."
+        eyebrow="Curation hub"
         title="Transactions"
       />
 
@@ -65,20 +65,20 @@ export function TransactionsPage() {
           <p className="finance-empty-state">Loading transactions...</p>
         </section>
       ) : (
-        <div className="finance-grid">
-          <TransactionForm
-            categories={financeData.categories}
-            onCancelEdit={() => setTransactionToEdit(null)}
-            onSubmit={handleSubmit}
-            subcategories={financeData.subcategories}
-            transactionToEdit={transactionToEdit}
-          />
+        <div className="finance-grid finance-grid--ledger">
           <TransactionsList
             categories={financeData.categories}
             onDelete={financeData.deleteTransaction}
             onEdit={setTransactionToEdit}
             subcategories={financeData.subcategories}
             transactions={sortedTransactions}
+          />
+          <TransactionForm
+            categories={financeData.categories}
+            onCancelEdit={() => setTransactionToEdit(null)}
+            onSubmit={handleSubmit}
+            subcategories={financeData.subcategories}
+            transactionToEdit={transactionToEdit}
           />
         </div>
       )}

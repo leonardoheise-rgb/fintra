@@ -3,10 +3,12 @@ import { useState } from 'react';
 import { getCurrentMonthKey } from '../../../shared/lib/date/months';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { CategoriesSummaryCard } from '../../finance/components/CategoriesSummaryCard';
+import { sortTransactionsByDateDesc } from '../../finance/lib/financeSelectors';
 import { useFinanceData } from '../../finance/useFinanceData';
 import { BudgetHighlights } from '../components/BudgetHighlights';
 import { HeroSummary } from '../components/HeroSummary';
 import { InsightsPanel } from '../components/InsightsPanel';
+import { RecentTransactionsPanel } from '../components/RecentTransactionsPanel';
 import { buildDashboardSnapshot } from '../lib/buildDashboardSnapshot';
 
 export function DashboardPage() {
@@ -30,6 +32,7 @@ export function DashboardPage() {
     },
     selectedMonth,
   );
+  const recentTransactions = sortTransactionsByDateDesc(financeData.transactions);
 
   return (
     <div className="dashboard-page">
@@ -72,7 +75,14 @@ export function DashboardPage() {
         />
       </section>
 
-      <BudgetHighlights cards={snapshot.cards} />
+      <section className="dashboard-main-grid">
+        <BudgetHighlights cards={snapshot.cards} />
+        <RecentTransactionsPanel
+          categories={financeData.categories}
+          subcategories={financeData.subcategories}
+          transactions={recentTransactions}
+        />
+      </section>
       <InsightsPanel insight={snapshot.insight} />
     </div>
   );
