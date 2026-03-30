@@ -54,7 +54,11 @@ export function BudgetOverridesList({
       ) : (
         <div className="finance-list">
           {scopedOverrides.map((budgetOverride) => (
-            <article className="budget-plan-card budget-plan-card--override" key={budgetOverride.id}>
+            <article
+              aria-label={`${getBudgetScopeLabel(categories, subcategories, budgetOverride)} override`}
+              className="budget-plan-card budget-plan-card--override"
+              key={budgetOverride.id}
+            >
               <div className="budget-plan-card__header">
                 <div>
                   <p className="budget-plan-card__eyebrow">
@@ -69,6 +73,7 @@ export function BudgetOverridesList({
 
               <div className="transaction-card__actions">
                 <button
+                  aria-label={`Edit override ${getBudgetScopeLabel(categories, subcategories, budgetOverride)}`}
                   className="secondary-button"
                   onClick={() => onEdit(budgetOverride)}
                   type="button"
@@ -76,6 +81,7 @@ export function BudgetOverridesList({
                   Edit
                 </button>
                 <button
+                  aria-label={`Reset override ${getBudgetScopeLabel(categories, subcategories, budgetOverride)}`}
                   className="secondary-button secondary-button--danger"
                   onClick={() => void onDelete(budgetOverride.id)}
                   type="button"

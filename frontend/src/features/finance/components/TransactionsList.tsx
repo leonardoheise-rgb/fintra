@@ -17,6 +17,10 @@ export function TransactionsList({
   subcategories,
   transactions,
 }: TransactionsListProps) {
+  function getTransactionTitle(transaction: TransactionRecord) {
+    return transaction.description || 'No description';
+  }
+
   return (
     <section className="finance-panel">
       <div className="finance-panel__heading">
@@ -37,7 +41,7 @@ export function TransactionsList({
               <div className="transaction-card__main">
                 <div>
                   <p className="transaction-card__eyebrow">{transaction.date}</p>
-                  <h3>{transaction.description || 'No description'}</h3>
+                  <h3>{getTransactionTitle(transaction)}</h3>
                   <p className="transaction-card__meta">
                     {getCategoryName(categories, transaction.categoryId)} ·{' '}
                     {getSubcategoryName(subcategories, transaction.subcategoryId)}
@@ -59,10 +63,16 @@ export function TransactionsList({
               </div>
 
               <div className="transaction-card__actions">
-                <button className="secondary-button" onClick={() => onEdit(transaction)} type="button">
+                <button
+                  aria-label={`Edit transaction ${getTransactionTitle(transaction)}`}
+                  className="secondary-button"
+                  onClick={() => onEdit(transaction)}
+                  type="button"
+                >
                   Edit
                 </button>
                 <button
+                  aria-label={`Delete transaction ${getTransactionTitle(transaction)}`}
                   className="secondary-button secondary-button--danger"
                   onClick={() => void onDelete(transaction.id)}
                   type="button"

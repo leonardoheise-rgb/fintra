@@ -560,4 +560,14 @@ p {
   .topbar__account {
     justify-items: start;
   }
+
+  .topbar__meta {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .topbar__signout {
+    width: 100%;
+  }
 }

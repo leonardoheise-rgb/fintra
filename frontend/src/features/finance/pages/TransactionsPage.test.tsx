@@ -33,7 +33,9 @@ describe('TransactionsPage', () => {
     expect(
       await screen.findByRole('heading', { name: /recent entries/i }, { timeout: 8000 }),
     ).toBeInTheDocument();
-    expect((await screen.findAllByRole('button', { name: /^edit$/i })).length).toBeGreaterThan(0);
+    expect(
+      (await screen.findAllByRole('button', { name: /edit transaction monthly salary/i }, { timeout: 8000 })).length,
+    ).toBeGreaterThan(0);
   }, 10000);
 
   it('creates a new transaction from the form', async () => {

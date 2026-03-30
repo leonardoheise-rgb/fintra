@@ -72,7 +72,11 @@ describe('Fintra smoke flows', () => {
 
     expect(createdTransactionCard).not.toBeNull();
 
-    await user.click(within(createdTransactionCard!).getByRole('button', { name: /^edit$/i }));
+    await user.click(
+      within(createdTransactionCard!).getByRole('button', {
+        name: /edit transaction coffee with client/i,
+      }),
+    );
     await user.clear(screen.getByLabelText(/description/i));
     await user.type(screen.getByLabelText(/description/i), 'Lunch with client');
     await user.click(screen.getByRole('button', { name: /update transaction/i }));
@@ -82,7 +86,11 @@ describe('Fintra smoke flows', () => {
 
     expect(updatedTransactionCard).not.toBeNull();
 
-    await user.click(within(updatedTransactionCard!).getByRole('button', { name: /^delete$/i }));
+    await user.click(
+      within(updatedTransactionCard!).getByRole('button', {
+        name: /delete transaction lunch with client/i,
+      }),
+    );
 
     await waitFor(() => {
       expect(screen.queryByText(/lunch with client/i)).not.toBeInTheDocument();
@@ -133,7 +141,9 @@ describe('Fintra smoke flows', () => {
 
     expect(overrideCard).not.toBeNull();
 
-    await user.click(within(overrideCard!).getByRole('button', { name: /reset to default/i }));
+    await user.click(
+      within(overrideCard!).getByRole('button', { name: /reset override transport/i }),
+    );
 
     await waitFor(() => {
       expect(

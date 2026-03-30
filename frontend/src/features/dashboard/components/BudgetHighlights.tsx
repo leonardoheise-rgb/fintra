@@ -55,7 +55,14 @@ export function BudgetHighlights({ cards }: BudgetHighlightsProps) {
                   {formatCurrency(card.spent)} spent of {formatCurrency(card.effectiveBudget)}
                 </p>
 
-                <div className="budget-card__track" aria-hidden="true">
+                <div
+                  aria-label={`${card.name} budget usage`}
+                  aria-valuemax={100}
+                  aria-valuemin={0}
+                  aria-valuenow={Math.round(summary.rawPercentage)}
+                  className="budget-card__track"
+                  role="progressbar"
+                >
                   <div
                     className={`budget-card__fill budget-card__fill--${summary.status}`}
                     style={{ width: `${summary.progressPercentage}%` }}

@@ -15,7 +15,7 @@ export function DashboardPage() {
 
   if (financeData.status === 'loading') {
     return (
-      <section className="finance-panel">
+      <section aria-live="polite" className="finance-panel">
         <p className="finance-empty-state">Loading dashboard...</p>
       </section>
     );
@@ -50,8 +50,10 @@ export function DashboardPage() {
       </section>
 
       {financeData.errorMessage ? (
-        <section className="finance-panel">
-          <p className="finance-message finance-message--error">{financeData.errorMessage}</p>
+        <section aria-live="assertive" className="finance-panel">
+          <p className="finance-message finance-message--error" role="alert">
+            {financeData.errorMessage}
+          </p>
         </section>
       ) : null}
 

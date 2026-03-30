@@ -58,7 +58,11 @@ export function BudgetsList({
       ) : (
         <div className="finance-list">
           {sortedBudgets.map((budget) => (
-            <article className="budget-plan-card" key={budget.id}>
+            <article
+              aria-label={`${getBudgetScopeLabel(categories, subcategories, budget)} default budget`}
+              className="budget-plan-card"
+              key={budget.id}
+            >
               <div className="budget-plan-card__header">
                 <div>
                   <p className="budget-plan-card__eyebrow">{getBudgetScopeTypeLabel(budget)}</p>
@@ -78,10 +82,16 @@ export function BudgetsList({
               ) : null}
 
               <div className="transaction-card__actions">
-                <button className="secondary-button" onClick={() => onEdit(budget)} type="button">
+                <button
+                  aria-label={`Edit budget ${getBudgetScopeLabel(categories, subcategories, budget)}`}
+                  className="secondary-button"
+                  onClick={() => onEdit(budget)}
+                  type="button"
+                >
                   Edit
                 </button>
                 <button
+                  aria-label={`Delete budget ${getBudgetScopeLabel(categories, subcategories, budget)}`}
                   className="secondary-button secondary-button--danger"
                   onClick={() => void onDelete(budget.id)}
                   type="button"

@@ -33,5 +33,6 @@ describe('DashboardPage', () => {
       await screen.findByRole('heading', { name: /^housing$/i, level: 4 }, { timeout: 8000 }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText(/selected month/i)).toBeInTheDocument();
+    expect(screen.getByRole('progressbar', { name: /housing budget usage/i })).toBeInTheDocument();
   });
 });

@@ -53,13 +53,15 @@ export function TransactionsPage() {
       </section>
 
       {financeData.errorMessage ? (
-        <section className="finance-panel">
-          <p className="finance-message finance-message--error">{financeData.errorMessage}</p>
+        <section aria-live="assertive" className="finance-panel">
+          <p className="finance-message finance-message--error" role="alert">
+            {financeData.errorMessage}
+          </p>
         </section>
       ) : null}
 
       {financeData.status === 'loading' ? (
-        <section className="finance-panel">
+        <section aria-live="polite" className="finance-panel">
           <p className="finance-empty-state">Loading transactions...</p>
         </section>
       ) : (

@@ -481,3 +481,25 @@
     grid-column: auto;
   }
 }
+
+@media (max-width: 640px) {
+  .transaction-card__main,
+  .category-card__header,
+  .budget-plan-card__header {
+    flex-direction: column;
+  }
+
+  .transaction-card__amounts {
+    justify-items: start;
+  }
+
+  .transaction-card__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .transaction-card__actions .secondary-button,
+  .transaction-card__actions .primary-button {
+    width: 100%;
+  }
+}
