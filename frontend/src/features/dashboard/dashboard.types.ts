@@ -3,7 +3,10 @@ export type BudgetCard = {
   name: string;
   shortLabel: string;
   defaultBudget: number;
+  effectiveBudget: number;
   spent: number;
+  overrideAmount: number | null;
+  isOverridden: boolean;
 };
 
 export type DashboardSnapshot = {

@@ -1,14 +1,17 @@
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import type {
+  BudgetOverrideRecord,
   BudgetRecord,
   CategoryRecord,
   TransactionRecord,
 } from '../../finance/finance.types';
+import { resolveEffectiveBudgets } from '../../budgets/lib/effectiveBudgetResolver';
 import type { BudgetCard, DashboardSnapshot } from '../dashboard.types';
 
 type DashboardSource = {
   categories: CategoryRecord[];
   budgets: BudgetRecord[];
+  budgetOverrides: BudgetOverrideRecord[];
   transactions: TransactionRecord[];
 };
 
@@ -55,18 +58,38 @@ function getExpenseTotalForCategory(
 function buildBudgetCards(
   categories: CategoryRecord[],
   budgets: BudgetRecord[],
+  budgetOverrides: BudgetOverrideRecord[],
   transactions: TransactionRecord[],
+  month: string,
 ): BudgetCard[] {
+  const effectiveBudgets = resolveEffectiveBudgets(budgets, budgetOverrides, month);
+
   return categories
     .map((category) => ({
       id: category.id,
       name: category.name,
       shortLabel: buildShortLabel(category.name),
       defaultBudget: getBudgetTotalForCategory(budgets, category.id),
+      effectiveBudget: sumValues(
+        effectiveBudgets
+          .filter((item) => item.categoryId === category.id)
+          .map((item) => item.effectiveAmount),
+      ),
+      overrideAmount: sumValues(
+        effectiveBudgets
+          .filter((item) => item.categoryId === category.id && item.isOverridden)
+          .map((item) => item.overrideAmount ?? 0),
+      ) || null,
+      isOverridden: effectiveBudgets.some(
+        (item) => item.categoryId === category.id && item.isOverridden,
+      ),
       spent: getExpenseTotalForCategory(transactions, category.id),
     }))
-    .filter((card) => card.defaultBudget > 0)
-    .sort((left, right) => right.defaultBudget - left.defaultBudget || left.name.localeCompare(right.name));
+    .filter((card) => card.effectiveBudget > 0)
+    .sort(
+      (left, right) =>
+        right.effectiveBudget - left.effectiveBudget || left.name.localeCompare(right.name),
+    );
 }
 
 function calculateAverageMonthlyExpenses(transactions: TransactionRecord[]) {
@@ -100,7 +123,7 @@ function buildInsight(cards: BudgetCard[], remainingBudget: number) {
 
   if (highestOverageCard) {
     return `${highestOverageCard.name} is over plan by ${formatCurrency(
-      highestOverageCard.spent - highestOverageCard.defaultBudget,
+      highestOverageCard.spent - highestOverageCard.effectiveBudget,
     )}. Tighten that lane first.`;
   }
 
@@ -129,8 +152,14 @@ export function buildDashboardSnapshot(
   month: string,
 ): DashboardSnapshot {
   const monthlyTransactions = filterTransactionsByMonth(source.transactions, month);
-  const cards = buildBudgetCards(source.categories, source.budgets, monthlyTransactions);
-  const totalBudget = sumValues(cards.map((card) => card.defaultBudget));
+  const cards = buildBudgetCards(
+    source.categories,
+    source.budgets,
+    source.budgetOverrides,
+    monthlyTransactions,
+    month,
+  );
+  const totalBudget = sumValues(cards.map((card) => card.effectiveBudget));
   const totalIncome = sumValues(
     monthlyTransactions
       .filter((item) => item.type === 'income')

@@ -38,17 +38,50 @@ describe('BudgetsPage', () => {
 
     renderAppAtPath('/budgets', authService.service);
 
+    const [defaultCategorySelect] = await screen.findAllByLabelText(/^category$/i, {}, { timeout: 3000 });
+    const [defaultSubcategorySelect] = screen.getAllByLabelText(/subcategory/i);
+    const [defaultAmountInput] = screen.getAllByLabelText(/^amount$/i);
+
     await user.selectOptions(
-      await screen.findByLabelText(/^category$/i, {}, { timeout: 3000 }),
+      defaultCategorySelect,
       'category-transport',
     );
-    await user.selectOptions(screen.getByLabelText(/subcategory/i), 'subcategory-transit');
-    await user.clear(screen.getByLabelText(/amount/i));
-    await user.type(screen.getByLabelText(/amount/i), '90');
+    await user.selectOptions(defaultSubcategorySelect, 'subcategory-transit');
+    await user.clear(defaultAmountInput);
+    await user.type(defaultAmountInput, '90');
     await user.click(screen.getByRole('button', { name: /create default budget/i }));
 
     expect(
       await screen.findByRole('heading', { name: /transport \/ transit/i, level: 3 }, { timeout: 3000 }),
     ).toBeInTheDocument();
+  });
+
+  it('creates a monthly override and shows it in the override list', async () => {
+    const user = userEvent.setup();
+    const authService = createAuthServiceStub({
+      initialSession: {
+        user: {
+          id: 'user-1',
+          email: 'owner@fintra.dev',
+        },
+      },
+    });
+
+    renderAppAtPath('/budgets', authService.service);
+
+    expect(await screen.findByText('1')).toBeInTheDocument();
+
+    const [, overrideCategorySelect] = await screen.findAllByLabelText(/^category$/i, {}, { timeout: 3000 });
+    const [, overrideSubcategorySelect] = screen.getAllByLabelText(/subcategory/i);
+    const [, overrideAmountInput] = screen.getAllByLabelText(/^amount$/i);
+
+    await user.selectOptions(overrideCategorySelect, 'category-transport');
+    await user.clear(overrideAmountInput);
+    await user.type(overrideAmountInput, '120');
+    await user.click(screen.getByRole('button', { name: /create monthly override/i }));
+
+    expect(overrideSubcategorySelect).toHaveValue('');
+    expect(await screen.findByText('2')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /^march 2026 overrides$/i })).toBeInTheDocument();
   });
 });

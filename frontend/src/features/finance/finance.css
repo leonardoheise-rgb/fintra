@@ -190,6 +190,16 @@
   letter-spacing: -0.05em;
 }
 
+.budget-plan-card__status {
+  color: var(--color-secondary);
+  font-weight: 700;
+}
+
+.budget-plan-card--override {
+  border: 1px solid rgba(62, 94, 149, 0.14);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(215, 226, 255, 0.48));
+}
+
 .transaction-card__amounts {
   display: grid;
   gap: 0.25rem;

@@ -1,8 +1,10 @@
 import type {
+  BudgetOverrideRecord,
   BudgetRecord,
   CategoryRecord,
   SubcategoryRecord,
 } from '../../finance/finance.types';
+import { getBudgetScopeKey } from '../lib/effectiveBudgetResolver';
 import {
   calculateAllocatedBudget,
   formatBudgetAmount,
@@ -12,21 +14,30 @@ import {
 } from '../lib/budgetSelectors';
 
 type BudgetsListProps = {
+  budgetOverrides: BudgetOverrideRecord[];
   budgets: BudgetRecord[];
   categories: CategoryRecord[];
+  month: string;
   onDelete(budgetId: string): Promise<void>;
   onEdit(budget: BudgetRecord): void;
   subcategories: SubcategoryRecord[];
 };
 
 export function BudgetsList({
+  budgetOverrides,
   budgets,
   categories,
+  month,
   onDelete,
   onEdit,
   subcategories,
 }: BudgetsListProps) {
   const sortedBudgets = sortBudgetsByScope(budgets, categories, subcategories);
+  const overrideScopeKeys = new Set(
+    budgetOverrides
+      .filter((item) => item.month === month)
+      .map((item) => getBudgetScopeKey(item.categoryId, item.subcategoryId)),
+  );
 
   return (
     <section className="finance-panel">
@@ -57,6 +68,14 @@ export function BudgetsList({
                   {formatBudgetAmount(budget.amount)}
                 </strong>
               </div>
+
+              {overrideScopeKeys.has(
+                getBudgetScopeKey(budget.categoryId, budget.subcategoryId),
+              ) ? (
+                <p className="budget-plan-card__status">
+                  Override active for {month}
+                </p>
+              ) : null}
 
               <div className="transaction-card__actions">
                 <button className="secondary-button" onClick={() => onEdit(budget)} type="button">

@@ -1,5 +1,6 @@
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import type {
+  BudgetOverrideRecord,
   BudgetRecord,
   CategoryRecord,
   SubcategoryRecord,
@@ -12,7 +13,7 @@ import {
 export function getBudgetScopeLabel(
   categories: CategoryRecord[],
   subcategories: SubcategoryRecord[],
-  budget: BudgetRecord,
+  budget: Pick<BudgetRecord, 'categoryId' | 'subcategoryId'>,
 ) {
   const categoryName = getCategoryName(categories, budget.categoryId);
 
@@ -23,7 +24,9 @@ export function getBudgetScopeLabel(
   return `${categoryName} / ${getSubcategoryName(subcategories, budget.subcategoryId)}`;
 }
 
-export function getBudgetScopeTypeLabel(budget: BudgetRecord) {
+export function getBudgetScopeTypeLabel(
+  budget: Pick<BudgetRecord, 'subcategoryId'>,
+) {
   return budget.subcategoryId ? 'Subcategory budget' : 'Category budget';
 }
 
@@ -42,6 +45,25 @@ export function sortBudgetsByScope(
 
 export function calculateAllocatedBudget(budgets: BudgetRecord[]) {
   return budgets.reduce((total, budget) => total + budget.amount, 0);
+}
+
+export function calculateAllocatedOverrideBudget(
+  budgetOverrides: BudgetOverrideRecord[],
+) {
+  return budgetOverrides.reduce((total, budgetOverride) => total + budgetOverride.amount, 0);
+}
+
+export function sortBudgetOverridesByScope(
+  budgetOverrides: BudgetOverrideRecord[],
+  categories: CategoryRecord[],
+  subcategories: SubcategoryRecord[],
+) {
+  return [...budgetOverrides].sort((left, right) => {
+    const leftLabel = getBudgetScopeLabel(categories, subcategories, left);
+    const rightLabel = getBudgetScopeLabel(categories, subcategories, right);
+
+    return leftLabel.localeCompare(rightLabel);
+  });
 }
 
 export function formatBudgetAmount(amount: number) {

@@ -24,6 +24,7 @@ export function DashboardPage() {
     {
       categories: financeData.categories,
       budgets: financeData.budgets,
+      budgetOverrides: financeData.budgetOverrides,
       transactions: financeData.transactions,
     },
     selectedMonth,

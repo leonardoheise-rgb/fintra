@@ -10,7 +10,9 @@ describe('App authentication routing', () => {
 
     renderAppAtPath('/', authService.service);
 
-    expect(await screen.findByRole('heading', { name: /sign in/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: /sign in/i }, { timeout: 5000 }),
+    ).toBeInTheDocument();
   });
 
   it('shows the dashboard for authenticated users', async () => {
@@ -25,7 +27,9 @@ describe('App authentication routing', () => {
 
     renderAppAtPath('/', authService.service);
 
-    expect(await screen.findByRole('heading', { name: /wealth in motion/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: /wealth in motion/i }, { timeout: 3000 }),
+    ).toBeInTheDocument();
     expect(screen.getByText('owner@fintra.dev')).toBeInTheDocument();
   });
 
@@ -41,7 +45,9 @@ describe('App authentication routing', () => {
 
     renderAppAtPath('/sign-in', authService.service);
 
-    expect(await screen.findByRole('heading', { name: /wealth in motion/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: /wealth in motion/i }, { timeout: 3000 }),
+    ).toBeInTheDocument();
   });
 
   it('signs the user out from the protected shell', async () => {

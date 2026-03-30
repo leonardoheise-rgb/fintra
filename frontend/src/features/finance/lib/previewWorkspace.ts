@@ -69,5 +69,14 @@ export function createPreviewWorkspace(): FinanceWorkspace {
         amount: 260,
       },
     ],
+    budgetOverrides: [
+      {
+        id: 'budget-override-restaurants-march',
+        categoryId: 'category-food',
+        subcategoryId: 'subcategory-restaurants',
+        month: '2026-03',
+        amount: 320,
+      },
+    ],
   };
 }

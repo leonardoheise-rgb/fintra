@@ -2,6 +2,7 @@ import { createContext } from 'react';
 
 import type {
   BudgetInput,
+  BudgetOverrideInput,
   CategoryInput,
   FinanceWorkspace,
   SubcategoryInput,
@@ -27,6 +28,9 @@ export type FinanceDataContextValue = FinanceWorkspace & {
   createBudget(input: BudgetInput): Promise<void>;
   updateBudget(budgetId: string, input: BudgetInput): Promise<void>;
   deleteBudget(budgetId: string): Promise<void>;
+  createBudgetOverride(input: BudgetOverrideInput): Promise<void>;
+  updateBudgetOverride(budgetOverrideId: string, input: BudgetOverrideInput): Promise<void>;
+  deleteBudgetOverride(budgetOverrideId: string): Promise<void>;
 };
 
 export const FinanceDataContext = createContext<FinanceDataContextValue | undefined>(undefined);

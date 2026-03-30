@@ -1,5 +1,10 @@
 import { buildDashboardSnapshot, filterTransactionsByMonth } from './buildDashboardSnapshot';
-import type { BudgetRecord, CategoryRecord, TransactionRecord } from '../../finance/finance.types';
+import type {
+  BudgetOverrideRecord,
+  BudgetRecord,
+  CategoryRecord,
+  TransactionRecord,
+} from '../../finance/finance.types';
 
 const categories: CategoryRecord[] = [
   { id: 'category-salary', name: 'Salary' },
@@ -19,6 +24,16 @@ const budgets: BudgetRecord[] = [
     categoryId: 'category-food',
     subcategoryId: null,
     amount: 600,
+  },
+];
+
+const budgetOverrides: BudgetOverrideRecord[] = [
+  {
+    id: 'budget-override-food',
+    categoryId: 'category-food',
+    subcategoryId: null,
+    month: '2026-03',
+    amount: 750,
   },
 ];
 
@@ -72,15 +87,16 @@ describe('buildDashboardSnapshot', () => {
       {
         categories,
         budgets,
+        budgetOverrides,
         transactions,
       },
       '2026-03',
     );
 
-    expect(snapshot.totalBudget).toBe(3100);
+    expect(snapshot.totalBudget).toBe(3250);
     expect(snapshot.totalIncome).toBe(6500);
     expect(snapshot.totalExpenses).toBe(2280);
-    expect(snapshot.remainingBudget).toBe(820);
+    expect(snapshot.remainingBudget).toBe(970);
     expect(snapshot.remainingBalance).toBe(4220);
     expect(snapshot.averageMonthlyExpenses).toBe(1250);
     expect(snapshot.cards).toEqual([
@@ -89,6 +105,9 @@ describe('buildDashboardSnapshot', () => {
         name: 'Housing',
         shortLabel: 'H',
         defaultBudget: 2500,
+        effectiveBudget: 2500,
+        overrideAmount: null,
+        isOverridden: false,
         spent: 2100,
       },
       {
@@ -96,6 +115,9 @@ describe('buildDashboardSnapshot', () => {
         name: 'Food and dining',
         shortLabel: 'FD',
         defaultBudget: 600,
+        effectiveBudget: 750,
+        overrideAmount: 750,
+        isOverridden: true,
         spent: 180,
       },
     ]);
@@ -106,6 +128,7 @@ describe('buildDashboardSnapshot', () => {
       {
         categories,
         budgets: [],
+        budgetOverrides: [],
         transactions,
       },
       '2026-03',

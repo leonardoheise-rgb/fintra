@@ -1,6 +1,6 @@
 # Testing Guide
 
-This guide covers the current phase 3 testing flow for Fintra.
+This guide covers the current phase 4 testing flow for Fintra.
 
 ## Automated checks
 
@@ -41,10 +41,11 @@ npm run build
 The current suite validates:
 
 - app bootstrapping and key dashboard shell content
-- live dashboard snapshot calculations
+- live dashboard snapshot calculations, including monthly overrides
 - default budget route rendering and CRUD behavior
+- monthly budget override rendering and CRUD behavior
 - category and transaction route rendering
-- category, transaction, and budget preview persistence rules
+- category, transaction, budget, and budget override preview persistence rules
 - budget summary calculation behavior
 - currency formatting behavior
 - month label formatting behavior
@@ -68,6 +69,7 @@ If Supabase is configured, make sure the budget migration has also been applied:
 - `database/migrations/20260329194000_create_transactions.sql`
 - `database/migrations/20260329195000_enable_finance_rls.sql`
 - `database/migrations/20260329201000_create_budgets.sql`
+- `database/migrations/20260330091000_create_budget_overrides.sql`
 
 ### Browser checks
 
@@ -87,11 +89,14 @@ If Supabase is configured, make sure the budget migration has also been applied:
 14. Delete a transaction and confirm it disappears from the ledger.
 15. Open `/budgets` and confirm preview budgets such as Housing are visible.
 16. Create a default budget and confirm it appears immediately in the list.
-17. Return to `/` and confirm the dashboard shows live budget cards instead of placeholder-only content.
-18. Change the selected month on the dashboard and confirm the page stays stable even if the numbers change.
-19. Confirm signing out returns you to the sign-in page.
-20. Confirm the layout remains readable on a narrow browser width similar to a phone.
-21. Confirm there are no obvious overlapping panels, clipped text, or horizontal scrollbars.
+17. On `/budgets`, create a monthly override for the current month and confirm it appears in the override list.
+18. Confirm the matching default budget shows an override status for that selected month.
+19. Return to `/` and confirm the dashboard shows live budget cards instead of placeholder-only content.
+20. Change the selected month on the dashboard and confirm the page stays stable even if the numbers change.
+21. Confirm a month with an override changes the effective budget totals compared with a month without one.
+22. Confirm signing out returns you to the sign-in page.
+23. Confirm the layout remains readable on a narrow browser width similar to a phone.
+24. Confirm there are no obvious overlapping panels, clipped text, or horizontal scrollbars.
 
 ### Regression checks after UI edits
 
@@ -108,7 +113,7 @@ Add new unit tests when:
 - a formatter or calculator gets new logic
 - a shared component gains branching behavior
 - finance service validation or persistence rules change
-- dashboard month aggregation or budget calculations change
+- dashboard month aggregation, override resolution, or budget calculations change
 - a bug fix changes rendered output or validation rules
 
 When auth and data flows are added, expand this guide with route protection, loading state, and form validation checks.

@@ -18,6 +18,7 @@ const emptyWorkspace: FinanceWorkspace = {
   subcategories: [],
   transactions: [],
   budgets: [],
+  budgetOverrides: [],
 };
 
 function normalizeServiceError(error: unknown) {
@@ -126,6 +127,9 @@ export function FinanceDataProvider({ children, service }: FinanceDataProviderPr
         async createBudget() {},
         async updateBudget() {},
         async deleteBudget() {},
+        async createBudgetOverride() {},
+        async updateBudgetOverride() {},
+        async deleteBudgetOverride() {},
       };
     }
 
@@ -210,6 +214,24 @@ export function FinanceDataProvider({ children, service }: FinanceDataProviderPr
       async deleteBudget(budgetId) {
         await runMutation(async () => {
           await financeService.deleteBudget(budgetId);
+          await loadWorkspace(financeService);
+        });
+      },
+      async createBudgetOverride(input) {
+        await runMutation(async () => {
+          await financeService.createBudgetOverride(input);
+          await loadWorkspace(financeService);
+        });
+      },
+      async updateBudgetOverride(budgetOverrideId, input) {
+        await runMutation(async () => {
+          await financeService.updateBudgetOverride(budgetOverrideId, input);
+          await loadWorkspace(financeService);
+        });
+      },
+      async deleteBudgetOverride(budgetOverrideId) {
+        await runMutation(async () => {
+          await financeService.deleteBudgetOverride(budgetOverrideId);
           await loadWorkspace(financeService);
         });
       },

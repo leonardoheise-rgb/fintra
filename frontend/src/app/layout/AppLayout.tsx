@@ -57,8 +57,8 @@ export function AppLayout({ children }: PropsWithChildren) {
         </nav>
 
         <div className="sidebar__footnote">
-          Phase 3 budgeting
-          <span>Default budgets and the live monthly dashboard are now wired into the app shell.</span>
+          Phase 4 overrides
+          <span>Monthly overrides now sit on top of default budgets and feed the same dashboard math.</span>
         </div>
       </aside>
 

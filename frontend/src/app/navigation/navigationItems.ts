@@ -23,7 +23,7 @@ export const navigationItems = [
   {
     label: 'Budgets',
     shortLabel: 'BG',
-    description: 'Define default monthly plans by category and subcategory.',
+    description: 'Define defaults and monthly overrides by category and subcategory.',
     href: '/budgets',
     isEnabled: true,
   },

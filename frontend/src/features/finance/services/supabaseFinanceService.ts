@@ -1,6 +1,8 @@
 import { getSupabaseBrowserClient } from '../../../shared/supabase/client';
 import type {
   BudgetInput,
+  BudgetOverrideInput,
+  BudgetOverrideRecord,
   BudgetRecord,
   CategoryInput,
   CategoryRecord,
@@ -65,6 +67,22 @@ function mapBudget(record: {
   };
 }
 
+function mapBudgetOverride(record: {
+  id: string;
+  category_id: string;
+  subcategory_id: string | null;
+  month: string;
+  amount: number;
+}): BudgetOverrideRecord {
+  return {
+    id: record.id,
+    categoryId: record.category_id,
+    subcategoryId: record.subcategory_id,
+    month: record.month,
+    amount: Number(record.amount),
+  };
+}
+
 async function withTimeout<T>(operation: Promise<T>, timeoutInMilliseconds = 12000): Promise<T> {
   let timer: number | undefined;
 
@@ -110,6 +128,7 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
         { data: subcategories, error: subcategoriesError },
         { data: transactions, error: transactionsError },
         { data: budgets, error: budgetsError },
+        { data: budgetOverrides, error: budgetOverridesError },
       ] = await withTimeout(
         Promise.all([
           client.from('categories').select('id, name').eq('user_id', userId).order('name'),
@@ -128,11 +147,28 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
             .select('id, category_id, subcategory_id, amount')
             .eq('user_id', userId)
             .order('amount', { ascending: false }),
+          client
+            .from('budget_overrides')
+            .select('id, category_id, subcategory_id, month, amount')
+            .eq('user_id', userId)
+            .order('month', { ascending: false }),
         ]),
       );
 
-      if (categoriesError || subcategoriesError || transactionsError || budgetsError) {
-        throw categoriesError ?? subcategoriesError ?? transactionsError ?? budgetsError;
+      if (
+        categoriesError ||
+        subcategoriesError ||
+        transactionsError ||
+        budgetsError ||
+        budgetOverridesError
+      ) {
+        throw (
+          categoriesError ??
+          subcategoriesError ??
+          transactionsError ??
+          budgetsError ??
+          budgetOverridesError
+        );
       }
 
       return {
@@ -140,6 +176,7 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
         subcategories: (subcategories ?? []).map(mapSubcategory),
         transactions: (transactions ?? []).map(mapTransaction),
         budgets: (budgets ?? []).map(mapBudget),
+        budgetOverrides: (budgetOverrides ?? []).map(mapBudgetOverride),
       };
     },
     async createCategory(input: CategoryInput) {
@@ -301,6 +338,57 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
       return mapBudget(data);
     },
     async updateBudget(budgetId: string, input: BudgetInput) {
+      const { data: existingBudget, error: existingBudgetError } = await client
+        .from('budgets')
+        .select('category_id, subcategory_id')
+        .eq('id', budgetId)
+        .eq('user_id', userId)
+        .single();
+
+      if (existingBudgetError) {
+        throw existingBudgetError;
+      }
+
+      const scopeChanged =
+        existingBudget.category_id !== input.categoryId ||
+        existingBudget.subcategory_id !== input.subcategoryId;
+
+      if (scopeChanged) {
+        let overrideCount = 0;
+
+        if (existingBudget.subcategory_id === null) {
+          const { count, error: overridesCountError } = await client
+            .from('budget_overrides')
+            .select('id', { count: 'exact', head: true })
+            .eq('user_id', userId)
+            .eq('category_id', existingBudget.category_id)
+            .is('subcategory_id', null);
+
+          if (overridesCountError) {
+            throw overridesCountError;
+          }
+
+          overrideCount = count ?? 0;
+        } else {
+          const { count, error: overridesCountError } = await client
+            .from('budget_overrides')
+            .select('id', { count: 'exact', head: true })
+            .eq('user_id', userId)
+            .eq('category_id', existingBudget.category_id)
+            .eq('subcategory_id', existingBudget.subcategory_id);
+
+          if (overridesCountError) {
+            throw overridesCountError;
+          }
+
+          overrideCount = count ?? 0;
+        }
+
+        if (overrideCount > 0) {
+          throw new Error('Reset related monthly overrides before changing this budget scope.');
+        }
+      }
+
       const { data, error } = await client
         .from('budgets')
         .update({
@@ -320,7 +408,169 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
       return mapBudget(data);
     },
     async deleteBudget(budgetId: string) {
+      const { data: existingBudget, error: existingBudgetError } = await client
+        .from('budgets')
+        .select('category_id, subcategory_id')
+        .eq('id', budgetId)
+        .eq('user_id', userId)
+        .single();
+
+      if (existingBudgetError) {
+        throw existingBudgetError;
+      }
+
+      let overrideCount = 0;
+
+      if (existingBudget.subcategory_id === null) {
+        const { count, error: overridesCountError } = await client
+          .from('budget_overrides')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('category_id', existingBudget.category_id)
+          .is('subcategory_id', null);
+
+        if (overridesCountError) {
+          throw overridesCountError;
+        }
+
+        overrideCount = count ?? 0;
+      } else {
+        const { count, error: overridesCountError } = await client
+          .from('budget_overrides')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('category_id', existingBudget.category_id)
+          .eq('subcategory_id', existingBudget.subcategory_id);
+
+        if (overridesCountError) {
+          throw overridesCountError;
+        }
+
+        overrideCount = count ?? 0;
+      }
+
+      if (overrideCount > 0) {
+        throw new Error('Delete related budget overrides before removing this budget.');
+      }
+
       const { error } = await client.from('budgets').delete().eq('id', budgetId).eq('user_id', userId);
+
+      if (error) {
+        throw error;
+      }
+    },
+    async createBudgetOverride(input: BudgetOverrideInput) {
+      if (input.subcategoryId === null) {
+        const { count, error } = await client
+          .from('budgets')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('category_id', input.categoryId)
+          .is('subcategory_id', null);
+
+        if (error) {
+          throw error;
+        }
+
+        if ((count ?? 0) === 0) {
+          throw new Error('Create the default budget before adding a monthly override.');
+        }
+      } else {
+        const { count, error } = await client
+          .from('budgets')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('category_id', input.categoryId)
+          .eq('subcategory_id', input.subcategoryId);
+
+        if (error) {
+          throw error;
+        }
+
+        if ((count ?? 0) === 0) {
+          throw new Error('Create the default budget before adding a monthly override.');
+        }
+      }
+
+      const { data, error } = await client
+        .from('budget_overrides')
+        .insert({
+          user_id: userId,
+          category_id: input.categoryId,
+          subcategory_id: input.subcategoryId,
+          month: input.month,
+          amount: input.amount,
+        })
+        .select('id, category_id, subcategory_id, month, amount')
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      return mapBudgetOverride(data);
+    },
+    async updateBudgetOverride(
+      budgetOverrideId: string,
+      input: BudgetOverrideInput,
+    ) {
+      if (input.subcategoryId === null) {
+        const { count, error } = await client
+          .from('budgets')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('category_id', input.categoryId)
+          .is('subcategory_id', null);
+
+        if (error) {
+          throw error;
+        }
+
+        if ((count ?? 0) === 0) {
+          throw new Error('Create the default budget before adding a monthly override.');
+        }
+      } else {
+        const { count, error } = await client
+          .from('budgets')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('category_id', input.categoryId)
+          .eq('subcategory_id', input.subcategoryId);
+
+        if (error) {
+          throw error;
+        }
+
+        if ((count ?? 0) === 0) {
+          throw new Error('Create the default budget before adding a monthly override.');
+        }
+      }
+
+      const { data, error } = await client
+        .from('budget_overrides')
+        .update({
+          category_id: input.categoryId,
+          subcategory_id: input.subcategoryId,
+          month: input.month,
+          amount: input.amount,
+        })
+        .eq('id', budgetOverrideId)
+        .eq('user_id', userId)
+        .select('id, category_id, subcategory_id, month, amount')
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      return mapBudgetOverride(data);
+    },
+    async deleteBudgetOverride(budgetOverrideId: string) {
+      const { error } = await client
+        .from('budget_overrides')
+        .delete()
+        .eq('id', budgetOverrideId)
+        .eq('user_id', userId);
 
       if (error) {
         throw error;

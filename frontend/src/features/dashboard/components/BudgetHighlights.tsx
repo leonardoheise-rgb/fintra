@@ -32,7 +32,7 @@ export function BudgetHighlights({ cards }: BudgetHighlightsProps) {
         <div className="budget-grid">
           {cards.map((card) => {
             const summary = calculateBudgetSummary({
-              budget: card.defaultBudget,
+              budget: card.effectiveBudget,
               spent: card.spent,
             });
 
@@ -43,14 +43,16 @@ export function BudgetHighlights({ cards }: BudgetHighlightsProps) {
                     {card.shortLabel}
                   </div>
                   <div>
-                    <p className="budget-card__eyebrow">Default budget</p>
+                    <p className="budget-card__eyebrow">
+                      {card.isOverridden ? 'Monthly override' : 'Default budget'}
+                    </p>
                     <h4>{card.name}</h4>
                   </div>
                 </div>
 
                 <p className="budget-card__amount">{formatCurrency(summary.remaining)}</p>
                 <p className="budget-card__caption">
-                  {formatCurrency(card.spent)} spent of {formatCurrency(card.defaultBudget)}
+                  {formatCurrency(card.spent)} spent of {formatCurrency(card.effectiveBudget)}
                 </p>
 
                 <div className="budget-card__track" aria-hidden="true">
@@ -62,7 +64,13 @@ export function BudgetHighlights({ cards }: BudgetHighlightsProps) {
 
                 <div className="budget-card__footer">
                   <span>{Math.round(summary.rawPercentage)}% used</span>
-                  <span>{summary.status === 'over' ? 'Needs attention' : 'On track'}</span>
+                  <span>
+                    {card.isOverridden
+                      ? `Override active from ${formatCurrency(card.defaultBudget)}`
+                      : summary.status === 'over'
+                        ? 'Needs attention'
+                        : 'On track'}
+                  </span>
                 </div>
               </article>
             );

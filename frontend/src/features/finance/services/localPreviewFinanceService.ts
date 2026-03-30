@@ -2,6 +2,8 @@ import { createLocalId } from '../lib/createLocalId';
 import { createPreviewWorkspace } from '../lib/previewWorkspace';
 import type {
   BudgetInput,
+  BudgetOverrideInput,
+  BudgetOverrideRecord,
   BudgetRecord,
   CategoryInput,
   CategoryRecord,
@@ -11,6 +13,10 @@ import type {
   TransactionInput,
   TransactionRecord,
 } from '../finance.types';
+import {
+  findBudgetForOverrideScope,
+  isValidBudgetMonth,
+} from '../../budgets/lib/effectiveBudgetResolver';
 import type { FinanceService } from './financeService';
 
 type PreviewFinanceStore = FinanceWorkspace;
@@ -59,6 +65,20 @@ function ensureValidBudget(input: BudgetInput) {
   }
 }
 
+function ensureValidBudgetOverride(input: BudgetOverrideInput) {
+  if (!input.categoryId) {
+    throw new Error('A category is required.');
+  }
+
+  if (!isValidBudgetMonth(input.month)) {
+    throw new Error('Override month must use the YYYY-MM format.');
+  }
+
+  if (Number.isNaN(input.amount) || input.amount <= 0) {
+    throw new Error('Override amount must be greater than zero.');
+  }
+}
+
 function readWorkspace(userId: string): PreviewFinanceStore {
   const rawValue = window.localStorage.getItem(getStorageKey(userId));
 
@@ -69,7 +89,15 @@ function readWorkspace(userId: string): PreviewFinanceStore {
   }
 
   try {
-    return JSON.parse(rawValue) as PreviewFinanceStore;
+    const parsedValue = JSON.parse(rawValue) as Partial<PreviewFinanceStore>;
+
+    return {
+      categories: parsedValue.categories ?? [],
+      subcategories: parsedValue.subcategories ?? [],
+      transactions: parsedValue.transactions ?? [],
+      budgets: parsedValue.budgets ?? [],
+      budgetOverrides: parsedValue.budgetOverrides ?? [],
+    };
   } catch {
     const seededWorkspace = createPreviewWorkspace();
     writeWorkspace(userId, seededWorkspace);
@@ -125,6 +153,20 @@ function hasMatchingBudgetScope(
       item.id !== excludedBudgetId &&
       item.categoryId === input.categoryId &&
       item.subcategoryId === input.subcategoryId,
+  );
+}
+
+function hasMatchingBudgetOverrideScope(
+  budgetOverrides: BudgetOverrideRecord[],
+  input: BudgetOverrideInput,
+  excludedBudgetOverrideId?: string,
+) {
+  return budgetOverrides.some(
+    (item) =>
+      item.id !== excludedBudgetOverrideId &&
+      item.categoryId === input.categoryId &&
+      item.subcategoryId === input.subcategoryId &&
+      item.month === input.month,
   );
 }
 
@@ -197,6 +239,10 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
 
       if (workspace.budgets.some((item) => item.categoryId === categoryId)) {
         throw new Error('Delete related budgets before removing this category.');
+      }
+
+      if (workspace.budgetOverrides.some((item) => item.categoryId === categoryId)) {
+        throw new Error('Delete related budget overrides before removing this category.');
       }
 
       writeWorkspace(userId, {
@@ -284,6 +330,10 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
 
       if (workspace.budgets.some((item) => item.subcategoryId === subcategoryId)) {
         throw new Error('Delete related budgets before removing this subcategory.');
+      }
+
+      if (workspace.budgetOverrides.some((item) => item.subcategoryId === subcategoryId)) {
+        throw new Error('Delete related budget overrides before removing this subcategory.');
       }
 
       writeWorkspace(userId, {
@@ -407,6 +457,21 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
         throw new Error('A default budget already exists for this scope.');
       }
 
+      const scopeChanged =
+        existingBudget.categoryId !== input.categoryId ||
+        existingBudget.subcategoryId !== input.subcategoryId;
+
+      if (
+        scopeChanged &&
+        workspace.budgetOverrides.some(
+          (item) =>
+            item.categoryId === existingBudget.categoryId &&
+            item.subcategoryId === existingBudget.subcategoryId,
+        )
+      ) {
+        throw new Error('Reset related monthly overrides before changing this budget scope.');
+      }
+
       const updatedBudget = {
         ...existingBudget,
         categoryId: input.categoryId,
@@ -424,9 +489,103 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
     async deleteBudget(budgetId: string) {
       const workspace = readWorkspace(userId);
 
+      const budgetToDelete = workspace.budgets.find((item) => item.id === budgetId);
+
+      if (
+        budgetToDelete &&
+        workspace.budgetOverrides.some(
+          (item) =>
+            item.categoryId === budgetToDelete.categoryId &&
+            item.subcategoryId === budgetToDelete.subcategoryId,
+        )
+      ) {
+        throw new Error('Delete related budget overrides before removing this budget.');
+      }
+
       writeWorkspace(userId, {
         ...workspace,
         budgets: workspace.budgets.filter((item) => item.id !== budgetId),
+      });
+    },
+    async createBudgetOverride(input: BudgetOverrideInput): Promise<BudgetOverrideRecord> {
+      ensureValidBudgetOverride(input);
+
+      const workspace = readWorkspace(userId);
+      validateBudgetScope(workspace, input);
+
+      if (!findBudgetForOverrideScope(workspace.budgets, input.categoryId, input.subcategoryId)) {
+        throw new Error('Create the default budget before adding a monthly override.');
+      }
+
+      if (hasMatchingBudgetOverrideScope(workspace.budgetOverrides, input)) {
+        throw new Error('A monthly override already exists for this scope.');
+      }
+
+      const budgetOverride = {
+        id: createLocalId('budget-override'),
+        categoryId: input.categoryId,
+        subcategoryId: input.subcategoryId,
+        month: input.month,
+        amount: input.amount,
+      };
+
+      writeWorkspace(userId, {
+        ...workspace,
+        budgetOverrides: [...workspace.budgetOverrides, budgetOverride],
+      });
+
+      return budgetOverride;
+    },
+    async updateBudgetOverride(
+      budgetOverrideId: string,
+      input: BudgetOverrideInput,
+    ): Promise<BudgetOverrideRecord> {
+      ensureValidBudgetOverride(input);
+
+      const workspace = readWorkspace(userId);
+      validateBudgetScope(workspace, input);
+
+      if (!findBudgetForOverrideScope(workspace.budgets, input.categoryId, input.subcategoryId)) {
+        throw new Error('Create the default budget before adding a monthly override.');
+      }
+
+      const existingBudgetOverride = workspace.budgetOverrides.find(
+        (item) => item.id === budgetOverrideId,
+      );
+
+      if (!existingBudgetOverride) {
+        throw new Error('The selected budget override does not exist.');
+      }
+
+      if (
+        hasMatchingBudgetOverrideScope(workspace.budgetOverrides, input, budgetOverrideId)
+      ) {
+        throw new Error('A monthly override already exists for this scope.');
+      }
+
+      const updatedBudgetOverride = {
+        ...existingBudgetOverride,
+        categoryId: input.categoryId,
+        subcategoryId: input.subcategoryId,
+        month: input.month,
+        amount: input.amount,
+      };
+
+      writeWorkspace(userId, {
+        ...workspace,
+        budgetOverrides: workspace.budgetOverrides.map((item) =>
+          item.id === budgetOverrideId ? updatedBudgetOverride : item,
+        ),
+      });
+
+      return updatedBudgetOverride;
+    },
+    async deleteBudgetOverride(budgetOverrideId: string) {
+      const workspace = readWorkspace(userId);
+
+      writeWorkspace(userId, {
+        ...workspace,
+        budgetOverrides: workspace.budgetOverrides.filter((item) => item.id !== budgetOverrideId),
       });
     },
   };

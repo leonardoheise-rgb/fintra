@@ -9,6 +9,7 @@ describe('localPreviewFinanceService', () => {
     expect(workspace.categories.length).toBeGreaterThan(0);
     expect(workspace.transactions.length).toBeGreaterThan(0);
     expect(workspace.budgets.length).toBeGreaterThan(0);
+    expect(workspace.budgetOverrides.length).toBeGreaterThan(0);
   });
 
   it('prevents duplicate category names', async () => {
@@ -108,5 +109,60 @@ describe('localPreviewFinanceService', () => {
         amount: 999,
       }),
     ).rejects.toThrow('A default budget already exists for this scope.');
+  });
+
+  it('creates, updates, and deletes a monthly override', async () => {
+    const service = createLocalPreviewFinanceService('user-1');
+
+    const createdBudgetOverride = await service.createBudgetOverride({
+      categoryId: 'category-transport',
+      subcategoryId: null,
+      month: '2026-04',
+      amount: 120,
+    });
+
+    expect(createdBudgetOverride.amount).toBe(120);
+
+    const updatedBudgetOverride = await service.updateBudgetOverride(createdBudgetOverride.id, {
+      categoryId: 'category-transport',
+      subcategoryId: null,
+      month: '2026-04',
+      amount: 140,
+    });
+
+    expect(updatedBudgetOverride.amount).toBe(140);
+
+    await service.deleteBudgetOverride(createdBudgetOverride.id);
+
+    const workspace = await service.getWorkspace();
+    expect(
+      workspace.budgetOverrides.find((item) => item.id === createdBudgetOverride.id),
+    ).toBeUndefined();
+  });
+
+  it('requires a matching default budget before creating an override', async () => {
+    const service = createLocalPreviewFinanceService('user-1');
+
+    await expect(
+      service.createBudgetOverride({
+        categoryId: 'category-salary',
+        subcategoryId: null,
+        month: '2026-04',
+        amount: 7000,
+      }),
+    ).rejects.toThrow('Create the default budget before adding a monthly override.');
+  });
+
+  it('prevents duplicate monthly overrides for the same scope', async () => {
+    const service = createLocalPreviewFinanceService('user-1');
+
+    await expect(
+      service.createBudgetOverride({
+        categoryId: 'category-food',
+        subcategoryId: 'subcategory-restaurants',
+        month: '2026-03',
+        amount: 350,
+      }),
+    ).rejects.toThrow('A monthly override already exists for this scope.');
   });
 });

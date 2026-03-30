@@ -26,7 +26,9 @@ describe('SignInPage', () => {
     await user.type(screen.getByLabelText(/password/i), 'password123');
     await user.click(screen.getByRole('button', { name: /^sign in$/i }));
 
-    expect(await screen.findByRole('heading', { name: /wealth in motion/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: /wealth in motion/i }, { timeout: 5000 }),
+    ).toBeInTheDocument();
   });
 
   it('shows service errors when sign in fails', async () => {

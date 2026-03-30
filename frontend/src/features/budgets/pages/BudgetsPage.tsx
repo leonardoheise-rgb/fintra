@@ -1,13 +1,23 @@
 import { useMemo, useState } from 'react';
 
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
+import { formatMonthLabel } from '../../../shared/lib/formatters/date';
+import { getCurrentMonthKey } from '../../dashboard/lib/buildDashboardSnapshot';
 import { CategoriesSummaryCard } from '../../finance/components/CategoriesSummaryCard';
 import { FinancePageHeader } from '../../finance/components/FinancePageHeader';
-import type { BudgetInput, BudgetRecord } from '../../finance/finance.types';
+import type {
+  BudgetInput,
+  BudgetOverrideInput,
+  BudgetOverrideRecord,
+  BudgetRecord,
+} from '../../finance/finance.types';
 import { useFinanceData } from '../../finance/useFinanceData';
 import { BudgetForm } from '../components/BudgetForm';
+import { BudgetOverrideForm } from '../components/BudgetOverrideForm';
+import { BudgetOverridesList } from '../components/BudgetOverridesList';
 import { BudgetsList } from '../components/BudgetsList';
 import { calculateAllocatedBudget } from '../lib/budgetSelectors';
+import { resolveEffectiveBudgets } from '../lib/effectiveBudgetResolver';
 
 function countCategoriesCovered(budgets: BudgetRecord[]) {
   return new Set(budgets.map((budget) => budget.categoryId)).size;
@@ -15,7 +25,11 @@ function countCategoriesCovered(budgets: BudgetRecord[]) {
 
 export function BudgetsPage() {
   const financeData = useFinanceData();
+  const [selectedMonth, setSelectedMonth] = useState(getCurrentMonthKey());
   const [budgetToEdit, setBudgetToEdit] = useState<BudgetRecord | null>(null);
+  const [budgetOverrideToEdit, setBudgetOverrideToEdit] = useState<BudgetOverrideRecord | null>(
+    null,
+  );
 
   const allocatedBudget = useMemo(
     () => calculateAllocatedBudget(financeData.budgets),
@@ -24,6 +38,20 @@ export function BudgetsPage() {
   const coveredCategories = useMemo(
     () => countCategoriesCovered(financeData.budgets),
     [financeData.budgets],
+  );
+  const selectedMonthOverrides = useMemo(
+    () =>
+      financeData.budgetOverrides.filter((budgetOverride) => budgetOverride.month === selectedMonth),
+    [financeData.budgetOverrides, selectedMonth],
+  );
+  const effectiveBudgets = useMemo(
+    () => resolveEffectiveBudgets(financeData.budgets, financeData.budgetOverrides, selectedMonth),
+    [financeData.budgetOverrides, financeData.budgets, selectedMonth],
+  );
+  const effectiveTotal = useMemo(
+    () =>
+      effectiveBudgets.reduce((total, effectiveBudget) => total + effectiveBudget.effectiveAmount, 0),
+    [effectiveBudgets],
   );
 
   async function handleSubmit(input: BudgetInput) {
@@ -36,27 +64,49 @@ export function BudgetsPage() {
     await financeData.createBudget(input);
   }
 
+  async function handleOverrideSubmit(input: BudgetOverrideInput) {
+    if (budgetOverrideToEdit) {
+      await financeData.updateBudgetOverride(budgetOverrideToEdit.id, input);
+      setBudgetOverrideToEdit(null);
+      return;
+    }
+
+    await financeData.createBudgetOverride(input);
+  }
+
   return (
     <div className="finance-page">
       <FinancePageHeader
-        description="Define the default monthly budget envelope for each category or subcategory. These plans now feed the live dashboard and will become the base layer for monthly overrides next."
-        eyebrow="Sprint 3"
+        description="Define default monthly budgets, then override them for a selected month without changing the base plan. The dashboard now resolves effective values from this same screen."
+        eyebrow="Sprint 4"
         title="Budgets"
       />
 
+      <section className="finance-panel dashboard-toolbar">
+        <div>
+          <p className="finance-panel__eyebrow">Override scope</p>
+          <h2>{formatMonthLabel(selectedMonth)} effective plan</h2>
+        </div>
+        <label className="finance-field dashboard-toolbar__field">
+          <span>Selected month</span>
+          <input
+            name="budgetMonth"
+            onChange={(event) => setSelectedMonth(event.target.value)}
+            type="month"
+            value={selectedMonth}
+          />
+        </label>
+      </section>
+
       <section className="finance-summary-grid">
+        <CategoriesSummaryCard label="Default plans" value={String(financeData.budgets.length)} />
+        <CategoriesSummaryCard label="Allocated total" value={formatCurrency(allocatedBudget)} />
         <CategoriesSummaryCard
-          label="Budget plans"
-          value={String(financeData.budgets.length)}
+          label={`${selectedMonth} overrides`}
+          value={String(selectedMonthOverrides.length)}
         />
-        <CategoriesSummaryCard
-          label="Allocated total"
-          value={formatCurrency(allocatedBudget)}
-        />
-        <CategoriesSummaryCard
-          label="Covered categories"
-          value={String(coveredCategories)}
-        />
+        <CategoriesSummaryCard label="Effective total" value={formatCurrency(effectiveTotal)} />
+        <CategoriesSummaryCard label="Covered categories" value={String(coveredCategories)} />
       </section>
 
       {financeData.errorMessage ? (
@@ -70,22 +120,45 @@ export function BudgetsPage() {
           <p className="finance-empty-state">Loading budgets...</p>
         </section>
       ) : (
-        <div className="finance-grid">
-          <BudgetForm
-            budgetToEdit={budgetToEdit}
-            categories={financeData.categories}
-            onCancelEdit={() => setBudgetToEdit(null)}
-            onSubmit={handleSubmit}
-            subcategories={financeData.subcategories}
-          />
-          <BudgetsList
-            budgets={financeData.budgets}
-            categories={financeData.categories}
-            onDelete={financeData.deleteBudget}
-            onEdit={setBudgetToEdit}
-            subcategories={financeData.subcategories}
-          />
-        </div>
+        <>
+          <div className="finance-grid">
+            <BudgetForm
+              budgetToEdit={budgetToEdit}
+              categories={financeData.categories}
+              onCancelEdit={() => setBudgetToEdit(null)}
+              onSubmit={handleSubmit}
+              subcategories={financeData.subcategories}
+            />
+            <BudgetsList
+              budgetOverrides={financeData.budgetOverrides}
+              budgets={financeData.budgets}
+              categories={financeData.categories}
+              month={selectedMonth}
+              onDelete={financeData.deleteBudget}
+              onEdit={setBudgetToEdit}
+              subcategories={financeData.subcategories}
+            />
+          </div>
+
+          <div className="finance-grid">
+            <BudgetOverrideForm
+              categories={financeData.categories}
+              month={selectedMonth}
+              onCancelEdit={() => setBudgetOverrideToEdit(null)}
+              onSubmit={handleOverrideSubmit}
+              overrideToEdit={budgetOverrideToEdit}
+              subcategories={financeData.subcategories}
+            />
+            <BudgetOverridesList
+              budgetOverrides={financeData.budgetOverrides}
+              categories={financeData.categories}
+              month={selectedMonth}
+              onDelete={financeData.deleteBudgetOverride}
+              onEdit={setBudgetOverrideToEdit}
+              subcategories={financeData.subcategories}
+            />
+          </div>
+        </>
       )}
     </div>
   );

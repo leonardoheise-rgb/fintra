@@ -28,11 +28,20 @@ export type BudgetRecord = {
   amount: number;
 };
 
+export type BudgetOverrideRecord = {
+  id: string;
+  categoryId: string;
+  subcategoryId: string | null;
+  month: string;
+  amount: number;
+};
+
 export type FinanceWorkspace = {
   categories: CategoryRecord[];
   subcategories: SubcategoryRecord[];
   transactions: TransactionRecord[];
   budgets: BudgetRecord[];
+  budgetOverrides: BudgetOverrideRecord[];
 };
 
 export type CategoryInput = {
@@ -56,5 +65,12 @@ export type TransactionInput = {
 export type BudgetInput = {
   categoryId: string;
   subcategoryId: string | null;
+  amount: number;
+};
+
+export type BudgetOverrideInput = {
+  categoryId: string;
+  subcategoryId: string | null;
+  month: string;
   amount: number;
 };

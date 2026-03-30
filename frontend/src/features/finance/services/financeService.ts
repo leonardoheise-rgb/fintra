@@ -1,5 +1,7 @@
 import type {
   BudgetInput,
+  BudgetOverrideInput,
+  BudgetOverrideRecord,
   BudgetRecord,
   CategoryInput,
   CategoryRecord,
@@ -24,4 +26,10 @@ export interface FinanceService {
   createBudget(input: BudgetInput): Promise<BudgetRecord>;
   updateBudget(budgetId: string, input: BudgetInput): Promise<BudgetRecord>;
   deleteBudget(budgetId: string): Promise<void>;
+  createBudgetOverride(input: BudgetOverrideInput): Promise<BudgetOverrideRecord>;
+  updateBudgetOverride(
+    budgetOverrideId: string,
+    input: BudgetOverrideInput,
+  ): Promise<BudgetOverrideRecord>;
+  deleteBudgetOverride(budgetOverrideId: string): Promise<void>;
 }

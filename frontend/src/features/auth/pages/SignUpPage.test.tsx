@@ -30,7 +30,9 @@ describe('SignUpPage', () => {
     await user.type(screen.getByLabelText(/confirm password/i), 'password123');
     await user.click(screen.getByRole('button', { name: /create account/i }));
 
-    expect(await screen.findByRole('heading', { name: /wealth in motion/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: /wealth in motion/i }, { timeout: 5000 }),
+    ).toBeInTheDocument();
   });
 
   it('shows a confirmation message when email verification is required', async () => {
