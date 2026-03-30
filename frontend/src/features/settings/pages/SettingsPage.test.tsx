@@ -24,18 +24,16 @@ describe('SettingsPage', () => {
     expect(
       await screen.findByRole('heading', { name: /^settings$/i }, { timeout: 8000 }),
     ).toBeInTheDocument();
+    expect(screen.getByText(/this build is still running in preview mode/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /save display preferences/i })).toBeDisabled();
 
     await user.selectOptions(screen.getByLabelText(/default currency/i), 'USD');
-    expect(
-      screen.getByRole('status', { name: '' }),
-    ).toHaveTextContent(/unsaved display preference changes/i);
+    expect(screen.getByText(/unsaved display preference changes/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /save display preferences/i })).toBeEnabled();
     await user.selectOptions(screen.getByLabelText(/default locale/i), 'pt-BR');
     await user.click(screen.getByRole('button', { name: /save display preferences/i }));
 
-    await screen.findByRole('status');
-    expect(screen.getByRole('status')).toHaveTextContent(/display preferences saved/i);
+    expect(await screen.findByText(/display preferences saved/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /save display preferences/i })).toBeDisabled();
 
     expect(
@@ -44,6 +42,25 @@ describe('SettingsPage', () => {
       currency: 'USD',
       locale: 'pt-BR',
     });
+  });
+
+  it('shows the Supabase deployment status when the workspace uses the real backend', async () => {
+    const authService = createAuthServiceStub({
+      initialSession: {
+        user: {
+          id: 'user-1',
+          email: 'owner@fintra.dev',
+        },
+      },
+      mode: 'supabase',
+    });
+
+    await renderAppAtPath('/settings', authService.service);
+
+    expect(
+      await screen.findByText(/connected to supabase auth and persisted finance data/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/synced workspace/i)).toBeInTheDocument();
   });
 
   it('applies runtime preferences to shared amount and month formatting', async () => {

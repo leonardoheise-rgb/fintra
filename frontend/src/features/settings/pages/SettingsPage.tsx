@@ -5,6 +5,7 @@ import { getCurrentMonthKey } from '../../../shared/lib/date/months';
 import { formatMonthLabel } from '../../../shared/lib/formatters/date';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { getDefaultDisplayPreferences, type DisplayPreferences } from '../../../shared/preferences/displayPreferences';
+import { useAuth } from '../../auth/useAuth';
 import { useDisplayPreferences } from '../useDisplayPreferences';
 
 type SaveState = 'idle' | 'saved';
@@ -20,6 +21,7 @@ function areDisplayPreferencesEqual(
 }
 
 export function SettingsPage() {
+  const auth = useAuth();
   const { currencyOptions, localeOptions, preferences, resetPreferences, updatePreferences } =
     useDisplayPreferences();
   const [draftPreferences, setDraftPreferences] = useState(preferences);
@@ -165,6 +167,51 @@ export function SettingsPage() {
             The current implementation stores these preferences in your browser for the signed-in
             account. If you use another device, you will need to set them again there.
           </p>
+        </section>
+
+        <section className="finance-panel">
+          <div className="finance-panel__heading">
+            <div>
+              <p className="finance-panel__eyebrow">Deployment status</p>
+              <h2>Workspace connection</h2>
+            </div>
+          </div>
+
+          <div className="settings-preview-grid">
+            <article className="settings-preview-card">
+              <span className="finance-summary-card__label">Auth provider</span>
+              <strong>{auth.mode === 'supabase' ? 'Supabase' : 'Preview mode'}</strong>
+            </article>
+            <article className="settings-preview-card">
+              <span className="finance-summary-card__label">Finance storage</span>
+              <strong>{auth.mode === 'supabase' ? 'Synced workspace' : 'Browser-only workspace'}</strong>
+            </article>
+          </div>
+
+          {auth.mode === 'supabase' ? (
+            <p className="finance-message" role="status">
+              This deployment is connected to Supabase auth and persisted finance data.
+            </p>
+          ) : (
+            <>
+              <p className="finance-message" role="status">
+                This build is still running in preview mode. Sign-ins and finance data stay only in
+                this browser until Supabase environment variables are configured.
+              </p>
+              <p className="settings-note">
+                To switch this deployment to real Supabase mode, add these Render environment
+                variables and redeploy:
+              </p>
+              <ul className="settings-checklist">
+                <li>
+                  <code>VITE_SUPABASE_URL</code>
+                </li>
+                <li>
+                  <code>VITE_SUPABASE_ANON_KEY</code>
+                </li>
+              </ul>
+            </>
+          )}
         </section>
       </div>
     </div>
