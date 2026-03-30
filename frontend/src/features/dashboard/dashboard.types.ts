@@ -9,6 +9,14 @@ export type BudgetCard = {
   isOverridden: boolean;
 };
 
+export type CategoryAvailability = {
+  id: string;
+  name: string;
+  available: number;
+  budget: number;
+  spent: number;
+};
+
 export type DashboardSnapshot = {
   month: string;
   totalBudget: number;
@@ -16,7 +24,9 @@ export type DashboardSnapshot = {
   totalExpenses: number;
   remainingBudget: number;
   remainingBalance: number;
+  totalAvailable: number;
   averageMonthlyExpenses: number;
   insight: string;
   cards: BudgetCard[];
+  categoryAvailability: CategoryAvailability[];
 };

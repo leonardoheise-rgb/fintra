@@ -1,9 +1,9 @@
-import type { PropsWithChildren } from 'react';
+import { useEffect, useState, type PropsWithChildren } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
-import { navigationItems } from '../navigation/navigationItems';
 import { useAuth } from '../../features/auth/useAuth';
 import { translateAppText } from '../../shared/i18n/appText';
+import { SidebarNavigation } from './SidebarNavigation';
 
 function getUserInitials(email: string | undefined) {
   if (!email) {
@@ -22,6 +22,7 @@ function getUserInitials(email: string | undefined) {
 export function AppLayout({ children }: PropsWithChildren) {
   const auth = useAuth();
   const location = useLocation();
+  const [isMobileNavigationOpen, setIsMobileNavigationOpen] = useState(false);
   const pageTitle =
     location.pathname === '/'
       ? translateAppText('page.title.dashboard')
@@ -51,10 +52,52 @@ export function AppLayout({ children }: PropsWithChildren) {
                 ? translateAppText('page.desc.settings')
                 : translateAppText('shell.defaultDescription');
 
+  useEffect(() => {
+    setIsMobileNavigationOpen(false);
+  }, [location.pathname]);
+
   return (
     <div className="app-shell">
       <aside className="sidebar" aria-label="Primary">
-        <div className="sidebar__section">
+        <div className="sidebar__mobile-bar">
+          <span className="sidebar__brand">{translateAppText('shell.brand')}</span>
+          <button
+            aria-controls="mobile-navigation-panel"
+            aria-expanded={isMobileNavigationOpen}
+            aria-label={
+              isMobileNavigationOpen
+                ? translateAppText('shell.closeNavigation')
+                : translateAppText('shell.openNavigation')
+            }
+            className="sidebar__menu-button"
+            onClick={() => setIsMobileNavigationOpen((currentValue) => !currentValue)}
+            type="button"
+          >
+            <span className="sidebar__menu-icon" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </span>
+            <span className="sidebar__menu-label">{translateAppText('shell.menu')}</span>
+          </button>
+        </div>
+
+        <div
+          className="sidebar__mobile-panel"
+          hidden={!isMobileNavigationOpen}
+          id="mobile-navigation-panel"
+        >
+          <NavLink
+            className="primary-button sidebar__cta"
+            onClick={() => setIsMobileNavigationOpen(false)}
+            to="/transactions"
+          >
+            {translateAppText('shell.addTransaction')}
+          </NavLink>
+          <SidebarNavigation onNavigate={() => setIsMobileNavigationOpen(false)} />
+        </div>
+
+        <div className="sidebar__section sidebar__section--desktop">
           <div>
             <h1 className="sidebar__brand">{translateAppText('shell.brand')}</h1>
             <p className="sidebar__copy">{translateAppText('shell.copy')}</p>
@@ -64,35 +107,7 @@ export function AppLayout({ children }: PropsWithChildren) {
             {translateAppText('shell.addTransaction')}
           </NavLink>
 
-          <nav className="sidebar__nav">
-            {navigationItems.map((item) =>
-              item.isEnabled ? (
-                <NavLink
-                  className={({ isActive }) =>
-                    `sidebar__item${isActive ? ' sidebar__item--active' : ''}`
-                  }
-                  key={item.id}
-                  to={item.href}
-                >
-                  <span className="sidebar__item-badge" aria-hidden="true">
-                    {item.shortLabel}
-                  </span>
-                  <div>
-                    <p>{translateAppText(`nav.${item.id}`)}</p>
-                  </div>
-                </NavLink>
-              ) : (
-                <div className="sidebar__item sidebar__item--disabled" key={item.id}>
-                  <span className="sidebar__item-badge" aria-hidden="true">
-                    {item.shortLabel}
-                  </span>
-                  <div>
-                    <p>{translateAppText(`nav.${item.id}`)}</p>
-                  </div>
-                </div>
-              ),
-            )}
-          </nav>
+          <SidebarNavigation />
         </div>
       </aside>
 

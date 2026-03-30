@@ -6,8 +6,8 @@ import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { CategoriesSummaryCard } from '../../finance/components/CategoriesSummaryCard';
 import { sortTransactionsByDateDesc } from '../../finance/lib/financeSelectors';
 import { useFinanceData } from '../../finance/useFinanceData';
+import { AvailableBalancePanel } from '../components/AvailableBalancePanel';
 import { BudgetHighlights } from '../components/BudgetHighlights';
-import { HeroSummary } from '../components/HeroSummary';
 import { InsightsPanel } from '../components/InsightsPanel';
 import { RecentTransactionsPanel } from '../components/RecentTransactionsPanel';
 import { buildDashboardSnapshot } from '../lib/buildDashboardSnapshot';
@@ -39,7 +39,6 @@ export function DashboardPage() {
     <div className="dashboard-page">
       <section className="finance-panel dashboard-toolbar">
         <div>
-          <p className="finance-panel__eyebrow">{translateAppText('dashboard.monthlyScope')}</p>
           <h2>{translateAppText('dashboard.financialOverview')}</h2>
         </div>
         <label className="finance-field dashboard-toolbar__field">
@@ -61,7 +60,7 @@ export function DashboardPage() {
         </section>
       ) : null}
 
-      <HeroSummary snapshot={snapshot} />
+      <AvailableBalancePanel snapshot={snapshot} />
 
       <section className="finance-summary-grid" aria-label="Dashboard summary">
         <CategoriesSummaryCard

@@ -1,4 +1,5 @@
 import { screen, waitForElementToBeRemoved } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { createAuthServiceStub } from '../../../test/createAuthServiceStub';
 import { renderAppAtPath } from '../../../test/renderAppAtPath';
@@ -13,6 +14,7 @@ async function waitForDashboardToLoad() {
 
 describe('DashboardPage', () => {
   it('renders live budget highlights from the finance workspace', async () => {
+    const user = userEvent.setup();
     const authService = createAuthServiceStub({
       initialSession: {
         user: {
@@ -26,9 +28,18 @@ describe('DashboardPage', () => {
 
     await waitForDashboardToLoad();
 
+    const navigationButton = screen.getByRole('button', { name: /open navigation menu/i });
+
+    expect(navigationButton).toHaveAttribute('aria-expanded', 'false');
+
+    await user.click(navigationButton);
+
+    expect(navigationButton).toHaveAttribute('aria-expanded', 'true');
     expect(
-      await screen.findByRole('heading', { name: /your money this month/i }, { timeout: 8000 }),
+      await screen.findByRole('heading', { name: /available by category/i }, { timeout: 8000 }),
     ).toBeInTheDocument();
+    expect(screen.queryByText(/^this month$/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/total available/i)).toBeInTheDocument();
     expect(
       await screen.findByRole('heading', { name: /^housing$/i, level: 4 }, { timeout: 8000 }),
     ).toBeInTheDocument();

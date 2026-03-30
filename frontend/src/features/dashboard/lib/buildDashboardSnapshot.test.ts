@@ -98,7 +98,24 @@ describe('buildDashboardSnapshot', () => {
     expect(snapshot.totalExpenses).toBe(2280);
     expect(snapshot.remainingBudget).toBe(970);
     expect(snapshot.remainingBalance).toBe(4220);
+    expect(snapshot.totalAvailable).toBe(3250);
     expect(snapshot.averageMonthlyExpenses).toBe(1250);
+    expect(snapshot.categoryAvailability).toEqual([
+      {
+        id: 'category-housing',
+        name: 'Housing',
+        available: 400,
+        budget: 2500,
+        spent: 2100,
+      },
+      {
+        id: 'category-food',
+        name: 'Food and dining',
+        available: 570,
+        budget: 750,
+        spent: 180,
+      },
+    ]);
     expect(snapshot.cards).toEqual([
       {
         id: 'category-housing',
@@ -121,6 +138,38 @@ describe('buildDashboardSnapshot', () => {
         spent: 180,
       },
     ]);
+  });
+
+  it('uses the spent amount once a category goes over budget', () => {
+    const snapshot = buildDashboardSnapshot(
+      {
+        categories,
+        budgets,
+        budgetOverrides,
+        transactions: [
+          ...transactions,
+          {
+            id: 'transaction-food-extra',
+            amount: 700,
+            type: 'expense',
+            categoryId: 'category-food',
+            subcategoryId: null,
+            date: '2026-03-12',
+            description: 'Extra dining',
+          },
+        ],
+      },
+      '2026-03',
+    );
+
+    expect(snapshot.totalAvailable).toBe(3120);
+    expect(snapshot.categoryAvailability).toContainEqual({
+      id: 'category-food',
+      name: 'Food and dining',
+      available: -130,
+      budget: 750,
+      spent: 880,
+    });
   });
 
   it('returns an onboarding insight when no budgets exist yet', () => {

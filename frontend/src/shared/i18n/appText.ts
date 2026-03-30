@@ -14,6 +14,9 @@ const translations: Record<SupportedLocale, Record<string, string>> = {
     'shell.brand': 'Finance Tracker',
     'shell.copy': 'A personal tool to help you keep track of your expenses.',
     'shell.addTransaction': 'Add transaction',
+    'shell.menu': 'Menu',
+    'shell.openNavigation': 'Open navigation menu',
+    'shell.closeNavigation': 'Close navigation menu',
     'shell.signOut': 'Sign out',
     'shell.defaultTitle': 'Finance Tracker',
     'shell.defaultDescription':
@@ -78,7 +81,8 @@ const translations: Record<SupportedLocale, Record<string, string>> = {
     'dashboard.income': 'Income',
     'dashboard.expenses': 'Expenses',
     'dashboard.netBalance': 'Net balance',
-    'dashboard.totalNetPosition': 'Available balance',
+    'dashboard.totalNetPosition': 'Total available',
+    'dashboard.availableByCategory': 'Available by category',
     'dashboard.budgetLeft': '{amount} left in budget',
     'dashboard.heroTitle': 'Your money this month',
     'dashboard.heroCopy':
@@ -395,6 +399,9 @@ const translations: Record<SupportedLocale, Record<string, string>> = {
     'shell.brand': 'Finance Tracker',
     'shell.copy': 'Uma ferramenta pessoal para ajudar você a acompanhar seus gastos.',
     'shell.addTransaction': 'Adicionar transação',
+    'shell.menu': 'Menu',
+    'shell.openNavigation': 'Abrir menu de navegação',
+    'shell.closeNavigation': 'Fechar menu de navegação',
     'shell.signOut': 'Sair',
     'shell.defaultTitle': 'Finance Tracker',
     'shell.defaultDescription':
@@ -462,7 +469,8 @@ const translations: Record<SupportedLocale, Record<string, string>> = {
     'dashboard.income': 'Receitas',
     'dashboard.expenses': 'Despesas',
     'dashboard.netBalance': 'Saldo líquido',
-    'dashboard.totalNetPosition': 'Saldo disponível',
+    'dashboard.totalNetPosition': 'Total disponível',
+    'dashboard.availableByCategory': 'Disponível por categoria',
     'dashboard.budgetLeft': '{amount} restantes no orçamento',
     'dashboard.heroTitle': 'Seu dinheiro neste mês',
     'dashboard.heroCopy':

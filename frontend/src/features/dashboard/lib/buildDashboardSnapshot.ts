@@ -9,7 +9,7 @@ import type {
   TransactionRecord,
 } from '../../finance/finance.types';
 import { resolveEffectiveBudgets } from '../../budgets/lib/effectiveBudgetResolver';
-import type { BudgetCard, DashboardSnapshot } from '../dashboard.types';
+import type { BudgetCard, CategoryAvailability, DashboardSnapshot } from '../dashboard.types';
 
 type DashboardSource = {
   categories: CategoryRecord[];
@@ -108,6 +108,41 @@ function calculateAverageMonthlyExpenses(transactions: TransactionRecord[]) {
   return sumValues([...monthlyExpenseTotals.values()]) / monthlyExpenseTotals.size;
 }
 
+function buildCategoryAvailability(cards: BudgetCard[]): CategoryAvailability[] {
+  return cards.map((card) => ({
+    id: card.id,
+    name: card.name,
+    available: card.effectiveBudget - card.spent,
+    budget: card.effectiveBudget,
+    spent: card.spent,
+  }));
+}
+
+function calculateTotalAvailable(
+  cards: BudgetCard[],
+  transactions: TransactionRecord[],
+): number {
+  const budgetedCategoryIds = new Set(cards.map((card) => card.id));
+  const forecastedBudgetedSpending = sumValues(
+    cards.map((card) => Math.max(card.spent, card.effectiveBudget)),
+  );
+  const nonBudgetedExpenses = sumValues(
+    transactions
+      .filter(
+        (transaction) =>
+          transaction.type === 'expense' && !budgetedCategoryIds.has(transaction.categoryId),
+      )
+      .map((transaction) => transaction.amount),
+  );
+  const totalIncome = sumValues(
+    transactions
+      .filter((transaction) => transaction.type === 'income')
+      .map((transaction) => transaction.amount),
+  );
+
+  return totalIncome - forecastedBudgetedSpending - nonBudgetedExpenses;
+}
+
 function buildInsight(cards: BudgetCard[], remainingBudget: number) {
   if (cards.length === 0) {
     return 'Set your first default budget to turn the dashboard into a live monthly planning surface.';
@@ -167,6 +202,8 @@ export function buildDashboardSnapshot(
   );
   const remainingBudget = totalBudget - totalExpenses;
   const remainingBalance = totalIncome - totalExpenses;
+  const categoryAvailability = buildCategoryAvailability(cards);
+  const totalAvailable = calculateTotalAvailable(cards, monthlyTransactions);
 
   return {
     month,
@@ -175,8 +212,10 @@ export function buildDashboardSnapshot(
     totalExpenses,
     remainingBudget,
     remainingBalance,
+    totalAvailable,
     averageMonthlyExpenses: calculateAverageMonthlyExpenses(source.transactions),
     insight: buildInsight(cards, remainingBudget),
     cards,
+    categoryAvailability,
   };
 }

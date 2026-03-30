@@ -40,7 +40,7 @@ describe('Fintra smoke flows', () => {
     const { user } = await signInFromPublicRoute();
 
     expect(
-      await screen.findByRole('heading', { name: /your money this month/i }, { timeout: 8000 }),
+      await screen.findByRole('heading', { name: /available by category/i }, { timeout: 8000 }),
     ).toBeInTheDocument();
     expect(screen.getByText('user@fintra.dev')).toBeInTheDocument();
 
