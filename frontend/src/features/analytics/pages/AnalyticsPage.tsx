@@ -21,6 +21,10 @@ function sumValues(values: number[]) {
   return values.reduce((total, value) => total + value, 0);
 }
 
+function hasRangeActivity(monthlySeries: { income: number; expenses: number }[]) {
+  return monthlySeries.some((point) => point.income > 0 || point.expenses > 0);
+}
+
 function buildAnalyticsInsight(
   currentMonthCategory: string | null,
   savingsRate: number,
@@ -93,6 +97,8 @@ export function AnalyticsPage() {
   const averageSavingsRate = comparison.averageSavingsRate;
   const topCategory = categoryTrends[0]?.categoryName ?? null;
   const currentPoint = monthlySeries[monthlySeries.length - 1] ?? null;
+  const hasWorkspaceTransactions = financeData.transactions.length > 0;
+  const hasActivityInSelectedRange = hasRangeActivity(monthlySeries);
 
   return (
     <div className="finance-page">
@@ -173,14 +179,30 @@ export function AnalyticsPage() {
       </section>
 
       {financeData.errorMessage ? (
-        <section className="finance-panel">
-          <p className="finance-message finance-message--error">{financeData.errorMessage}</p>
+        <section aria-live="assertive" className="finance-panel">
+          <p className="finance-message finance-message--error" role="alert">
+            {financeData.errorMessage}
+          </p>
         </section>
       ) : null}
 
       {financeData.status === 'loading' ? (
-        <section className="finance-panel">
+        <section aria-live="polite" className="finance-panel">
           <p className="finance-empty-state">Loading analytics...</p>
+        </section>
+      ) : !hasWorkspaceTransactions ? (
+        <section aria-live="polite" className="finance-panel">
+          <p className="finance-empty-state">
+            Add your first income or expense in Transactions to unlock analytics trends and
+            comparisons.
+          </p>
+        </section>
+      ) : activeTab === 'overview' && !hasActivityInSelectedRange ? (
+        <section aria-live="polite" className="finance-panel">
+          <p className="finance-empty-state">
+            No income or expense activity is available for the selected range yet. Adjust the range
+            or add transactions for those months.
+          </p>
         </section>
       ) : (
         <>

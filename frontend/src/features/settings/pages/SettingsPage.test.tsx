@@ -24,12 +24,19 @@ describe('SettingsPage', () => {
     expect(
       await screen.findByRole('heading', { name: /^settings$/i }, { timeout: 8000 }),
     ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /save display preferences/i })).toBeDisabled();
 
     await user.selectOptions(screen.getByLabelText(/default currency/i), 'USD');
+    expect(
+      screen.getByRole('status', { name: '' }),
+    ).toHaveTextContent(/unsaved display preference changes/i);
+    expect(screen.getByRole('button', { name: /save display preferences/i })).toBeEnabled();
     await user.selectOptions(screen.getByLabelText(/default locale/i), 'pt-BR');
     await user.click(screen.getByRole('button', { name: /save display preferences/i }));
 
-    await screen.findByText(/display preferences saved/i);
+    await screen.findByRole('status');
+    expect(screen.getByRole('status')).toHaveTextContent(/display preferences saved/i);
+    expect(screen.getByRole('button', { name: /save display preferences/i })).toBeDisabled();
 
     expect(
       JSON.parse(window.localStorage.getItem('fintra.display-preferences.user-1') ?? '{}'),

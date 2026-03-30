@@ -58,4 +58,30 @@ describe('AnalyticsPage', () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/food and dining/i)).toBeInTheDocument();
   });
+
+  it('shows an empty state when the selected range has no activity', async () => {
+    const user = userEvent.setup();
+    const authService = createAuthServiceStub({
+      initialSession: {
+        user: {
+          id: 'user-1',
+          email: 'owner@fintra.dev',
+        },
+      },
+    });
+
+    await renderAppAtPath('/analytics', authService.service);
+
+    await waitForAnalyticsToLoad();
+
+    await user.selectOptions(screen.getByLabelText(/range preset/i), 'custom');
+    await user.clear(screen.getByLabelText(/start month/i));
+    await user.type(screen.getByLabelText(/start month/i), '2030-01');
+    await user.clear(screen.getByLabelText(/end month/i));
+    await user.type(screen.getByLabelText(/end month/i), '2030-01');
+
+    expect(
+      await screen.findByText(/no income or expense activity is available for the selected range/i),
+    ).toBeInTheDocument();
+  });
 });

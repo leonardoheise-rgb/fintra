@@ -4,15 +4,31 @@ import { FinancePageHeader } from '../../finance/components/FinancePageHeader';
 import { getCurrentMonthKey } from '../../../shared/lib/date/months';
 import { formatMonthLabel } from '../../../shared/lib/formatters/date';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
+import { getDefaultDisplayPreferences, type DisplayPreferences } from '../../../shared/preferences/displayPreferences';
 import { useDisplayPreferences } from '../useDisplayPreferences';
 
 type SaveState = 'idle' | 'saved';
+
+function areDisplayPreferencesEqual(
+  leftPreferences: DisplayPreferences,
+  rightPreferences: DisplayPreferences,
+) {
+  return (
+    leftPreferences.currency === rightPreferences.currency &&
+    leftPreferences.locale === rightPreferences.locale
+  );
+}
 
 export function SettingsPage() {
   const { currencyOptions, localeOptions, preferences, resetPreferences, updatePreferences } =
     useDisplayPreferences();
   const [draftPreferences, setDraftPreferences] = useState(preferences);
   const [saveState, setSaveState] = useState<SaveState>('idle');
+  const hasUnsavedChanges = !areDisplayPreferencesEqual(draftPreferences, preferences);
+  const canResetToDefaults = !areDisplayPreferencesEqual(
+    preferences,
+    getDefaultDisplayPreferences(),
+  );
 
   useEffect(() => {
     setDraftPreferences(preferences);
@@ -89,11 +105,16 @@ export function SettingsPage() {
               </select>
             </label>
 
-            <button className="primary-button finance-form__submit" type="submit">
+            <button
+              className="primary-button finance-form__submit"
+              disabled={!hasUnsavedChanges}
+              type="submit"
+            >
               Save display preferences
             </button>
             <button
               className="secondary-button finance-form__submit"
+              disabled={!canResetToDefaults}
               onClick={handleReset}
               type="button"
             >
@@ -102,9 +123,15 @@ export function SettingsPage() {
           </form>
 
           {saveState === 'saved' ? (
-            <p className="finance-message">Display preferences saved.</p>
+            <p aria-live="polite" className="finance-message" role="status">
+              Display preferences saved.
+            </p>
+          ) : hasUnsavedChanges ? (
+            <p aria-live="polite" className="finance-message" role="status">
+              You have unsaved display preference changes.
+            </p>
           ) : (
-            <p className="finance-empty-state">
+            <p aria-live="polite" className="finance-empty-state" role="status">
               Changes apply immediately after you save them.
             </p>
           )}
