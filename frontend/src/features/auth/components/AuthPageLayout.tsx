@@ -30,6 +30,16 @@ export function AuthPageLayout({
           Sprint 1 adds authentication, protected routes, and a session-aware shell so the finance
           workflows can be safely attached to real user accounts.
         </p>
+        <div className="auth-page__highlights" aria-label="Workspace highlights">
+          <article className="auth-page__highlight">
+            <span>Protected shell</span>
+            <strong>Private pages stay scoped to your account</strong>
+          </article>
+          <article className="auth-page__highlight">
+            <span>Live hierarchy</span>
+            <strong>Budgets, transactions, and insights stay visually organized</strong>
+          </article>
+        </div>
         <div className="auth-page__mode">
           {mode === 'preview' ? 'Preview auth mode' : 'Supabase auth mode'}
         </div>

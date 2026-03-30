@@ -13,6 +13,20 @@ const pageTitles: Record<string, string> = {
   '/settings': 'Workspace settings',
 };
 
+const pageDescriptions: Record<string, string> = {
+  '/': 'Track monthly pacing, see the latest budget signals, and keep the highest-value insight in view first.',
+  '/transactions':
+    'Create entries quickly, scan the latest ledger movements, and keep the primary action visible on smaller screens.',
+  '/categories':
+    'Shape the category model first so every transaction, budget, and report keeps a clear information hierarchy.',
+  '/budgets':
+    'Review default plans and monthly overrides with stronger separation between setup, scope, and active totals.',
+  '/analytics':
+    'Read trends, comparisons, and category drift through a calmer long-view layout with clearer mobile filters.',
+  '/settings':
+    'Keep preferences, previews, and deployment status grouped into cleaner sections with better visual priority.',
+};
+
 function getUserInitials(email: string | undefined) {
   if (!email) {
     return 'FT';
@@ -30,6 +44,10 @@ function getUserInitials(email: string | undefined) {
 export function AppLayout({ children }: PropsWithChildren) {
   const auth = useAuth();
   const location = useLocation();
+  const pageTitle = pageTitles[location.pathname] ?? 'Protected workspace';
+  const pageDescription =
+    pageDescriptions[location.pathname] ??
+    'Protected routes, finance tools, and workspace settings now share a calmer, clearer layout.';
 
   return (
     <div className="app-shell">
@@ -96,24 +114,21 @@ export function AppLayout({ children }: PropsWithChildren) {
         <header className="topbar">
           <div className="topbar__intro">
             <p className="topbar__eyebrow">Editorial ledger</p>
-            <h2 className="topbar__title">
-              {pageTitles[location.pathname] ?? 'Protected workspace'}
-            </h2>
+            <h2 className="topbar__title">{pageTitle}</h2>
+            <p className="topbar__copy">{pageDescription}</p>
           </div>
 
           <div className="topbar__meta">
-            <label className="topbar__search" htmlFor="app-search">
-              <span className="topbar__search-icon" aria-hidden="true">
-                S
-              </span>
-              <input
-                aria-label="Search records"
-                disabled
-                id="app-search"
-                placeholder="Search records..."
-                type="search"
-              />
-            </label>
+            <div className="topbar__workspace">
+              <div className="status-pill status-pill--accent">
+                {auth.mode === 'preview' ? 'Preview workspace' : 'Synced workspace'}
+              </div>
+              <p className="topbar__workspace-copy">
+                {auth.mode === 'preview'
+                  ? 'Local demo data is active on this device.'
+                  : 'Live account data is connected for this session.'}
+              </p>
+            </div>
             <div className="topbar__controls">
               <div className="topbar__account">
                 <div className="status-pill">

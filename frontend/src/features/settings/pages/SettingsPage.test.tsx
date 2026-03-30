@@ -24,6 +24,10 @@ describe('SettingsPage', () => {
     expect(
       await screen.findByRole('heading', { name: /^settings$/i }, { timeout: 8000 }),
     ).toBeInTheDocument();
+    expect(screen.getByLabelText(/settings summary/i)).toBeInTheDocument();
+    expect(screen.getByText(/^brl$/i)).toBeInTheDocument();
+    expect(screen.getByText(/^en-us$/i)).toBeInTheDocument();
+    expect(screen.getByText(/^preview$/i)).toBeInTheDocument();
     expect(screen.getByText(/this build is still running in preview mode/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /save display preferences/i })).toBeDisabled();
 
@@ -60,7 +64,7 @@ describe('SettingsPage', () => {
     expect(
       await screen.findByText(/connected to supabase auth and persisted finance data/i),
     ).toBeInTheDocument();
-    expect(screen.getByText(/synced workspace/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/synced workspace/i).length).toBeGreaterThan(0);
   });
 
   it('applies runtime preferences to shared amount and month formatting', async () => {

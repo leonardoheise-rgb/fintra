@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 
 import { FinancePageHeader } from '../../finance/components/FinancePageHeader';
+import { CategoriesSummaryCard } from '../../finance/components/CategoriesSummaryCard';
 import { getCurrentMonthKey } from '../../../shared/lib/date/months';
 import { formatMonthLabel } from '../../../shared/lib/formatters/date';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
@@ -54,6 +55,15 @@ export function SettingsPage() {
         eyebrow="Workspace"
         title="Settings"
       />
+
+      <section className="finance-summary-grid" aria-label="Settings summary">
+        <CategoriesSummaryCard label="Default currency" value={preferences.currency} />
+        <CategoriesSummaryCard label="Default locale" value={preferences.locale} />
+        <CategoriesSummaryCard
+          label="Workspace mode"
+          value={auth.mode === 'supabase' ? 'Synced' : 'Preview'}
+        />
+      </section>
 
       <div className="finance-grid">
         <section className="finance-panel">
