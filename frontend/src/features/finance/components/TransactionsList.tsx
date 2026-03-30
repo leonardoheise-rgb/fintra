@@ -29,9 +29,6 @@ export function TransactionsList({
           <p className="finance-panel__eyebrow">{translateAppText('transactions.ledgerEyebrow')}</p>
           <h2>{translateAppText('transactions.recentEntries')}</h2>
         </div>
-        <p className="analytics-panel__caption">
-          {translateAppText('transactions.itemsInView', { count: transactions.length })}
-        </p>
       </div>
 
       {transactions.length === 0 ? (

@@ -28,8 +28,10 @@ describe('CategoriesPage', () => {
     await waitForCategoriesToLoad();
 
     expect(
-      await screen.findByRole('heading', { name: /^categories$/i, level: 1 }, { timeout: 8000 }),
+      await screen.findByRole('heading', { name: /^categories$/i }, { timeout: 8000 }),
     ).toBeInTheDocument();
+    expect(screen.queryByText(/^structure$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^tracked transactions$/i)).not.toBeInTheDocument();
     expect(
       await screen.findByRole('heading', { name: /^housing$/i, level: 3 }, { timeout: 8000 }),
     ).toBeInTheDocument();

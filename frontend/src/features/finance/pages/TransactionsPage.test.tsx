@@ -28,11 +28,14 @@ describe('TransactionsPage', () => {
     await waitForTransactionsToLoad();
 
     expect(
-      await screen.findByRole('heading', { name: /^transactions$/i, level: 1 }, { timeout: 8000 }),
+      await screen.findByRole('heading', { name: /^transactions$/i }, { timeout: 8000 }),
     ).toBeInTheDocument();
     expect(
       await screen.findByRole('heading', { name: /recent entries/i }, { timeout: 8000 }),
     ).toBeInTheDocument();
+    expect(screen.queryByText(/money flow/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/tracked records/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/items in view/i)).not.toBeInTheDocument();
     expect(
       (await screen.findAllByRole('button', { name: /edit transaction monthly salary/i }, { timeout: 8000 })).length,
     ).toBeGreaterThan(0);

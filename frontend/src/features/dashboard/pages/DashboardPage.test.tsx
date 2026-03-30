@@ -48,7 +48,7 @@ describe('DashboardPage', () => {
     expect(screen.queryByText(/budget status/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/default budget/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/recent activity/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/total available/i)).toBeInTheDocument();
+    expect(screen.getByText(/preview of the month/i)).toBeInTheDocument();
     expect(
       await screen.findByRole('heading', { name: /^housing$/i, level: 4 }, { timeout: 8000 }),
     ).toBeInTheDocument();

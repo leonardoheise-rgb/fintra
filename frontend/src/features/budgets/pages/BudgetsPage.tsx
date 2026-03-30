@@ -5,7 +5,6 @@ import { getCurrentMonthKey } from '../../../shared/lib/date/months';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { formatMonthLabel } from '../../../shared/lib/formatters/date';
 import { CategoriesSummaryCard } from '../../finance/components/CategoriesSummaryCard';
-import { FinancePageHeader } from '../../finance/components/FinancePageHeader';
 import type {
   BudgetInput,
   BudgetOverrideInput,
@@ -77,12 +76,6 @@ export function BudgetsPage() {
 
   return (
     <div className="finance-page finance-page--budgets">
-      <FinancePageHeader
-        description={translateAppText('budgets.description')}
-        eyebrow={translateAppText('budgets.eyebrow')}
-        title={translateAppText('budgets.title')}
-      />
-
       <section className="finance-panel dashboard-toolbar">
         <div>
           <p className="finance-panel__eyebrow">{translateAppText('budgets.overrideScope')}</p>

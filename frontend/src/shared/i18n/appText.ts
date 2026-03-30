@@ -81,7 +81,7 @@ const translations: Record<SupportedLocale, Record<string, string>> = {
     'dashboard.income': 'Income',
     'dashboard.expenses': 'Expenses',
     'dashboard.netBalance': 'Net balance',
-    'dashboard.totalNetPosition': 'Total available',
+    'dashboard.totalNetPosition': 'Preview of the month',
     'dashboard.availableByCategory': 'Available by category',
     'dashboard.budgetLeft': '{amount} left in budget',
     'dashboard.heroTitle': 'Your money this month',

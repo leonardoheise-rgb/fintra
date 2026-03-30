@@ -96,11 +96,11 @@ export function CategoriesManager({
 
   return (
     <div className="finance-grid finance-grid--stacked">
-      <section className="finance-panel">
+      <section className="finance-panel categories-setup-panel">
         <div className="finance-panel__heading">
           <div>
             <p className="finance-panel__eyebrow">{translateAppText('categories.setup')}</p>
-            <h2>{translateAppText('categories.manage')}</h2>
+            <h2>{translateAppText('categories.newCategory')}</h2>
           </div>
         </div>
 
@@ -118,6 +118,15 @@ export function CategoriesManager({
             {translateAppText('categories.addCategory')}
           </button>
         </form>
+      </section>
+
+      <section className="finance-panel categories-setup-panel">
+        <div className="finance-panel__heading">
+          <div>
+            <p className="finance-panel__eyebrow">{translateAppText('categories.setup')}</p>
+            <h2>{translateAppText('categories.newSubcategory')}</h2>
+          </div>
+        </div>
 
         <form className="finance-form finance-form--inline" onSubmit={handleSubcategorySubmit}>
           <label className="finance-field">
@@ -175,140 +184,144 @@ export function CategoriesManager({
 
               return (
                 <article className="category-card" key={category.id}>
-                  <div className="category-card__header">
-                    <div>
-                      <p className="category-card__eyebrow">
-                        {translateAppText('categories.transactionsCount', {
-                          count: transactionCount,
-                        })}
-                      </p>
-                      {editingCategoryId === category.id ? (
-                        <form
-                          className="category-card__edit-form"
-                          onSubmit={(event) => {
-                            event.preventDefault();
-                            void onUpdateCategory(category.id, editingCategoryName)
-                              .then(() => {
-                                setEditingCategoryId(null);
-                                setEditingCategoryName('');
-                              })
-                              .catch((error) => {
-                                setFormError(resolveAppErrorMessage(error, 'categories.errorUpdate'));
-                              });
-                          }}
-                        >
-                          <input
-                            onChange={(event) => setEditingCategoryName(event.target.value)}
-                            type="text"
-                            value={editingCategoryName}
-                          />
-                          <button className="secondary-button" type="submit">
-                            {translateAppText('categories.save')}
-                          </button>
-                        </form>
-                      ) : (
-                        <h3>{category.name}</h3>
-                      )}
-                    </div>
+                  <div className="category-card__section category-card__section--primary">
+                    <div className="category-card__header">
+                      <div>
+                        <p className="category-card__eyebrow">
+                          {translateAppText('categories.transactionsCount', {
+                            count: transactionCount,
+                          })}
+                        </p>
+                        {editingCategoryId === category.id ? (
+                          <form
+                            className="category-card__edit-form"
+                            onSubmit={(event) => {
+                              event.preventDefault();
+                              void onUpdateCategory(category.id, editingCategoryName)
+                                .then(() => {
+                                  setEditingCategoryId(null);
+                                  setEditingCategoryName('');
+                                })
+                                .catch((error) => {
+                                  setFormError(resolveAppErrorMessage(error, 'categories.errorUpdate'));
+                                });
+                            }}
+                          >
+                            <input
+                              onChange={(event) => setEditingCategoryName(event.target.value)}
+                              type="text"
+                              value={editingCategoryName}
+                            />
+                            <button className="secondary-button" type="submit">
+                              {translateAppText('categories.save')}
+                            </button>
+                          </form>
+                        ) : (
+                          <h3>{category.name}</h3>
+                        )}
+                      </div>
 
-                    <div className="transaction-card__actions">
-                      <button
-                        className="secondary-button"
-                        onClick={() => {
-                          setEditingCategoryId(category.id);
-                          setEditingCategoryName(category.name);
-                        }}
-                        type="button"
-                      >
-                        {translateAppText('transactions.edit')}
-                      </button>
-                      <button
-                        className="secondary-button secondary-button--danger"
-                        onClick={() => void onDeleteCategory(category.id)}
-                        type="button"
-                      >
-                        {translateAppText('transactions.delete')}
-                      </button>
+                      <div className="transaction-card__actions">
+                        <button
+                          className="secondary-button"
+                          onClick={() => {
+                            setEditingCategoryId(category.id);
+                            setEditingCategoryName(category.name);
+                          }}
+                          type="button"
+                        >
+                          {translateAppText('transactions.edit')}
+                        </button>
+                        <button
+                          className="secondary-button secondary-button--danger"
+                          onClick={() => void onDeleteCategory(category.id)}
+                          type="button"
+                        >
+                          {translateAppText('transactions.delete')}
+                        </button>
+                      </div>
                     </div>
                   </div>
 
-                  {categorySubcategories.length === 0 ? (
-                    <p className="category-card__subcopy">{translateAppText('categories.noSubcategoriesYet')}</p>
-                  ) : (
-                    <div className="subcategory-list">
-                      {categorySubcategories.map((subcategory) => (
-                        <div className="subcategory-chip" key={subcategory.id}>
-                          {editingSubcategoryId === subcategory.id ? (
-                            <form
-                              className="subcategory-chip__edit-form"
-                              onSubmit={(event) => {
-                                event.preventDefault();
-                                void onUpdateSubcategory(subcategory.id, {
-                                  categoryId: editingSubcategoryCategoryId,
-                                  name: editingSubcategoryName,
-                                })
-                                  .then(() => {
-                                    setEditingSubcategoryId(null);
-                                    setEditingSubcategoryName('');
-                                    setEditingSubcategoryCategoryId('');
+                  <div className="category-card__section category-card__section--secondary">
+                    {categorySubcategories.length === 0 ? (
+                      <p className="category-card__subcopy">{translateAppText('categories.noSubcategoriesYet')}</p>
+                    ) : (
+                      <div className="subcategory-list">
+                        {categorySubcategories.map((subcategory) => (
+                          <div className="subcategory-chip" key={subcategory.id}>
+                            {editingSubcategoryId === subcategory.id ? (
+                              <form
+                                className="subcategory-chip__edit-form"
+                                onSubmit={(event) => {
+                                  event.preventDefault();
+                                  void onUpdateSubcategory(subcategory.id, {
+                                    categoryId: editingSubcategoryCategoryId,
+                                    name: editingSubcategoryName,
                                   })
-                                  .catch((error) => {
-                                    setFormError(
-                                      resolveAppErrorMessage(error, 'categories.errorUpdateSubcategory'),
-                                    );
-                                  });
-                              }}
-                            >
-                              <input
-                                onChange={(event) => setEditingSubcategoryName(event.target.value)}
-                                type="text"
-                                value={editingSubcategoryName}
-                              />
-                              <select
-                                onChange={(event) =>
-                                  setEditingSubcategoryCategoryId(event.target.value)
-                                }
-                                value={editingSubcategoryCategoryId}
+                                    .then(() => {
+                                      setEditingSubcategoryId(null);
+                                      setEditingSubcategoryName('');
+                                      setEditingSubcategoryCategoryId('');
+                                    })
+                                    .catch((error) => {
+                                      setFormError(
+                                        resolveAppErrorMessage(error, 'categories.errorUpdateSubcategory'),
+                                      );
+                                    });
+                                }}
                               >
-                                {categories.map((item) => (
-                                  <option key={item.id} value={item.id}>
-                                    {item.name}
-                                  </option>
-                                ))}
-                              </select>
-                              <button className="secondary-button" type="submit">
-                                {translateAppText('categories.save')}
-                              </button>
-                            </form>
-                          ) : (
-                            <>
-                              <span>{subcategory.name}</span>
-                              <div className="subcategory-chip__actions">
-                                <button
-                                  className="subcategory-chip__button"
-                                  onClick={() => {
-                                    setEditingSubcategoryId(subcategory.id);
-                                    setEditingSubcategoryName(subcategory.name);
-                                    setEditingSubcategoryCategoryId(subcategory.categoryId);
-                                  }}
-                                  type="button"
+                                <input
+                                  onChange={(event) => setEditingSubcategoryName(event.target.value)}
+                                  type="text"
+                                  value={editingSubcategoryName}
+                                />
+                                <select
+                                  onChange={(event) =>
+                                    setEditingSubcategoryCategoryId(event.target.value)
+                                  }
+                                  value={editingSubcategoryCategoryId}
                                 >
-                                  {translateAppText('transactions.edit')}
+                                  {categories.map((item) => (
+                                    <option key={item.id} value={item.id}>
+                                      {item.name}
+                                    </option>
+                                  ))}
+                                </select>
+                                <button className="secondary-button" type="submit">
+                                  {translateAppText('categories.save')}
                                 </button>
-                                <button
-                                  className="subcategory-chip__button"
-                                  onClick={() => void onDeleteSubcategory(subcategory.id)}
-                                  type="button"
-                                >
-                                  {translateAppText('transactions.delete')}
-                                </button>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                              </form>
+                            ) : (
+                              <>
+                                <span>{subcategory.name}</span>
+                                <div className="subcategory-chip__actions">
+                                  <button
+                                    className="subcategory-chip__button"
+                                    onClick={() => {
+                                      setEditingSubcategoryId(subcategory.id);
+                                      setEditingSubcategoryName(subcategory.name);
+                                      setEditingSubcategoryCategoryId(subcategory.categoryId);
+                                    }}
+                                    type="button"
+                                  >
+                                    {translateAppText('transactions.edit')}
+                                  </button>
+                                  <button
+                                    className="subcategory-chip__button"
+                                    onClick={() => void onDeleteSubcategory(subcategory.id)}
+                                    type="button"
+                                  >
+                                    {translateAppText('transactions.delete')}
+                                  </button>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </article>
               );
             })}

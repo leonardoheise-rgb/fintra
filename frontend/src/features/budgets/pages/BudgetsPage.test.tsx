@@ -28,8 +28,9 @@ describe('BudgetsPage', () => {
     await waitForBudgetsToLoad();
 
     expect(
-      await screen.findByRole('heading', { name: /^budgets$/i, level: 1 }, { timeout: 8000 }),
+      await screen.findByRole('heading', { name: /^budgets$/i }, { timeout: 8000 }),
     ).toBeInTheDocument();
+    expect(screen.queryByText(/monthly budgets/i)).not.toBeInTheDocument();
     expect(
       await screen.findByRole('heading', { name: /^housing$/i, level: 3 }, { timeout: 8000 }),
     ).toBeInTheDocument();
