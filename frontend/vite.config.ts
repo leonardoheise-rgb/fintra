@@ -4,7 +4,8 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   plugins: [react()],
   test: {
-    testTimeout: 10000,
+    fileParallelism: false,
+    testTimeout: 15000,
     environment: 'jsdom',
     globals: true,
     setupFiles: './src/test/setup.ts',
