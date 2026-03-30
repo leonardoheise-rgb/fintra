@@ -1,6 +1,8 @@
 import { createLocalId } from '../lib/createLocalId';
 import { createPreviewWorkspace } from '../lib/previewWorkspace';
 import type {
+  BudgetInput,
+  BudgetRecord,
   CategoryInput,
   CategoryRecord,
   FinanceWorkspace,
@@ -47,6 +49,16 @@ function ensureValidTransaction(input: TransactionInput) {
   }
 }
 
+function ensureValidBudget(input: BudgetInput) {
+  if (!input.categoryId) {
+    throw new Error('A category is required.');
+  }
+
+  if (Number.isNaN(input.amount) || input.amount <= 0) {
+    throw new Error('Budget amount must be greater than zero.');
+  }
+}
+
 function readWorkspace(userId: string): PreviewFinanceStore {
   const rawValue = window.localStorage.getItem(getStorageKey(userId));
 
@@ -87,6 +99,33 @@ function getSubcategoryOrThrow(workspace: PreviewFinanceStore, subcategoryId: st
   }
 
   return subcategory;
+}
+
+function validateBudgetScope(workspace: PreviewFinanceStore, input: BudgetInput) {
+  getCategoryOrThrow(workspace, input.categoryId);
+
+  if (!input.subcategoryId) {
+    return;
+  }
+
+  const subcategory = getSubcategoryOrThrow(workspace, input.subcategoryId);
+
+  if (subcategory.categoryId !== input.categoryId) {
+    throw new Error('The selected subcategory does not belong to the selected category.');
+  }
+}
+
+function hasMatchingBudgetScope(
+  budgets: BudgetRecord[],
+  input: BudgetInput,
+  excludedBudgetId?: string,
+) {
+  return budgets.some(
+    (item) =>
+      item.id !== excludedBudgetId &&
+      item.categoryId === input.categoryId &&
+      item.subcategoryId === input.subcategoryId,
+  );
 }
 
 export function createLocalPreviewFinanceService(userId: string): FinanceService {
@@ -154,6 +193,10 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
 
       if (workspace.transactions.some((item) => item.categoryId === categoryId)) {
         throw new Error('Delete related transactions before removing this category.');
+      }
+
+      if (workspace.budgets.some((item) => item.categoryId === categoryId)) {
+        throw new Error('Delete related budgets before removing this category.');
       }
 
       writeWorkspace(userId, {
@@ -239,6 +282,10 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
         throw new Error('Delete related transactions before removing this subcategory.');
       }
 
+      if (workspace.budgets.some((item) => item.subcategoryId === subcategoryId)) {
+        throw new Error('Delete related budgets before removing this subcategory.');
+      }
+
       writeWorkspace(userId, {
         ...workspace,
         subcategories: workspace.subcategories.filter((item) => item.id !== subcategoryId),
@@ -319,6 +366,67 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
       writeWorkspace(userId, {
         ...workspace,
         transactions: workspace.transactions.filter((item) => item.id !== transactionId),
+      });
+    },
+    async createBudget(input: BudgetInput): Promise<BudgetRecord> {
+      ensureValidBudget(input);
+
+      const workspace = readWorkspace(userId);
+      validateBudgetScope(workspace, input);
+
+      if (hasMatchingBudgetScope(workspace.budgets, input)) {
+        throw new Error('A default budget already exists for this scope.');
+      }
+
+      const budget = {
+        id: createLocalId('budget'),
+        categoryId: input.categoryId,
+        subcategoryId: input.subcategoryId,
+        amount: input.amount,
+      };
+
+      writeWorkspace(userId, {
+        ...workspace,
+        budgets: [...workspace.budgets, budget],
+      });
+
+      return budget;
+    },
+    async updateBudget(budgetId: string, input: BudgetInput): Promise<BudgetRecord> {
+      ensureValidBudget(input);
+
+      const workspace = readWorkspace(userId);
+      validateBudgetScope(workspace, input);
+      const existingBudget = workspace.budgets.find((item) => item.id === budgetId);
+
+      if (!existingBudget) {
+        throw new Error('The selected budget does not exist.');
+      }
+
+      if (hasMatchingBudgetScope(workspace.budgets, input, budgetId)) {
+        throw new Error('A default budget already exists for this scope.');
+      }
+
+      const updatedBudget = {
+        ...existingBudget,
+        categoryId: input.categoryId,
+        subcategoryId: input.subcategoryId,
+        amount: input.amount,
+      };
+
+      writeWorkspace(userId, {
+        ...workspace,
+        budgets: workspace.budgets.map((item) => (item.id === budgetId ? updatedBudget : item)),
+      });
+
+      return updatedBudget;
+    },
+    async deleteBudget(budgetId: string) {
+      const workspace = readWorkspace(userId);
+
+      writeWorkspace(userId, {
+        ...workspace,
+        budgets: workspace.budgets.filter((item) => item.id !== budgetId),
       });
     },
   };

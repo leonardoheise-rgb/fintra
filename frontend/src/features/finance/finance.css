@@ -29,6 +29,7 @@
 .finance-panel__eyebrow,
 .transaction-card__eyebrow,
 .category-card__eyebrow,
+.budget-plan-card__eyebrow,
 .finance-summary-card__label {
   color: var(--color-on-surface-variant);
   font-size: 0.72rem;
@@ -54,6 +55,15 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
   gap: 1rem;
+}
+
+.dashboard-toolbar {
+  grid-template-columns: minmax(0, 1fr) minmax(12rem, 15rem);
+  align-items: end;
+}
+
+.dashboard-toolbar__field {
+  width: 100%;
 }
 
 .finance-summary-card {
@@ -147,7 +157,8 @@
 }
 
 .transaction-card,
-.category-card {
+.category-card,
+.budget-plan-card {
   display: grid;
   gap: 1rem;
   padding: 1rem;
@@ -156,7 +167,8 @@
 }
 
 .transaction-card__main,
-.category-card__header {
+.category-card__header,
+.budget-plan-card__header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -164,9 +176,18 @@
 }
 
 .transaction-card__main h3,
-.category-card h3 {
+.category-card h3,
+.budget-plan-card h3 {
   margin-top: 0.25rem;
   font-size: 1.2rem;
+}
+
+.budget-plan-card__amount,
+.budget-registry__summary {
+  font-family: var(--font-headline);
+  color: var(--color-primary);
+  font-size: 1.35rem;
+  letter-spacing: -0.05em;
 }
 
 .transaction-card__amounts {
@@ -244,7 +265,8 @@
 
 @media (max-width: 960px) {
   .finance-grid,
-  .finance-form--inline {
+  .finance-form--inline,
+  .dashboard-toolbar {
     grid-template-columns: 1fr;
   }
 }

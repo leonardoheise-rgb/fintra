@@ -61,9 +61,9 @@ The frontend currently expects:
 
 ## Finance data behavior
 
-- Preview mode stores categories, subcategories, and transactions in local storage per signed-in preview user
-- Supabase mode expects the Sprint 2 migrations inside `database/migrations/` to be applied
-- The app now includes protected routes for `/transactions` and `/categories`
+- Preview mode stores categories, subcategories, transactions, and budgets in local storage per signed-in preview user
+- Supabase mode expects the current migrations inside `database/migrations/` to be applied, including `20260329201000_create_budgets.sql`
+- The app now includes protected routes for `/transactions`, `/categories`, and `/budgets`
 
 ## Deployment flow
 

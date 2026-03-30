@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { formatMonthLabel } from '../../../shared/lib/formatters/date';
 import type { DashboardSnapshot } from '../dashboard.types';
@@ -11,11 +13,11 @@ export function HeroSummary({ snapshot }: HeroSummaryProps) {
     <section className="hero-panel">
       <div className="hero-panel__content">
         <div>
-          <p className="hero-panel__eyebrow">Foundational dashboard preview</p>
+          <p className="hero-panel__eyebrow">Live monthly dashboard</p>
           <h1>Wealth in motion</h1>
           <p className="hero-panel__copy">
-            The first milestone establishes the shell, navigation, formatting utilities, and visual
-            system that later finance workflows will plug into.
+            Default budgets, live transaction totals, and monthly pacing now share the same source
+            of truth.
           </p>
         </div>
 
@@ -28,23 +30,25 @@ export function HeroSummary({ snapshot }: HeroSummaryProps) {
             <span className="status-pill status-pill--success">
               {formatMonthLabel(snapshot.month)}
             </span>
-            <span className="status-pill">{formatCurrency(snapshot.remainingFunds)} remaining</span>
+            <span className="status-pill">
+              {formatCurrency(snapshot.remainingBudget)} budget left
+            </span>
           </div>
         </div>
       </div>
 
       <div className="hero-panel__actions">
         <div className="hero-stat">
-          <span className="hero-stat__label">Current delta</span>
-          <strong>{formatCurrency(snapshot.currentDelta)}</strong>
+          <span className="hero-stat__label">Net balance</span>
+          <strong>{formatCurrency(snapshot.remainingBalance)}</strong>
         </div>
         <div className="hero-stat">
-          <span className="hero-stat__label">Average monthly spend</span>
-          <strong>{formatCurrency(snapshot.averageMonthlySpend)}</strong>
+          <span className="hero-stat__label">Average monthly expenses</span>
+          <strong>{formatCurrency(snapshot.averageMonthlyExpenses)}</strong>
         </div>
-        <button className="primary-button" type="button">
-          Configure monthly plan
-        </button>
+        <Link className="primary-button" to="/budgets">
+          Configure default budgets
+        </Link>
       </div>
     </section>
   );

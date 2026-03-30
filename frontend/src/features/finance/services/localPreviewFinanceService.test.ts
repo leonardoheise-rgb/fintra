@@ -8,6 +8,7 @@ describe('localPreviewFinanceService', () => {
 
     expect(workspace.categories.length).toBeGreaterThan(0);
     expect(workspace.transactions.length).toBeGreaterThan(0);
+    expect(workspace.budgets.length).toBeGreaterThan(0);
   });
 
   it('prevents duplicate category names', async () => {
@@ -70,5 +71,42 @@ describe('localPreviewFinanceService', () => {
 
     const workspace = await service.getWorkspace();
     expect(workspace.transactions.find((item) => item.id === createdTransaction.id)).toBeUndefined();
+  });
+
+  it('creates, updates, and deletes a budget', async () => {
+    const service = createLocalPreviewFinanceService('user-1');
+
+    const createdBudget = await service.createBudget({
+      categoryId: 'category-transport',
+      subcategoryId: 'subcategory-transit',
+      amount: 90,
+    });
+
+    expect(createdBudget.amount).toBe(90);
+
+    const updatedBudget = await service.updateBudget(createdBudget.id, {
+      categoryId: 'category-transport',
+      subcategoryId: 'subcategory-transit',
+      amount: 110,
+    });
+
+    expect(updatedBudget.amount).toBe(110);
+
+    await service.deleteBudget(createdBudget.id);
+
+    const workspace = await service.getWorkspace();
+    expect(workspace.budgets.find((item) => item.id === createdBudget.id)).toBeUndefined();
+  });
+
+  it('prevents duplicate default budgets for the same scope', async () => {
+    const service = createLocalPreviewFinanceService('user-1');
+
+    await expect(
+      service.createBudget({
+        categoryId: 'category-housing',
+        subcategoryId: null,
+        amount: 999,
+      }),
+    ).rejects.toThrow('A default budget already exists for this scope.');
   });
 });

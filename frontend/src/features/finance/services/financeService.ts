@@ -1,4 +1,6 @@
 import type {
+  BudgetInput,
+  BudgetRecord,
   CategoryInput,
   CategoryRecord,
   FinanceWorkspace,
@@ -19,4 +21,7 @@ export interface FinanceService {
   createTransaction(input: TransactionInput): Promise<TransactionRecord>;
   updateTransaction(transactionId: string, input: TransactionInput): Promise<TransactionRecord>;
   deleteTransaction(transactionId: string): Promise<void>;
+  createBudget(input: BudgetInput): Promise<BudgetRecord>;
+  updateBudget(budgetId: string, input: BudgetInput): Promise<BudgetRecord>;
+  deleteBudget(budgetId: string): Promise<void>;
 }

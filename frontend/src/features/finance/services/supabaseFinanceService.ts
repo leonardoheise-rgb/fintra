@@ -1,5 +1,7 @@
 import { getSupabaseBrowserClient } from '../../../shared/supabase/client';
 import type {
+  BudgetInput,
+  BudgetRecord,
   CategoryInput,
   CategoryRecord,
   FinanceWorkspace,
@@ -49,6 +51,20 @@ function mapTransaction(record: {
   };
 }
 
+function mapBudget(record: {
+  id: string;
+  category_id: string;
+  subcategory_id: string | null;
+  amount: number;
+}): BudgetRecord {
+  return {
+    id: record.id,
+    categoryId: record.category_id,
+    subcategoryId: record.subcategory_id,
+    amount: Number(record.amount),
+  };
+}
+
 async function withTimeout<T>(operation: Promise<T>, timeoutInMilliseconds = 12000): Promise<T> {
   let timer: number | undefined;
 
@@ -93,6 +109,7 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
         { data: categories, error: categoriesError },
         { data: subcategories, error: subcategoriesError },
         { data: transactions, error: transactionsError },
+        { data: budgets, error: budgetsError },
       ] = await withTimeout(
         Promise.all([
           client.from('categories').select('id, name').eq('user_id', userId).order('name'),
@@ -106,17 +123,23 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
             .select('id, amount, type, category_id, subcategory_id, date, description')
             .eq('user_id', userId)
             .order('date', { ascending: false }),
+          client
+            .from('budgets')
+            .select('id, category_id, subcategory_id, amount')
+            .eq('user_id', userId)
+            .order('amount', { ascending: false }),
         ]),
       );
 
-      if (categoriesError || subcategoriesError || transactionsError) {
-        throw categoriesError ?? subcategoriesError ?? transactionsError;
+      if (categoriesError || subcategoriesError || transactionsError || budgetsError) {
+        throw categoriesError ?? subcategoriesError ?? transactionsError ?? budgetsError;
       }
 
       return {
         categories: (categories ?? []).map(mapCategory),
         subcategories: (subcategories ?? []).map(mapSubcategory),
         transactions: (transactions ?? []).map(mapTransaction),
+        budgets: (budgets ?? []).map(mapBudget),
       };
     },
     async createCategory(input: CategoryInput) {
@@ -254,6 +277,50 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
         .delete()
         .eq('id', transactionId)
         .eq('user_id', userId);
+
+      if (error) {
+        throw error;
+      }
+    },
+    async createBudget(input: BudgetInput) {
+      const { data, error } = await client
+        .from('budgets')
+        .insert({
+          user_id: userId,
+          category_id: input.categoryId,
+          subcategory_id: input.subcategoryId,
+          amount: input.amount,
+        })
+        .select('id, category_id, subcategory_id, amount')
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      return mapBudget(data);
+    },
+    async updateBudget(budgetId: string, input: BudgetInput) {
+      const { data, error } = await client
+        .from('budgets')
+        .update({
+          category_id: input.categoryId,
+          subcategory_id: input.subcategoryId,
+          amount: input.amount,
+        })
+        .eq('id', budgetId)
+        .eq('user_id', userId)
+        .select('id, category_id, subcategory_id, amount')
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      return mapBudget(data);
+    },
+    async deleteBudget(budgetId: string) {
+      const { error } = await client.from('budgets').delete().eq('id', budgetId).eq('user_id', userId);
 
       if (error) {
         throw error;

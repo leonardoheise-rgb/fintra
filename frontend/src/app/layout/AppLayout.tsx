@@ -8,6 +8,7 @@ const pageTitles: Record<string, string> = {
   '/': 'Monthly command center',
   '/transactions': 'Transaction ledger',
   '/categories': 'Category manager',
+  '/budgets': 'Budget operations',
 };
 
 export function AppLayout({ children }: PropsWithChildren) {
@@ -56,8 +57,8 @@ export function AppLayout({ children }: PropsWithChildren) {
         </nav>
 
         <div className="sidebar__footnote">
-          Phase 2 transactions
-          <span>Categories, subcategories, and CRUD records are now wired into the app shell.</span>
+          Phase 3 budgeting
+          <span>Default budgets and the live monthly dashboard are now wired into the app shell.</span>
         </div>
       </aside>
 

@@ -43,5 +43,31 @@ export function createPreviewWorkspace(): FinanceWorkspace {
         description: 'Weekly grocery run',
       },
     ],
+    budgets: [
+      {
+        id: 'budget-housing',
+        categoryId: 'category-housing',
+        subcategoryId: null,
+        amount: 2500,
+      },
+      {
+        id: 'budget-food-groceries',
+        categoryId: 'category-food',
+        subcategoryId: 'subcategory-groceries',
+        amount: 450,
+      },
+      {
+        id: 'budget-food-restaurants',
+        categoryId: 'category-food',
+        subcategoryId: 'subcategory-restaurants',
+        amount: 220,
+      },
+      {
+        id: 'budget-transport',
+        categoryId: 'category-transport',
+        subcategoryId: null,
+        amount: 260,
+      },
+    ],
   };
 }

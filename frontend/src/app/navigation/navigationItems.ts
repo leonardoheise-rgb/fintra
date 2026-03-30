@@ -23,9 +23,9 @@ export const navigationItems = [
   {
     label: 'Budgets',
     shortLabel: 'BG',
-    description: 'Default plans and override workflows are queued.',
+    description: 'Define default monthly plans by category and subcategory.',
     href: '/budgets',
-    isEnabled: false,
+    isEnabled: true,
   },
   {
     label: 'Analytics',

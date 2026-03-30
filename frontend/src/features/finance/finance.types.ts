@@ -21,10 +21,18 @@ export type TransactionRecord = {
   description: string;
 };
 
+export type BudgetRecord = {
+  id: string;
+  categoryId: string;
+  subcategoryId: string | null;
+  amount: number;
+};
+
 export type FinanceWorkspace = {
   categories: CategoryRecord[];
   subcategories: SubcategoryRecord[];
   transactions: TransactionRecord[];
+  budgets: BudgetRecord[];
 };
 
 export type CategoryInput = {
@@ -43,4 +51,10 @@ export type TransactionInput = {
   subcategoryId: string | null;
   date: string;
   description: string;
+};
+
+export type BudgetInput = {
+  categoryId: string;
+  subcategoryId: string | null;
+  amount: number;
 };
