@@ -1,6 +1,6 @@
 # Testing Guide
 
-This guide covers the current phase 5 testing flow for Fintra.
+This guide covers the current Sprint 6 testing flow for Fintra.
 
 ## Automated checks
 
@@ -16,6 +16,12 @@ npm ci
 
 ```bash
 npm run test:run
+```
+
+### Run the smoke suite
+
+```bash
+npm run test:smoke
 ```
 
 ### Run tests in watch mode
@@ -36,11 +42,18 @@ npm run lint
 npm run build
 ```
 
+### Run the full release check
+
+```bash
+npm run release:check
+```
+
 ## Current unit test coverage
 
 The current suite validates:
 
 - app bootstrapping and key dashboard shell content
+- release-smoke flows for auth, transaction CRUD, budgets, and analytics
 - live dashboard snapshot calculations, including monthly overrides
 - analytics range, comparison, and category trend calculations
 - default budget route rendering and CRUD behavior
@@ -113,6 +126,13 @@ Run these every time the shared shell, layout, or formatting helpers change:
 2. `npm run lint`
 3. `npm run build`
 
+### Release regression checks
+
+Run these before a Render demo, a release candidate, or a production deploy:
+
+1. `npm run test:smoke`
+2. `npm run release:check`
+
 ## When to add more tests
 
 Add new unit tests when:
@@ -125,3 +145,12 @@ Add new unit tests when:
 - a bug fix changes rendered output or validation rules
 
 When auth and data flows are added, expand this guide with route protection, loading state, and form validation checks.
+
+## CI behavior
+
+GitHub Actions now runs:
+
+- `npm run lint`
+- `npm run test:run`
+- `npm run test:smoke`
+- `npm run build`

@@ -70,6 +70,7 @@ Use this checklist before any MVP demo or production release.
 - Render build logs show a successful deploy on the intended commit
 - Supabase data reads and writes succeed from the deployed frontend
 - Deep links such as `/budgets`, `/analytics`, and `/settings` survive browser refresh
+- The deployment procedure in `docs/deployment-runbook.md` has been followed
 - Known limitations have been reviewed in `docs/known-limitations.md`
 - Post-MVP backlog has been reviewed in `docs/post-mvp-backlog.md`
 

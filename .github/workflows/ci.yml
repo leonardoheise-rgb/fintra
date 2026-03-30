@@ -30,5 +30,8 @@ jobs:
       - name: Run unit tests
         run: npm run test:run
 
+      - name: Run smoke suite
+        run: npm run test:smoke
+
       - name: Build frontend
         run: npm run build

@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "test": "vitest",
+    "test:smoke": "vitest run --config vite.smoke.config.ts",
     "test:run": "vitest run"
   },
   "dependencies": {
