@@ -5,11 +5,13 @@ import { CategoriesSummaryCard } from '../../finance/components/CategoriesSummar
 import { getCurrentMonthKey } from '../../../shared/lib/date/months';
 import { formatMonthLabel } from '../../../shared/lib/formatters/date';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
+import { formatDayOfMonthLabel } from '../../../shared/lib/formatters/dayOfMonth';
 import { getDefaultDisplayPreferences, type DisplayPreferences } from '../../../shared/preferences/displayPreferences';
 import { useAuth } from '../../auth/useAuth';
 import { useDisplayPreferences } from '../useDisplayPreferences';
 
 type SaveState = 'idle' | 'saved';
+const monthStartDayOptions = Array.from({ length: 31 }, (_, index) => index + 1);
 
 function areDisplayPreferencesEqual(
   leftPreferences: DisplayPreferences,
@@ -17,7 +19,8 @@ function areDisplayPreferencesEqual(
 ) {
   return (
     leftPreferences.currency === rightPreferences.currency &&
-    leftPreferences.locale === rightPreferences.locale
+    leftPreferences.locale === rightPreferences.locale &&
+    leftPreferences.monthStartDay === rightPreferences.monthStartDay
   );
 }
 
@@ -51,7 +54,7 @@ export function SettingsPage() {
   return (
     <div className="finance-page">
       <FinancePageHeader
-        description="Control how amounts and month labels are shown across the app. These preferences are saved for the current signed-in account on this device."
+        description="Shape how the app reads day to day, from your preferred currency to the day your monthly cycle begins."
         eyebrow="Workspace"
         title="Settings"
       />
@@ -60,8 +63,8 @@ export function SettingsPage() {
         <CategoriesSummaryCard label="Default currency" value={preferences.currency} />
         <CategoriesSummaryCard label="Default locale" value={preferences.locale} />
         <CategoriesSummaryCard
-          label="Workspace mode"
-          value={auth.mode === 'supabase' ? 'Synced' : 'Preview'}
+          label="Month starts on"
+          value={formatDayOfMonthLabel(preferences.monthStartDay)}
         />
       </section>
 
@@ -70,7 +73,7 @@ export function SettingsPage() {
           <div className="finance-panel__heading">
             <div>
               <p className="finance-panel__eyebrow">Display preferences</p>
-              <h2>Currency and locale</h2>
+              <h2>Currency, locale, and monthly cycle</h2>
             </div>
           </div>
 
@@ -117,6 +120,27 @@ export function SettingsPage() {
               </select>
             </label>
 
+            <label className="finance-field">
+              <span>Month starts on</span>
+              <select
+                name="monthStartDay"
+                onChange={(event) => {
+                  setDraftPreferences((currentPreferences) => ({
+                    ...currentPreferences,
+                    monthStartDay: Number(event.target.value),
+                  }));
+                  setSaveState('idle');
+                }}
+                value={String(draftPreferences.monthStartDay)}
+              >
+                {monthStartDayOptions.map((day) => (
+                  <option key={day} value={day}>
+                    {formatDayOfMonthLabel(day)}
+                  </option>
+                ))}
+              </select>
+            </label>
+
             <button
               className="primary-button finance-form__submit"
               disabled={!hasUnsavedChanges}
@@ -152,8 +176,8 @@ export function SettingsPage() {
         <section className="finance-panel">
           <div className="finance-panel__heading">
             <div>
-              <p className="finance-panel__eyebrow">Live preview</p>
-              <h2>How your workspace will look</h2>
+              <p className="finance-panel__eyebrow">Preview</p>
+              <h2>How your workspace will read</h2>
             </div>
           </div>
 
@@ -171,59 +195,41 @@ export function SettingsPage() {
               <span className="finance-summary-card__label">Month preview</span>
               <strong>{formatMonthLabel(getCurrentMonthKey(), draftPreferences.locale)}</strong>
             </article>
+            <article className="settings-preview-card">
+              <span className="finance-summary-card__label">Monthly cycle</span>
+              <strong>Starts on the {formatDayOfMonthLabel(draftPreferences.monthStartDay)}</strong>
+            </article>
           </div>
 
           <p className="settings-note">
-            The current implementation stores these preferences in your browser for the signed-in
-            account. If you use another device, you will need to set them again there.
+            These choices shape how totals and month-based views feel throughout the app.
           </p>
         </section>
-
-        <section className="finance-panel">
-          <div className="finance-panel__heading">
-            <div>
-              <p className="finance-panel__eyebrow">Deployment status</p>
-              <h2>Workspace connection</h2>
-            </div>
-          </div>
-
-          <div className="settings-preview-grid">
-            <article className="settings-preview-card">
-              <span className="finance-summary-card__label">Auth provider</span>
-              <strong>{auth.mode === 'supabase' ? 'Supabase' : 'Preview mode'}</strong>
-            </article>
-            <article className="settings-preview-card">
-              <span className="finance-summary-card__label">Finance storage</span>
-              <strong>{auth.mode === 'supabase' ? 'Synced workspace' : 'Browser-only workspace'}</strong>
-            </article>
-          </div>
-
-          {auth.mode === 'supabase' ? (
-            <p className="finance-message" role="status">
-              This deployment is connected to Supabase auth and persisted finance data.
-            </p>
-          ) : (
-            <>
-              <p className="finance-message" role="status">
-                This build is still running in preview mode. Sign-ins and finance data stay only in
-                this browser until Supabase environment variables are configured.
-              </p>
-              <p className="settings-note">
-                To switch this deployment to real Supabase mode, add these Render environment
-                variables and redeploy:
-              </p>
-              <ul className="settings-checklist">
-                <li>
-                  <code>VITE_SUPABASE_URL</code>
-                </li>
-                <li>
-                  <code>VITE_SUPABASE_ANON_KEY</code>
-                </li>
-              </ul>
-            </>
-          )}
-        </section>
       </div>
+
+      <details className="finance-panel settings-support-panel">
+        <summary className="settings-support-summary">Support details</summary>
+
+        <div className="settings-preview-grid">
+          <article className="settings-preview-card">
+            <span className="finance-summary-card__label">Signed-in account</span>
+            <strong>{auth.user?.email ?? 'Not available'}</strong>
+          </article>
+          <article className="settings-preview-card">
+            <span className="finance-summary-card__label">Data availability</span>
+            <strong>
+              {auth.mode === 'supabase'
+                ? 'Available whenever you sign in'
+                : 'Stored on this device for now'}
+            </strong>
+          </article>
+        </div>
+
+        <p className="settings-note">
+          Open this area when you need a quick support-oriented view of how this workspace is
+          currently behaving.
+        </p>
+      </details>
     </div>
   );
 }

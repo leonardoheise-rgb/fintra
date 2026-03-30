@@ -59,12 +59,11 @@ export function SignInPage() {
 
   return (
     <AuthPageLayout
-      description="Sign in to access your protected dashboard, future transactions, and user-scoped budgets."
+      description="Sign in to return to your monthly view, recent activity, and personal budget plan."
       eyebrow="Welcome back"
       footerActionHref="/sign-up"
       footerActionLabel="Create an account"
       footerPrompt="Need an account?"
-      mode={auth.mode}
       title="Sign in"
     >
       <form className="auth-form" onSubmit={handleSubmit}>
@@ -91,13 +90,6 @@ export function SignInPage() {
         </label>
 
         {formError ? <p className="auth-form__error">{formError}</p> : null}
-
-        {auth.mode === 'preview' ? (
-          <p className="auth-form__note">
-            Preview mode uses a local session so you can validate the app shell before connecting a
-            real Supabase project.
-          </p>
-        ) : null}
 
         <button className="primary-button auth-form__button" disabled={isSubmitting} type="submit">
           {isSubmitting ? 'Signing in...' : 'Sign in'}

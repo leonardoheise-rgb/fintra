@@ -1,6 +1,7 @@
 export type DisplayPreferences = {
   currency: string;
   locale: string;
+  monthStartDay: number;
 };
 
 export type DisplayPreferenceOption = {
@@ -10,6 +11,7 @@ export type DisplayPreferenceOption = {
 
 const defaultLocale = import.meta.env.VITE_DEFAULT_LOCALE ?? 'en-US';
 const defaultCurrency = import.meta.env.VITE_DEFAULT_CURRENCY ?? 'USD';
+const defaultMonthStartDay = Number(import.meta.env.VITE_DEFAULT_MONTH_START_DAY ?? '1');
 
 export const supportedCurrencyOptions: DisplayPreferenceOption[] = [
   { value: 'BRL', label: 'Brazilian Real (BRL)' },
@@ -46,6 +48,7 @@ export function sanitizeDisplayPreferences(
 ): DisplayPreferences {
   const currency = input?.currency;
   const locale = input?.locale;
+  const monthStartDay = input?.monthStartDay;
 
   return {
     currency: currency && supportedCurrencyValues.has(currency)
@@ -58,6 +61,17 @@ export function sanitizeDisplayPreferences(
       : supportedLocaleValues.has(defaultLocale)
         ? defaultLocale
         : 'en-US',
+    monthStartDay:
+      typeof monthStartDay === 'number' &&
+      Number.isInteger(monthStartDay) &&
+      monthStartDay >= 1 &&
+      monthStartDay <= 31
+        ? monthStartDay
+        : Number.isInteger(defaultMonthStartDay) &&
+            defaultMonthStartDay >= 1 &&
+            defaultMonthStartDay <= 31
+          ? defaultMonthStartDay
+          : 1,
   };
 }
 

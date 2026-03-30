@@ -9,8 +9,8 @@ export function CategoriesPage() {
   return (
     <div className="finance-page">
       <FinancePageHeader
-        description="Build the category tree that transactions depend on. Duplicate prevention and delete guards are active so the data model stays predictable before budget logic arrives."
-        eyebrow="Sprint 2"
+        description="Shape the category structure that keeps your transactions, budgets, and reporting easy to understand."
+        eyebrow="Structure"
         title="Categories"
       />
 

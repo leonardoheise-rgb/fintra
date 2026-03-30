@@ -1,8 +1,8 @@
 import type { PropsWithChildren } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
-import { useAuth } from '../../features/auth/useAuth';
 import { navigationItems } from '../navigation/navigationItems';
+import { useAuth } from '../../features/auth/useAuth';
 
 const pageTitles: Record<string, string> = {
   '/': 'Monthly command center',
@@ -24,7 +24,7 @@ const pageDescriptions: Record<string, string> = {
   '/analytics':
     'Read trends, comparisons, and category drift through a calmer long-view layout with clearer mobile filters.',
   '/settings':
-    'Keep preferences, previews, and deployment status grouped into cleaner sections with better visual priority.',
+    'Choose how amounts, dates, and your monthly rhythm feel throughout the app.',
 };
 
 function getUserInitials(email: string | undefined) {
@@ -47,7 +47,7 @@ export function AppLayout({ children }: PropsWithChildren) {
   const pageTitle = pageTitles[location.pathname] ?? 'Protected workspace';
   const pageDescription =
     pageDescriptions[location.pathname] ??
-    'Protected routes, finance tools, and workspace settings now share a calmer, clearer layout.';
+    'Your core money tools now share a calmer, clearer layout.';
 
   return (
     <div className="app-shell">
@@ -101,10 +101,9 @@ export function AppLayout({ children }: PropsWithChildren) {
           </NavLink>
 
           <div className="sidebar__footnote">
-            Sprint 6 release
+            Stay consistent
             <span>
-              Auth, transactions, budgets, analytics, and settings are now ready for a real hosted
-              demo.
+              Keep your transactions, budgets, and monthly habits aligned in one focused place.
             </span>
           </div>
         </div>
@@ -120,20 +119,14 @@ export function AppLayout({ children }: PropsWithChildren) {
 
           <div className="topbar__meta">
             <div className="topbar__workspace">
-              <div className="status-pill status-pill--accent">
-                {auth.mode === 'preview' ? 'Preview workspace' : 'Synced workspace'}
-              </div>
+              <div className="status-pill status-pill--accent">Personal workspace</div>
               <p className="topbar__workspace-copy">
-                {auth.mode === 'preview'
-                  ? 'Local demo data is active on this device.'
-                  : 'Live account data is connected for this session.'}
+                Your plan, activity, and progress stay organized around the month ahead.
               </p>
             </div>
             <div className="topbar__controls">
               <div className="topbar__account">
-                <div className="status-pill">
-                  {auth.mode === 'preview' ? 'Preview auth' : 'Supabase auth'}
-                </div>
+                <div className="status-pill">Signed in</div>
                 <p className="topbar__email">{auth.user?.email}</p>
               </div>
               <div aria-hidden="true" className="avatar-chip">

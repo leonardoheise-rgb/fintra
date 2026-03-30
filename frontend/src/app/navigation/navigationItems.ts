@@ -37,7 +37,7 @@ export const navigationItems = [
   {
     label: 'Settings',
     shortLabel: 'ST',
-    description: 'Choose the currency and locale used across your workspace.',
+    description: 'Choose how money, dates, and your monthly cycle are shown.',
     href: '/settings',
     isEnabled: true,
   },

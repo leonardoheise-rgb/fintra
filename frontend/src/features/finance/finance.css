@@ -236,6 +236,40 @@
   padding-left: 1.1rem;
 }
 
+.settings-support-panel {
+  gap: 1rem;
+}
+
+.settings-support-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  cursor: pointer;
+  list-style: none;
+  color: var(--color-primary);
+  font-family: var(--font-headline);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.settings-support-summary::-webkit-details-marker {
+  display: none;
+}
+
+.settings-support-summary::after {
+  content: '+';
+  color: #7c8596;
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.settings-support-panel[open] .settings-support-summary::after {
+  content: '-';
+}
+
 .finance-message--error {
   background: rgba(255, 218, 214, 0.72);
   color: var(--color-error);

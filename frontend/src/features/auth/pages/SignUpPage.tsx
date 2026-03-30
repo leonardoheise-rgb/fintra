@@ -67,12 +67,11 @@ export function SignUpPage() {
 
   return (
     <AuthPageLayout
-      description="Create a secure account so your dashboard, transactions, and future budgets stay isolated to you."
+      description="Create your account to build a personal space for your monthly plan, spending, and progress."
       eyebrow="New account"
       footerActionHref="/sign-in"
       footerActionLabel="Sign in"
       footerPrompt="Already have an account?"
-      mode={auth.mode}
       title="Create your account"
     >
       <form className="auth-form" onSubmit={handleSubmit}>

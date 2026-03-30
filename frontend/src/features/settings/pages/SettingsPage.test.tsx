@@ -27,14 +27,15 @@ describe('SettingsPage', () => {
     expect(screen.getByLabelText(/settings summary/i)).toBeInTheDocument();
     expect(screen.getByText(/^brl$/i)).toBeInTheDocument();
     expect(screen.getByText(/^en-us$/i)).toBeInTheDocument();
-    expect(screen.getByText(/^preview$/i)).toBeInTheDocument();
-    expect(screen.getByText(/this build is still running in preview mode/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/^1st$/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/support details/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /save display preferences/i })).toBeDisabled();
 
     await user.selectOptions(screen.getByLabelText(/default currency/i), 'USD');
     expect(screen.getByText(/unsaved display preference changes/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /save display preferences/i })).toBeEnabled();
     await user.selectOptions(screen.getByLabelText(/default locale/i), 'pt-BR');
+    await user.selectOptions(screen.getByLabelText(/month starts on/i), '15');
     await user.click(screen.getByRole('button', { name: /save display preferences/i }));
 
     expect(await screen.findByText(/display preferences saved/i)).toBeInTheDocument();
@@ -45,10 +46,12 @@ describe('SettingsPage', () => {
     ).toEqual({
       currency: 'USD',
       locale: 'pt-BR',
+      monthStartDay: 15,
     });
   });
 
-  it('shows the Supabase deployment status when the workspace uses the real backend', async () => {
+  it('shows support details without surfacing technical implementation labels', async () => {
+    const user = userEvent.setup();
     const authService = createAuthServiceStub({
       initialSession: {
         user: {
@@ -61,16 +64,18 @@ describe('SettingsPage', () => {
 
     await renderAppAtPath('/settings', authService.service);
 
-    expect(
-      await screen.findByText(/connected to supabase auth and persisted finance data/i),
-    ).toBeInTheDocument();
-    expect(screen.getAllByText(/synced workspace/i).length).toBeGreaterThan(0);
+    await user.click(await screen.findByText(/support details/i));
+
+    expect(await screen.findByText(/available whenever you sign in/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/owner@fintra.dev/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/supabase/i)).not.toBeInTheDocument();
   });
 
   it('applies runtime preferences to shared amount and month formatting', async () => {
     setRuntimeDisplayPreferences({
       currency: 'EUR',
       locale: 'pt-BR',
+      monthStartDay: 1,
     });
 
     await waitFor(() => {

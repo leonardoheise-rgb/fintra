@@ -8,7 +8,6 @@ type AuthPageLayoutProps = PropsWithChildren<{
   footerPrompt: string;
   footerActionLabel: string;
   footerActionHref: string;
-  mode: 'preview' | 'supabase';
 }>;
 
 export function AuthPageLayout({
@@ -18,7 +17,6 @@ export function AuthPageLayout({
   footerActionHref,
   footerActionLabel,
   footerPrompt,
-  mode,
   title,
 }: AuthPageLayoutProps) {
   return (
@@ -27,22 +25,20 @@ export function AuthPageLayout({
         <p className="auth-page__eyebrow">Fintra</p>
         <h1>Money clarity with an editorial calm.</h1>
         <p className="auth-page__copy">
-          Sprint 1 adds authentication, protected routes, and a session-aware shell so the finance
-          workflows can be safely attached to real user accounts.
+          A calmer place to manage your monthly plan, review your spending, and keep steady
+          financial habits.
         </p>
         <div className="auth-page__highlights" aria-label="Workspace highlights">
           <article className="auth-page__highlight">
-            <span>Protected shell</span>
-            <strong>Private pages stay scoped to your account</strong>
+            <span>Monthly focus</span>
+            <strong>See your plan, movement, and progress in one flow</strong>
           </article>
           <article className="auth-page__highlight">
-            <span>Live hierarchy</span>
-            <strong>Budgets, transactions, and insights stay visually organized</strong>
+            <span>Private access</span>
+            <strong>Your workspace stays personal every time you sign in</strong>
           </article>
         </div>
-        <div className="auth-page__mode">
-          {mode === 'preview' ? 'Preview auth mode' : 'Supabase auth mode'}
-        </div>
+        <div className="auth-page__mode">Personal access</div>
       </section>
 
       <section className="auth-card" aria-labelledby="auth-title">
