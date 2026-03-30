@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { translateAppText } from '../../../shared/i18n/appText';
 import { getCurrentMonthKey } from '../../../shared/lib/date/months';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { CategoriesSummaryCard } from '../../finance/components/CategoriesSummaryCard';
@@ -18,7 +19,7 @@ export function DashboardPage() {
   if (financeData.status === 'loading') {
     return (
       <section aria-live="polite" className="finance-panel">
-        <p className="finance-empty-state">Loading dashboard...</p>
+        <p className="finance-empty-state">{translateAppText('dashboard.loading')}</p>
       </section>
     );
   }
@@ -38,11 +39,11 @@ export function DashboardPage() {
     <div className="dashboard-page">
       <section className="finance-panel dashboard-toolbar">
         <div>
-          <p className="finance-panel__eyebrow">Monthly scope</p>
-          <h2>Financial overview</h2>
+          <p className="finance-panel__eyebrow">{translateAppText('dashboard.monthlyScope')}</p>
+          <h2>{translateAppText('dashboard.financialOverview')}</h2>
         </div>
         <label className="finance-field dashboard-toolbar__field">
-          <span>Selected month</span>
+          <span>{translateAppText('dashboard.selectedMonth')}</span>
           <input
             name="dashboardMonth"
             onChange={(event) => setSelectedMonth(event.target.value)}
@@ -64,13 +65,13 @@ export function DashboardPage() {
 
       <section className="finance-summary-grid" aria-label="Dashboard summary">
         <CategoriesSummaryCard
-          label="Default budget"
+          label={translateAppText('dashboard.defaultBudget')}
           value={formatCurrency(snapshot.totalBudget)}
         />
-        <CategoriesSummaryCard label="Income" value={formatCurrency(snapshot.totalIncome)} />
-        <CategoriesSummaryCard label="Expenses" value={formatCurrency(snapshot.totalExpenses)} />
+        <CategoriesSummaryCard label={translateAppText('dashboard.income')} value={formatCurrency(snapshot.totalIncome)} />
+        <CategoriesSummaryCard label={translateAppText('dashboard.expenses')} value={formatCurrency(snapshot.totalExpenses)} />
         <CategoriesSummaryCard
-          label="Net balance"
+          label={translateAppText('dashboard.netBalance')}
           value={formatCurrency(snapshot.remainingBalance)}
         />
       </section>

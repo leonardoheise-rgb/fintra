@@ -28,7 +28,7 @@ describe('CategoriesPage', () => {
     await waitForCategoriesToLoad();
 
     expect(
-      await screen.findByRole('heading', { name: /^categories$/i }, { timeout: 8000 }),
+      await screen.findByRole('heading', { name: /^categories$/i, level: 1 }, { timeout: 8000 }),
     ).toBeInTheDocument();
     expect(
       await screen.findByRole('heading', { name: /^housing$/i, level: 3 }, { timeout: 8000 }),

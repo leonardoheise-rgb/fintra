@@ -1,5 +1,6 @@
 import { formatMonthLabel } from '../../../shared/lib/formatters/date';
 import { formatPercentage } from '../../../shared/lib/formatters/percentage';
+import { translateAppText } from '../../../shared/i18n/appText';
 import type { MonthlyAnalyticsPoint } from '../analytics.types';
 
 type SavingsRateChartProps = {
@@ -22,10 +23,10 @@ export function SavingsRateChart({ monthlyPoints }: SavingsRateChartProps) {
     <section className="finance-panel analytics-panel">
       <div className="finance-panel__heading">
         <div>
-          <p className="finance-panel__eyebrow">Savings behavior</p>
-          <h2>Savings rate trend</h2>
+          <p className="finance-panel__eyebrow">{translateAppText('analytics.savingsBehavior')}</p>
+          <h2>{translateAppText('analytics.savingsRateTrend')}</h2>
         </div>
-        <p className="analytics-panel__caption">Positive and negative monthly rate</p>
+        <p className="analytics-panel__caption">{translateAppText('analytics.positiveNegativeRate')}</p>
       </div>
 
       <div className="analytics-rate-chart">

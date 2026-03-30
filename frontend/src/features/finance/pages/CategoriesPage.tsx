@@ -2,6 +2,7 @@ import { useFinanceData } from '../useFinanceData';
 import { CategoriesManager } from '../components/CategoriesManager';
 import { CategoriesSummaryCard } from '../components/CategoriesSummaryCard';
 import { FinancePageHeader } from '../components/FinancePageHeader';
+import { translateAppText } from '../../../shared/i18n/appText';
 
 export function CategoriesPage() {
   const financeData = useFinanceData();
@@ -9,29 +10,29 @@ export function CategoriesPage() {
   return (
     <div className="finance-page">
       <FinancePageHeader
-        description="Shape the category structure that keeps your transactions, budgets, and reporting easy to understand."
-        eyebrow="Structure"
-        title="Categories"
+        description={translateAppText('categories.description')}
+        eyebrow={translateAppText('categories.eyebrow')}
+        title={translateAppText('categories.title')}
       />
 
       <section className="finance-summary-grid">
         <CategoriesSummaryCard
-          label="Categories"
+          label={translateAppText('categories.count')}
           value={String(financeData.categories.length)}
         />
         <CategoriesSummaryCard
-          label="Subcategories"
+          label={translateAppText('categories.subcategories')}
           value={String(financeData.subcategories.length)}
         />
         <CategoriesSummaryCard
-          label="Scoped transactions"
+          label={translateAppText('categories.scopedTransactions')}
           value={String(financeData.transactions.length)}
         />
       </section>
 
       {financeData.status === 'loading' ? (
         <section className="finance-panel">
-          <p className="finance-empty-state">Loading categories...</p>
+          <p className="finance-empty-state">{translateAppText('categories.loading')}</p>
         </section>
       ) : (
         <CategoriesManager

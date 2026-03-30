@@ -1,5 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 
+import { resolveAppErrorMessage } from '../../../shared/i18n/appErrors';
+import { translateAppText } from '../../../shared/i18n/appText';
 import { getSubcategoriesForCategory } from '../lib/financeSelectors';
 import type {
   CategoryRecord,
@@ -52,7 +54,7 @@ export function CategoriesManager({
     event.preventDefault();
 
     if (!newCategoryName.trim()) {
-      setFormError('Category name is required.');
+      setFormError(translateAppText('categories.errorNameRequired'));
       return;
     }
 
@@ -62,7 +64,7 @@ export function CategoriesManager({
       await onCreateCategory(newCategoryName);
       setNewCategoryName('');
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : 'Unable to create the category.');
+      setFormError(resolveAppErrorMessage(error, 'categories.errorCreate'));
     }
   }
 
@@ -70,12 +72,12 @@ export function CategoriesManager({
     event.preventDefault();
 
     if (!newSubcategoryCategoryId) {
-      setFormError('Pick a category first.');
+      setFormError(translateAppText('categories.errorPickCategory'));
       return;
     }
 
     if (!newSubcategoryName.trim()) {
-      setFormError('Subcategory name is required.');
+      setFormError(translateAppText('categories.errorSubcategoryNameRequired'));
       return;
     }
 
@@ -88,7 +90,7 @@ export function CategoriesManager({
       });
       setNewSubcategoryName('');
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : 'Unable to create the subcategory.');
+      setFormError(resolveAppErrorMessage(error, 'categories.errorCreateSubcategory'));
     }
   }
 
@@ -97,14 +99,14 @@ export function CategoriesManager({
       <section className="finance-panel">
         <div className="finance-panel__heading">
           <div>
-            <p className="finance-panel__eyebrow">Category setup</p>
-            <h2>Manage categories</h2>
+            <p className="finance-panel__eyebrow">{translateAppText('categories.setup')}</p>
+            <h2>{translateAppText('categories.manage')}</h2>
           </div>
         </div>
 
         <form className="finance-form finance-form--inline" onSubmit={handleCategorySubmit}>
           <label className="finance-field finance-field--full">
-            <span>New category</span>
+            <span>{translateAppText('categories.newCategory')}</span>
             <input
               name="newCategory"
               onChange={(event) => setNewCategoryName(event.target.value)}
@@ -113,19 +115,19 @@ export function CategoriesManager({
             />
           </label>
           <button className="primary-button finance-form__submit" type="submit">
-            Add category
+            {translateAppText('categories.addCategory')}
           </button>
         </form>
 
         <form className="finance-form finance-form--inline" onSubmit={handleSubcategorySubmit}>
           <label className="finance-field">
-            <span>Category</span>
+            <span>{translateAppText('transactions.category')}</span>
             <select
               name="newSubcategoryCategory"
               onChange={(event) => setNewSubcategoryCategoryId(event.target.value)}
               value={newSubcategoryCategoryId}
             >
-              {categories.length === 0 ? <option value="">No categories yet</option> : null}
+              {categories.length === 0 ? <option value="">{translateAppText('transactions.noCategoriesYet')}</option> : null}
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -135,7 +137,7 @@ export function CategoriesManager({
           </label>
 
           <label className="finance-field finance-field--full">
-            <span>New subcategory</span>
+            <span>{translateAppText('categories.newSubcategory')}</span>
             <input
               name="newSubcategory"
               onChange={(event) => setNewSubcategoryName(event.target.value)}
@@ -145,7 +147,7 @@ export function CategoriesManager({
           </label>
 
           <button className="secondary-button finance-form__submit" type="submit">
-            Add subcategory
+            {translateAppText('categories.addSubcategory')}
           </button>
         </form>
 
@@ -156,15 +158,13 @@ export function CategoriesManager({
       <section className="finance-panel">
         <div className="finance-panel__heading">
           <div>
-            <p className="finance-panel__eyebrow">Current structure</p>
-            <h2>Categories and subcategories</h2>
+            <p className="finance-panel__eyebrow">{translateAppText('categories.currentStructure')}</p>
+            <h2>{translateAppText('categories.manageStructure')}</h2>
           </div>
         </div>
 
         {categories.length === 0 ? (
-          <p className="finance-empty-state">
-            Create at least one category before adding transactions or subcategories.
-          </p>
+          <p className="finance-empty-state">{translateAppText('categories.empty')}</p>
         ) : (
           <div className="finance-list">
             {categories.map((category) => {
@@ -177,7 +177,11 @@ export function CategoriesManager({
                 <article className="category-card" key={category.id}>
                   <div className="category-card__header">
                     <div>
-                      <p className="category-card__eyebrow">{transactionCount} transactions</p>
+                      <p className="category-card__eyebrow">
+                        {translateAppText('categories.transactionsCount', {
+                          count: transactionCount,
+                        })}
+                      </p>
                       {editingCategoryId === category.id ? (
                         <form
                           className="category-card__edit-form"
@@ -189,11 +193,7 @@ export function CategoriesManager({
                                 setEditingCategoryName('');
                               })
                               .catch((error) => {
-                                setFormError(
-                                  error instanceof Error
-                                    ? error.message
-                                    : 'Unable to update the category.',
-                                );
+                                setFormError(resolveAppErrorMessage(error, 'categories.errorUpdate'));
                               });
                           }}
                         >
@@ -203,7 +203,7 @@ export function CategoriesManager({
                             value={editingCategoryName}
                           />
                           <button className="secondary-button" type="submit">
-                            Save
+                            {translateAppText('categories.save')}
                           </button>
                         </form>
                       ) : (
@@ -220,20 +220,20 @@ export function CategoriesManager({
                         }}
                         type="button"
                       >
-                        Edit
+                        {translateAppText('transactions.edit')}
                       </button>
                       <button
                         className="secondary-button secondary-button--danger"
                         onClick={() => void onDeleteCategory(category.id)}
                         type="button"
                       >
-                        Delete
+                        {translateAppText('transactions.delete')}
                       </button>
                     </div>
                   </div>
 
                   {categorySubcategories.length === 0 ? (
-                    <p className="category-card__subcopy">No subcategories yet.</p>
+                    <p className="category-card__subcopy">{translateAppText('categories.noSubcategoriesYet')}</p>
                   ) : (
                     <div className="subcategory-list">
                       {categorySubcategories.map((subcategory) => (
@@ -254,9 +254,7 @@ export function CategoriesManager({
                                   })
                                   .catch((error) => {
                                     setFormError(
-                                      error instanceof Error
-                                        ? error.message
-                                        : 'Unable to update the subcategory.',
+                                      resolveAppErrorMessage(error, 'categories.errorUpdateSubcategory'),
                                     );
                                   });
                               }}
@@ -279,7 +277,7 @@ export function CategoriesManager({
                                 ))}
                               </select>
                               <button className="secondary-button" type="submit">
-                                Save
+                                {translateAppText('categories.save')}
                               </button>
                             </form>
                           ) : (
@@ -295,14 +293,14 @@ export function CategoriesManager({
                                   }}
                                   type="button"
                                 >
-                                  Edit
+                                  {translateAppText('transactions.edit')}
                                 </button>
                                 <button
                                   className="subcategory-chip__button"
                                   onClick={() => void onDeleteSubcategory(subcategory.id)}
                                   type="button"
                                 >
-                                  Delete
+                                  {translateAppText('transactions.delete')}
                                 </button>
                               </div>
                             </>

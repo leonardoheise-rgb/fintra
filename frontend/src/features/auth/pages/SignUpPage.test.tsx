@@ -31,7 +31,7 @@ describe('SignUpPage', () => {
     await user.click(screen.getByRole('button', { name: /create account/i }));
 
     expect(
-      await screen.findByRole('heading', { name: /wealth in motion/i }, { timeout: 5000 }),
+      await screen.findByRole('heading', { name: /your money this month/i }, { timeout: 5000 }),
     ).toBeInTheDocument();
   });
 

@@ -1,5 +1,6 @@
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { formatMonthLabel } from '../../../shared/lib/formatters/date';
+import { translateAppText } from '../../../shared/i18n/appText';
 import type { MonthlyAnalyticsPoint } from '../analytics.types';
 
 type MonthlyCashflowChartProps = {
@@ -19,10 +20,10 @@ export function MonthlyCashflowChart({ monthlyPoints }: MonthlyCashflowChartProp
     <section className="finance-panel analytics-panel">
       <div className="finance-panel__heading">
         <div>
-          <p className="finance-panel__eyebrow">Trend surface</p>
-          <h2>Income versus expenses</h2>
+          <p className="finance-panel__eyebrow">{translateAppText('analytics.trendSurface')}</p>
+          <h2>{translateAppText('analytics.incomeVsExpenses')}</h2>
         </div>
-        <p className="analytics-panel__caption">Grouped bars by month</p>
+        <p className="analytics-panel__caption">{translateAppText('analytics.groupedBars')}</p>
       </div>
 
       <div className="analytics-chart">
@@ -32,17 +33,25 @@ export function MonthlyCashflowChart({ monthlyPoints }: MonthlyCashflowChartProp
               <div
                 className="analytics-chart__bar analytics-chart__bar--income"
                 style={{ height: `${(point.income / maxValue) * 100}%` }}
-                title={`Income ${formatCurrency(point.income)}`}
+                title={translateAppText('analytics.incomeTitle', {
+                  amount: formatCurrency(point.income),
+                })}
               />
               <div
                 className="analytics-chart__bar analytics-chart__bar--expense"
                 style={{ height: `${(point.expenses / maxValue) * 100}%` }}
-                title={`Expenses ${formatCurrency(point.expenses)}`}
+                title={translateAppText('analytics.expensesTitle', {
+                  amount: formatCurrency(point.expenses),
+                })}
               />
             </div>
             <div className="analytics-chart__labels">
               <strong>{formatMonthLabel(point.month)}</strong>
-              <span>{formatCurrency(point.netBalance)} net</span>
+              <span>
+                {translateAppText('analytics.netLabel', {
+                  amount: formatCurrency(point.netBalance),
+                })}
+              </span>
             </div>
           </article>
         ))}

@@ -3,29 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 
 import { navigationItems } from '../navigation/navigationItems';
 import { useAuth } from '../../features/auth/useAuth';
-
-const pageTitles: Record<string, string> = {
-  '/': 'Monthly command center',
-  '/transactions': 'Transaction ledger',
-  '/categories': 'Category manager',
-  '/budgets': 'Budget operations',
-  '/analytics': 'Historical insights',
-  '/settings': 'Workspace settings',
-};
-
-const pageDescriptions: Record<string, string> = {
-  '/': 'Track monthly pacing, see the latest budget signals, and keep the highest-value insight in view first.',
-  '/transactions':
-    'Create entries quickly, scan the latest ledger movements, and keep the primary action visible on smaller screens.',
-  '/categories':
-    'Shape the category model first so every transaction, budget, and report keeps a clear information hierarchy.',
-  '/budgets':
-    'Review default plans and monthly overrides with stronger separation between setup, scope, and active totals.',
-  '/analytics':
-    'Read trends, comparisons, and category drift through a calmer long-view layout with clearer mobile filters.',
-  '/settings':
-    'Choose how amounts, dates, and your monthly rhythm feel throughout the app.',
-};
+import { translateAppText } from '../../shared/i18n/appText';
 
 function getUserInitials(email: string | undefined) {
   if (!email) {
@@ -44,23 +22,47 @@ function getUserInitials(email: string | undefined) {
 export function AppLayout({ children }: PropsWithChildren) {
   const auth = useAuth();
   const location = useLocation();
-  const pageTitle = pageTitles[location.pathname] ?? 'Protected workspace';
+  const pageTitle =
+    location.pathname === '/'
+      ? translateAppText('page.title.dashboard')
+      : location.pathname === '/transactions'
+        ? translateAppText('page.title.transactions')
+        : location.pathname === '/categories'
+          ? translateAppText('page.title.categories')
+          : location.pathname === '/budgets'
+            ? translateAppText('page.title.budgets')
+            : location.pathname === '/analytics'
+              ? translateAppText('page.title.analytics')
+              : location.pathname === '/settings'
+                ? translateAppText('page.title.settings')
+                : translateAppText('shell.defaultTitle');
   const pageDescription =
-    pageDescriptions[location.pathname] ??
-    'Your core money tools now share a calmer, clearer layout.';
+    location.pathname === '/'
+      ? translateAppText('page.desc.dashboard')
+      : location.pathname === '/transactions'
+        ? translateAppText('page.desc.transactions')
+        : location.pathname === '/categories'
+          ? translateAppText('page.desc.categories')
+          : location.pathname === '/budgets'
+            ? translateAppText('page.desc.budgets')
+            : location.pathname === '/analytics'
+              ? translateAppText('page.desc.analytics')
+              : location.pathname === '/settings'
+                ? translateAppText('page.desc.settings')
+                : translateAppText('shell.defaultDescription');
 
   return (
     <div className="app-shell">
       <aside className="sidebar" aria-label="Primary">
         <div className="sidebar__section">
           <div>
-            <p className="sidebar__eyebrow">Wealth curation</p>
-            <h1 className="sidebar__brand">Fintra Ledger</h1>
-            <p className="sidebar__copy">
-              An editorial operating panel for budgets, transactions, and long-term financial
-              habits.
-            </p>
+            <h1 className="sidebar__brand">{translateAppText('shell.brand')}</h1>
+            <p className="sidebar__copy">{translateAppText('shell.copy')}</p>
           </div>
+
+          <NavLink className="primary-button sidebar__cta" to="/transactions">
+            {translateAppText('shell.addTransaction')}
+          </NavLink>
 
           <nav className="sidebar__nav">
             {navigationItems.map((item) =>
@@ -69,64 +71,41 @@ export function AppLayout({ children }: PropsWithChildren) {
                   className={({ isActive }) =>
                     `sidebar__item${isActive ? ' sidebar__item--active' : ''}`
                   }
-                  key={item.label}
+                  key={item.id}
                   to={item.href}
                 >
                   <span className="sidebar__item-badge" aria-hidden="true">
                     {item.shortLabel}
                   </span>
                   <div>
-                    <p>{item.label}</p>
-                    <small>{item.description}</small>
+                    <p>{translateAppText(`nav.${item.id}`)}</p>
                   </div>
                 </NavLink>
               ) : (
-                <div className="sidebar__item sidebar__item--disabled" key={item.label}>
+                <div className="sidebar__item sidebar__item--disabled" key={item.id}>
                   <span className="sidebar__item-badge" aria-hidden="true">
                     {item.shortLabel}
                   </span>
                   <div>
-                    <p>{item.label}</p>
-                    <small>{item.description}</small>
+                    <p>{translateAppText(`nav.${item.id}`)}</p>
                   </div>
                 </div>
               ),
             )}
           </nav>
         </div>
-
-        <div className="sidebar__section">
-          <NavLink className="primary-button sidebar__cta" to="/transactions">
-            Add transaction
-          </NavLink>
-
-          <div className="sidebar__footnote">
-            Stay consistent
-            <span>
-              Keep your transactions, budgets, and monthly habits aligned in one focused place.
-            </span>
-          </div>
-        </div>
       </aside>
 
       <div className="main-panel">
         <header className="topbar">
           <div className="topbar__intro">
-            <p className="topbar__eyebrow">Editorial ledger</p>
             <h2 className="topbar__title">{pageTitle}</h2>
             <p className="topbar__copy">{pageDescription}</p>
           </div>
 
           <div className="topbar__meta">
-            <div className="topbar__workspace">
-              <div className="status-pill status-pill--accent">Personal workspace</div>
-              <p className="topbar__workspace-copy">
-                Your plan, activity, and progress stay organized around the month ahead.
-              </p>
-            </div>
             <div className="topbar__controls">
               <div className="topbar__account">
-                <div className="status-pill">Signed in</div>
                 <p className="topbar__email">{auth.user?.email}</p>
               </div>
               <div aria-hidden="true" className="avatar-chip">
@@ -137,7 +116,7 @@ export function AppLayout({ children }: PropsWithChildren) {
                 onClick={() => void auth.signOut()}
                 type="button"
               >
-                Sign out
+                {translateAppText('shell.signOut')}
               </button>
             </div>
           </div>

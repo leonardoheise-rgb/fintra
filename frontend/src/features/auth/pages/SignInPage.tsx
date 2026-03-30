@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
+import { resolveAppErrorMessage } from '../../../shared/i18n/appErrors';
+import { translateAppText } from '../../../shared/i18n/appText';
 import { useAuth } from '../useAuth';
 import { AuthPageLayout } from '../components/AuthPageLayout';
 
@@ -8,11 +10,11 @@ function validateSignInForm(email: string, password: string) {
   const errors: string[] = [];
 
   if (!email.trim()) {
-    errors.push('Email is required.');
+    errors.push(translateAppText('auth.validationEmailRequired'));
   }
 
   if (!password.trim()) {
-    errors.push('Password is required.');
+    errors.push(translateAppText('auth.validationPasswordRequired'));
   }
 
   return errors;
@@ -51,7 +53,7 @@ export function SignInPage() {
 
       navigate(redirectTarget, { replace: true });
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : 'Unable to sign in right now.');
+      setFormError(resolveAppErrorMessage(error, 'auth.errorUnableToSignIn'));
     } finally {
       setIsSubmitting(false);
     }
@@ -59,16 +61,16 @@ export function SignInPage() {
 
   return (
     <AuthPageLayout
-      description="Sign in to return to your monthly view, recent activity, and personal budget plan."
-      eyebrow="Welcome back"
+      description={translateAppText('auth.signInDescription')}
+      eyebrow={translateAppText('auth.welcomeBack')}
       footerActionHref="/sign-up"
-      footerActionLabel="Create an account"
-      footerPrompt="Need an account?"
-      title="Sign in"
+      footerActionLabel={translateAppText('auth.createAnAccount')}
+      footerPrompt={translateAppText('auth.needAccount')}
+      title={translateAppText('auth.signIn')}
     >
       <form className="auth-form" onSubmit={handleSubmit}>
         <label className="auth-field">
-          <span>Email</span>
+          <span>{translateAppText('auth.email')}</span>
           <input
             autoComplete="email"
             name="email"
@@ -79,7 +81,7 @@ export function SignInPage() {
         </label>
 
         <label className="auth-field">
-          <span>Password</span>
+          <span>{translateAppText('auth.password')}</span>
           <input
             autoComplete="current-password"
             name="password"
@@ -92,12 +94,12 @@ export function SignInPage() {
         {formError ? <p className="auth-form__error">{formError}</p> : null}
 
         <button className="primary-button auth-form__button" disabled={isSubmitting} type="submit">
-          {isSubmitting ? 'Signing in...' : 'Sign in'}
+          {isSubmitting ? translateAppText('auth.signingIn') : translateAppText('auth.signIn')}
         </button>
       </form>
 
       <p className="auth-card__microcopy">
-        New here? <Link to="/sign-up">Set up your account</Link>
+        {translateAppText('auth.newHere')} <Link to="/sign-up">{translateAppText('auth.setUpYourAccount')}</Link>
       </p>
     </AuthPageLayout>
   );

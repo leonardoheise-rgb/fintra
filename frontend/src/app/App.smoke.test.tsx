@@ -40,7 +40,7 @@ describe('Fintra smoke flows', () => {
     const { user } = await signInFromPublicRoute();
 
     expect(
-      await screen.findByRole('heading', { name: /wealth in motion/i }, { timeout: 8000 }),
+      await screen.findByRole('heading', { name: /your money this month/i }, { timeout: 8000 }),
     ).toBeInTheDocument();
     expect(screen.getByText('user@fintra.dev')).toBeInTheDocument();
 
@@ -61,7 +61,7 @@ describe('Fintra smoke flows', () => {
     await user.clear(await screen.findByLabelText(/amount/i, {}, { timeout: 8000 }));
     await user.type(screen.getByLabelText(/amount/i), '45');
     await user.selectOptions(screen.getByLabelText(/^category$/i), 'category-food');
-    await user.selectOptions(screen.getByLabelText(/subcategory/i), 'subcategory-restaurants');
+    await user.selectOptions(screen.getByLabelText(/subcategor/i), 'subcategory-restaurants');
     await user.clear(screen.getByLabelText(/date/i));
     await user.type(screen.getByLabelText(/date/i), '2026-03-18');
     await user.type(screen.getByLabelText(/description/i), 'Coffee with client');
@@ -105,7 +105,7 @@ describe('Fintra smoke flows', () => {
     await waitForScreenToLoad(/loading budgets/i);
 
     const [defaultCategorySelect] = await screen.findAllByLabelText(/^category$/i, {}, { timeout: 8000 });
-    const [defaultSubcategorySelect] = screen.getAllByLabelText(/subcategory/i);
+    const [defaultSubcategorySelect] = screen.getAllByLabelText(/subcategor/i);
     const [defaultAmountInput] = screen.getAllByLabelText(/^amount$/i);
 
     await user.selectOptions(defaultCategorySelect, 'category-transport');
@@ -160,7 +160,7 @@ describe('Fintra smoke flows', () => {
     await waitForScreenToLoad(/loading analytics/i);
 
     expect(
-      await screen.findByRole('heading', { name: /^analytics$/i }, { timeout: 8000 }),
+      await screen.findByRole('heading', { name: /^analytics$/i, level: 1 }, { timeout: 8000 }),
     ).toBeInTheDocument();
 
     await user.selectOptions(screen.getByLabelText(/range preset/i), 'custom');

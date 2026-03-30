@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 
+import { resolveAppErrorMessage } from '../../../shared/i18n/appErrors';
+import { translateAppText } from '../../../shared/i18n/appText';
 import type {
   CategoryRecord,
   SubcategoryRecord,
@@ -76,19 +78,19 @@ export function TransactionForm({
     event.preventDefault();
 
     if (!categoryId) {
-      setFormError('Create a category before adding a transaction.');
+      setFormError(translateAppText('transactions.errorNeedCategory'));
       return;
     }
 
     const parsedAmount = Number(amount);
 
     if (Number.isNaN(parsedAmount) || parsedAmount <= 0) {
-      setFormError('Amount must be greater than zero.');
+      setFormError(translateAppText('transactions.errorAmount'));
       return;
     }
 
     if (!date) {
-      setFormError('Transaction date is required.');
+      setFormError(translateAppText('transactions.errorDate'));
       return;
     }
 
@@ -113,7 +115,7 @@ export function TransactionForm({
       setDate(initialState.date);
       setDescription(initialState.description);
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : 'Unable to save the transaction.');
+      setFormError(resolveAppErrorMessage(error, 'transactions.errorSave'));
     } finally {
       setIsSubmitting(false);
     }
@@ -123,19 +125,23 @@ export function TransactionForm({
     <section className="finance-panel">
       <div className="finance-panel__heading">
         <div>
-          <p className="finance-panel__eyebrow">Transaction form</p>
-          <h2>{transactionToEdit ? 'Edit transaction' : 'Add transaction'}</h2>
+          <p className="finance-panel__eyebrow">{translateAppText('transactions.formEyebrow')}</p>
+          <h2>
+            {transactionToEdit
+              ? translateAppText('transactions.editHeading')
+              : translateAppText('transactions.addHeading')}
+          </h2>
         </div>
         {transactionToEdit ? (
           <button className="secondary-button" onClick={onCancelEdit} type="button">
-            Cancel edit
+            {translateAppText('transactions.cancelEdit')}
           </button>
         ) : null}
       </div>
 
       <form className="finance-form" onSubmit={handleSubmit}>
         <label className="finance-field">
-          <span>Amount</span>
+          <span>{translateAppText('transactions.amount')}</span>
           <input
             inputMode="decimal"
             name="amount"
@@ -146,15 +152,15 @@ export function TransactionForm({
         </label>
 
         <label className="finance-field">
-          <span>Type</span>
+          <span>{translateAppText('transactions.type')}</span>
           <select name="type" onChange={(event) => setType(event.target.value as TransactionInput['type'])} value={type}>
-            <option value="expense">Expense</option>
-            <option value="income">Income</option>
+            <option value="expense">{translateAppText('transactions.expense')}</option>
+            <option value="income">{translateAppText('transactions.incomeOption')}</option>
           </select>
         </label>
 
         <label className="finance-field">
-          <span>Category</span>
+          <span>{translateAppText('transactions.category')}</span>
           <select
             name="categoryId"
             onChange={(event) => {
@@ -163,7 +169,7 @@ export function TransactionForm({
             }}
             value={categoryId}
           >
-            {categories.length === 0 ? <option value="">No categories yet</option> : null}
+            {categories.length === 0 ? <option value="">{translateAppText('transactions.noCategoriesYet')}</option> : null}
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
@@ -173,14 +179,14 @@ export function TransactionForm({
         </label>
 
         <label className="finance-field">
-          <span>Subcategory</span>
+          <span>{translateAppText('categories.subcategories')}</span>
           <select
             disabled={!categoryId || availableSubcategories.length === 0}
             name="subcategoryId"
             onChange={(event) => setSubcategoryId(event.target.value)}
             value={subcategoryId}
           >
-            <option value="">No subcategory</option>
+            <option value="">{translateAppText('transactions.noSubcategory')}</option>
             {availableSubcategories.map((subcategory) => (
               <option key={subcategory.id} value={subcategory.id}>
                 {subcategory.name}
@@ -190,12 +196,12 @@ export function TransactionForm({
         </label>
 
         <label className="finance-field">
-          <span>Date</span>
+          <span>{translateAppText('transactions.date')}</span>
           <input name="date" onChange={(event) => setDate(event.target.value)} type="date" value={date} />
         </label>
 
         <label className="finance-field finance-field--full">
-          <span>Description</span>
+          <span>{translateAppText('transactions.descriptionLabel')}</span>
           <textarea
             name="description"
             onChange={(event) => setDescription(event.target.value)}
@@ -208,10 +214,10 @@ export function TransactionForm({
 
         <button className="primary-button finance-form__submit" disabled={isSubmitting} type="submit">
           {isSubmitting
-            ? 'Saving...'
+            ? translateAppText('transactions.saving')
             : transactionToEdit
-              ? 'Update transaction'
-              : 'Create transaction'}
+              ? translateAppText('transactions.updateTransaction')
+              : translateAppText('transactions.createTransaction')}
         </button>
       </form>
     </section>

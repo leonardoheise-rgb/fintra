@@ -19,4 +19,9 @@ describe('formatDayOfMonthLabel', () => {
     expect(formatDayOfMonthLabel(0)).toBe('0');
     expect(formatDayOfMonthLabel(32)).toBe('32');
   });
+
+  it('falls back to plain day numbers for non-english locales', () => {
+    expect(formatDayOfMonthLabel(1, 'pt-BR')).toBe('1');
+    expect(formatDayOfMonthLabel(21, 'pt-BR')).toBe('21');
+  });
 });

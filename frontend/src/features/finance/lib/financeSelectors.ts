@@ -3,6 +3,7 @@ import type {
   SubcategoryRecord,
   TransactionRecord,
 } from '../finance.types';
+import { translateAppText } from '../../../shared/i18n/appText';
 
 export function getSubcategoriesForCategory(
   subcategories: SubcategoryRecord[],
@@ -14,7 +15,7 @@ export function getSubcategoriesForCategory(
 }
 
 export function getCategoryName(categories: CategoryRecord[], categoryId: string) {
-  return categories.find((item) => item.id === categoryId)?.name ?? 'Unknown category';
+  return categories.find((item) => item.id === categoryId)?.name ?? translateAppText('finance.unknownCategory');
 }
 
 export function getSubcategoryName(
@@ -22,10 +23,13 @@ export function getSubcategoryName(
   subcategoryId: string | null,
 ) {
   if (!subcategoryId) {
-    return 'No subcategory';
+    return translateAppText('finance.noSubcategory');
   }
 
-  return subcategories.find((item) => item.id === subcategoryId)?.name ?? 'Unknown subcategory';
+  return (
+    subcategories.find((item) => item.id === subcategoryId)?.name ??
+    translateAppText('finance.unknownSubcategory')
+  );
 }
 
 export function sortTransactionsByDateDesc(transactions: TransactionRecord[]) {

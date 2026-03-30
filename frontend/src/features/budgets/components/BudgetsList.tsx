@@ -4,6 +4,7 @@ import type {
   CategoryRecord,
   SubcategoryRecord,
 } from '../../finance/finance.types';
+import { translateAppText } from '../../../shared/i18n/appText';
 import { getBudgetScopeKey } from '../lib/effectiveBudgetResolver';
 import {
   calculateAllocatedBudget,
@@ -43,23 +44,25 @@ export function BudgetsList({
     <section className="finance-panel">
       <div className="finance-panel__heading">
         <div>
-          <p className="finance-panel__eyebrow">Budget registry</p>
-          <h2>Default plans</h2>
+          <p className="finance-panel__eyebrow">{translateAppText('budgets.registry')}</p>
+          <h2>{translateAppText('budgets.defaultPlansHeading')}</h2>
         </div>
         <p className="budget-registry__summary">
-          {formatBudgetAmount(calculateAllocatedBudget(budgets))} allocated
+          {translateAppText('budgets.allocated', {
+            amount: formatBudgetAmount(calculateAllocatedBudget(budgets)),
+          })}
         </p>
       </div>
 
       {sortedBudgets.length === 0 ? (
-        <p className="finance-empty-state">
-          Add your first default budget to power the monthly dashboard and future override flows.
-        </p>
+        <p className="finance-empty-state">{translateAppText('budgets.empty')}</p>
       ) : (
         <div className="finance-list">
           {sortedBudgets.map((budget) => (
             <article
-              aria-label={`${getBudgetScopeLabel(categories, subcategories, budget)} default budget`}
+              aria-label={translateAppText('budgets.defaultBudgetAria', {
+                name: getBudgetScopeLabel(categories, subcategories, budget),
+              })}
               className="budget-plan-card"
               key={budget.id}
             >
@@ -77,26 +80,30 @@ export function BudgetsList({
                 getBudgetScopeKey(budget.categoryId, budget.subcategoryId),
               ) ? (
                 <p className="budget-plan-card__status">
-                  Override active for {month}
+                  {translateAppText('budgets.overrideActiveFor', { month })}
                 </p>
               ) : null}
 
               <div className="transaction-card__actions">
                 <button
-                  aria-label={`Edit budget ${getBudgetScopeLabel(categories, subcategories, budget)}`}
+                  aria-label={translateAppText('budgets.editBudget', {
+                    name: getBudgetScopeLabel(categories, subcategories, budget),
+                  })}
                   className="secondary-button"
                   onClick={() => onEdit(budget)}
                   type="button"
                 >
-                  Edit
+                  {translateAppText('transactions.edit')}
                 </button>
                 <button
-                  aria-label={`Delete budget ${getBudgetScopeLabel(categories, subcategories, budget)}`}
+                  aria-label={translateAppText('budgets.deleteBudget', {
+                    name: getBudgetScopeLabel(categories, subcategories, budget),
+                  })}
                   className="secondary-button secondary-button--danger"
                   onClick={() => void onDelete(budget.id)}
                   type="button"
                 >
-                  Delete
+                  {translateAppText('transactions.delete')}
                 </button>
               </div>
             </article>

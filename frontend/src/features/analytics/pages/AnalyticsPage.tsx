@@ -1,5 +1,6 @@
 import { useDeferredValue, useMemo, useState } from 'react';
 
+import { translateAppText } from '../../../shared/i18n/appText';
 import { getCurrentMonthKey, shiftMonthKey } from '../../../shared/lib/date/months';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { formatPercentage } from '../../../shared/lib/formatters/percentage';
@@ -12,7 +13,7 @@ import { AnalyticsTabBar } from '../components/AnalyticsTabBar';
 import { CategoryTrendList } from '../components/CategoryTrendList';
 import { MonthlyCashflowChart } from '../components/MonthlyCashflowChart';
 import { SavingsRateChart } from '../components/SavingsRateChart';
-import { getPresetLabel, resolveAnalyticsRange } from '../lib/analyticsRange';
+import { resolveAnalyticsRange } from '../lib/analyticsRange';
 import { buildAnalyticsComparison } from '../lib/buildAnalyticsComparison';
 import { buildCategorySpendingTrends } from '../lib/buildCategorySpendingTrends';
 import { buildMonthlyAnalyticsSeries } from '../lib/buildMonthlyAnalyticsSeries';
@@ -31,16 +32,17 @@ function buildAnalyticsInsight(
   expenseDelta: number | null,
 ) {
   if (currentMonthCategory && expenseDelta !== null && expenseDelta > 0) {
-    return `${currentMonthCategory} is your strongest spending lane right now, and total expenses are up ${formatCurrency(
-      expenseDelta,
-    )} versus the previous month.`;
+    return translateAppText('analytics.insightTopCategory', {
+      category: currentMonthCategory,
+      amount: formatCurrency(expenseDelta),
+    });
   }
 
   if (savingsRate < 0) {
-    return 'The selected range is running at a negative savings rate. Review the expense trend before the next month closes.';
+    return translateAppText('analytics.insightNegativeSavings');
   }
 
-  return 'Income, expenses, and savings behavior are now mapped across historical months from the same live workspace data.';
+  return translateAppText('analytics.insightDefault');
 }
 
 export function AnalyticsPage() {
@@ -99,22 +101,30 @@ export function AnalyticsPage() {
   const currentPoint = monthlySeries[monthlySeries.length - 1] ?? null;
   const hasWorkspaceTransactions = financeData.transactions.length > 0;
   const hasActivityInSelectedRange = hasRangeActivity(monthlySeries);
+  const presetLabel =
+    preset === '3m'
+      ? translateAppText('analytics.last3Months')
+      : preset === '6m'
+        ? translateAppText('analytics.last6Months')
+        : preset === '12m'
+          ? translateAppText('analytics.last12Months')
+          : translateAppText('analytics.customRange');
 
   return (
     <div className="finance-page finance-page--analytics">
       <FinancePageHeader
-        description="Read historical velocity, category drift, and savings behavior through a calmer long-view analysis surface."
-        eyebrow="Performance summary"
-        title="Analytics"
+        description={translateAppText('analytics.description')}
+        eyebrow={translateAppText('analytics.eyebrow')}
+        title={translateAppText('analytics.title')}
       />
 
       <section className="finance-panel dashboard-toolbar">
         <div>
-          <p className="finance-panel__eyebrow">Historical lens</p>
-          <h2>{getPresetLabel(preset)}</h2>
+          <p className="finance-panel__eyebrow">{translateAppText('analytics.historicalLens')}</p>
+          <h2>{presetLabel}</h2>
         </div>
         <label className="finance-field dashboard-toolbar__field">
-          <span>Anchor month</span>
+          <span>{translateAppText('analytics.anchorMonth')}</span>
           <input
             name="analyticsEndMonth"
             onChange={(event) => {
@@ -132,23 +142,23 @@ export function AnalyticsPage() {
 
       <section className="finance-panel analytics-filters">
         <label className="finance-field">
-          <span>Range preset</span>
+          <span>{translateAppText('analytics.rangePreset')}</span>
           <select
             name="analyticsPreset"
             onChange={(event) => setPreset(event.target.value as AnalyticsRangePreset)}
             value={preset}
           >
-            <option value="3m">Last 3 months</option>
-            <option value="6m">Last 6 months</option>
-            <option value="12m">Last 12 months</option>
-            <option value="custom">Custom range</option>
+            <option value="3m">{translateAppText('analytics.last3Months')}</option>
+            <option value="6m">{translateAppText('analytics.last6Months')}</option>
+            <option value="12m">{translateAppText('analytics.last12Months')}</option>
+            <option value="custom">{translateAppText('analytics.customRange')}</option>
           </select>
         </label>
 
         {preset === 'custom' ? (
           <>
             <label className="finance-field">
-              <span>Start month</span>
+              <span>{translateAppText('analytics.startMonth')}</span>
               <input
                 name="analyticsStartMonth"
                 onChange={(event) => setCustomStartMonth(event.target.value)}
@@ -157,7 +167,7 @@ export function AnalyticsPage() {
               />
             </label>
             <label className="finance-field">
-              <span>End month</span>
+              <span>{translateAppText('analytics.endMonth')}</span>
               <input
                 name="analyticsCustomEndMonth"
                 onChange={(event) => setCustomEndMonth(event.target.value)}
@@ -172,10 +182,10 @@ export function AnalyticsPage() {
       </section>
 
       <section className="finance-summary-grid">
-        <CategoriesSummaryCard label="Months in scope" value={String(deferredRange.months.length)} />
-        <CategoriesSummaryCard label="Total income" value={formatCurrency(totalIncome)} />
-        <CategoriesSummaryCard label="Total expenses" value={formatCurrency(totalExpenses)} />
-        <CategoriesSummaryCard label="Average savings rate" value={formatPercentage(averageSavingsRate)} />
+        <CategoriesSummaryCard label={translateAppText('analytics.monthsInScope')} value={String(deferredRange.months.length)} />
+        <CategoriesSummaryCard label={translateAppText('analytics.totalIncome')} value={formatCurrency(totalIncome)} />
+        <CategoriesSummaryCard label={translateAppText('analytics.totalExpenses')} value={formatCurrency(totalExpenses)} />
+        <CategoriesSummaryCard label={translateAppText('analytics.averageSavingsRate')} value={formatPercentage(averageSavingsRate)} />
       </section>
 
       {financeData.errorMessage ? (
@@ -188,33 +198,29 @@ export function AnalyticsPage() {
 
       {financeData.status === 'loading' ? (
         <section aria-live="polite" className="finance-panel">
-          <p className="finance-empty-state">Loading analytics...</p>
+          <p className="finance-empty-state">{translateAppText('analytics.loading')}</p>
         </section>
       ) : !hasWorkspaceTransactions ? (
         <section aria-live="polite" className="finance-panel">
-          <p className="finance-empty-state">
-            Add your first income or expense in Transactions to unlock analytics trends and
-            comparisons.
-          </p>
+          <p className="finance-empty-state">{translateAppText('analytics.addTransactions')}</p>
         </section>
       ) : activeTab === 'overview' && !hasActivityInSelectedRange ? (
         <section aria-live="polite" className="finance-panel">
-          <p className="finance-empty-state">
-            No income or expense activity is available for the selected range yet. Adjust the range
-            or add transactions for those months.
-          </p>
+          <p className="finance-empty-state">{translateAppText('analytics.noActivityRange')}</p>
         </section>
       ) : (
         <>
           <section className="insight-panel">
             <div className="section-heading">
               <div>
-                <p className="section-heading__eyebrow">Historical readout</p>
-                <h3>Trend signal</h3>
+                <p className="section-heading__eyebrow">{translateAppText('analytics.historicalReadout')}</p>
+                <h3>{translateAppText('analytics.trendSignal')}</h3>
               </div>
               {currentPoint ? (
                 <span className="status-pill">
-                  {formatCurrency(currentPoint.netBalance)} current net
+                  {translateAppText('analytics.currentNet', {
+                    amount: formatCurrency(currentPoint.netBalance),
+                  })}
                 </span>
               ) : null}
             </div>

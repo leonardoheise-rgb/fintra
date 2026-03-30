@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 
+import { resolveAppErrorMessage } from '../../../shared/i18n/appErrors';
+import { translateAppText } from '../../../shared/i18n/appText';
 import type {
   BudgetOverrideInput,
   BudgetOverrideRecord,
@@ -66,19 +68,19 @@ export function BudgetOverrideForm({
     event.preventDefault();
 
     if (!categoryId) {
-      setFormError('Create a default budget scope before defining an override.');
+      setFormError(translateAppText('budgets.errorNeedBudgetScope'));
       return;
     }
 
     const parsedAmount = Number(amount);
 
     if (Number.isNaN(parsedAmount) || parsedAmount <= 0) {
-      setFormError('Override amount must be greater than zero.');
+      setFormError(translateAppText('budgets.errorOverrideAmount'));
       return;
     }
 
     if (!overrideMonth) {
-      setFormError('Override month is required.');
+      setFormError(translateAppText('budgets.errorOverrideMonth'));
       return;
     }
 
@@ -99,7 +101,7 @@ export function BudgetOverrideForm({
       setOverrideMonth(initialState.month);
       setAmount(initialState.amount);
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : 'Unable to save the override.');
+      setFormError(resolveAppErrorMessage(error, 'budgets.errorOverrideSave'));
     } finally {
       setIsSubmitting(false);
     }
@@ -109,19 +111,23 @@ export function BudgetOverrideForm({
     <section className="finance-panel">
       <div className="finance-panel__heading">
         <div>
-          <p className="finance-panel__eyebrow">Monthly override form</p>
-          <h2>{overrideToEdit ? 'Edit monthly override' : 'Add monthly override'}</h2>
+          <p className="finance-panel__eyebrow">{translateAppText('budgets.overrideFormEyebrow')}</p>
+          <h2>
+            {overrideToEdit
+              ? translateAppText('budgets.editOverrideHeading')
+              : translateAppText('budgets.addOverrideHeading')}
+          </h2>
         </div>
         {overrideToEdit ? (
           <button className="secondary-button" onClick={onCancelEdit} type="button">
-            Cancel edit
+            {translateAppText('transactions.cancelEdit')}
           </button>
         ) : null}
       </div>
 
       <form className="finance-form" onSubmit={handleSubmit}>
         <label className="finance-field">
-          <span>Month</span>
+          <span>{translateAppText('budgets.month')}</span>
           <input
             name="overrideMonth"
             onChange={(event) => setOverrideMonth(event.target.value)}
@@ -131,7 +137,7 @@ export function BudgetOverrideForm({
         </label>
 
         <label className="finance-field">
-          <span>Category</span>
+          <span>{translateAppText('transactions.category')}</span>
           <select
             name="overrideCategory"
             onChange={(event) => {
@@ -140,7 +146,7 @@ export function BudgetOverrideForm({
             }}
             value={categoryId}
           >
-            {categories.length === 0 ? <option value="">No categories yet</option> : null}
+            {categories.length === 0 ? <option value="">{translateAppText('transactions.noCategoriesYet')}</option> : null}
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
@@ -150,14 +156,14 @@ export function BudgetOverrideForm({
         </label>
 
         <label className="finance-field">
-          <span>Subcategory</span>
+          <span>{translateAppText('categories.subcategories')}</span>
           <select
             disabled={!categoryId || availableSubcategories.length === 0}
             name="overrideSubcategory"
             onChange={(event) => setSubcategoryId(event.target.value)}
             value={subcategoryId}
           >
-            <option value="">No subcategory</option>
+            <option value="">{translateAppText('transactions.noSubcategory')}</option>
             {availableSubcategories.map((subcategory) => (
               <option key={subcategory.id} value={subcategory.id}>
                 {subcategory.name}
@@ -167,7 +173,7 @@ export function BudgetOverrideForm({
         </label>
 
         <label className="finance-field">
-          <span>Amount</span>
+          <span>{translateAppText('transactions.amount')}</span>
           <input
             inputMode="decimal"
             name="overrideAmount"
@@ -181,10 +187,10 @@ export function BudgetOverrideForm({
 
         <button className="primary-button finance-form__submit" disabled={isSubmitting} type="submit">
           {isSubmitting
-            ? 'Saving...'
+            ? translateAppText('transactions.saving')
             : overrideToEdit
-              ? 'Update monthly override'
-              : 'Create monthly override'}
+              ? translateAppText('budgets.updateOverride')
+              : translateAppText('budgets.createOverride')}
         </button>
       </form>
     </section>

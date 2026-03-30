@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 
+import { resolveAppErrorMessage } from '../../../shared/i18n/appErrors';
+import { translateAppText } from '../../../shared/i18n/appText';
 import type {
   BudgetInput,
   BudgetRecord,
@@ -60,14 +62,14 @@ export function BudgetForm({
     event.preventDefault();
 
     if (!categoryId) {
-      setFormError('Create a category before defining a budget.');
+      setFormError(translateAppText('budgets.errorNeedCategory'));
       return;
     }
 
     const parsedAmount = Number(amount);
 
     if (Number.isNaN(parsedAmount) || parsedAmount <= 0) {
-      setFormError('Budget amount must be greater than zero.');
+      setFormError(translateAppText('budgets.errorAmount'));
       return;
     }
 
@@ -86,7 +88,7 @@ export function BudgetForm({
       setSubcategoryId(initialState.subcategoryId);
       setAmount(initialState.amount);
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : 'Unable to save the budget.');
+      setFormError(resolveAppErrorMessage(error, 'budgets.errorSave'));
     } finally {
       setIsSubmitting(false);
     }
@@ -96,19 +98,23 @@ export function BudgetForm({
     <section className="finance-panel">
       <div className="finance-panel__heading">
         <div>
-          <p className="finance-panel__eyebrow">Default budget form</p>
-          <h2>{budgetToEdit ? 'Edit default budget' : 'Add default budget'}</h2>
+          <p className="finance-panel__eyebrow">{translateAppText('budgets.formEyebrow')}</p>
+          <h2>
+            {budgetToEdit
+              ? translateAppText('budgets.editDefaultHeading')
+              : translateAppText('budgets.addDefaultHeading')}
+          </h2>
         </div>
         {budgetToEdit ? (
           <button className="secondary-button" onClick={onCancelEdit} type="button">
-            Cancel edit
+            {translateAppText('transactions.cancelEdit')}
           </button>
         ) : null}
       </div>
 
       <form className="finance-form" onSubmit={handleSubmit}>
         <label className="finance-field">
-          <span>Category</span>
+          <span>{translateAppText('transactions.category')}</span>
           <select
             name="budgetCategory"
             onChange={(event) => {
@@ -117,7 +123,7 @@ export function BudgetForm({
             }}
             value={categoryId}
           >
-            {categories.length === 0 ? <option value="">No categories yet</option> : null}
+            {categories.length === 0 ? <option value="">{translateAppText('transactions.noCategoriesYet')}</option> : null}
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
@@ -127,14 +133,14 @@ export function BudgetForm({
         </label>
 
         <label className="finance-field">
-          <span>Subcategory</span>
+          <span>{translateAppText('categories.subcategories')}</span>
           <select
             disabled={!categoryId || availableSubcategories.length === 0}
             name="budgetSubcategory"
             onChange={(event) => setSubcategoryId(event.target.value)}
             value={subcategoryId}
           >
-            <option value="">No subcategory</option>
+            <option value="">{translateAppText('transactions.noSubcategory')}</option>
             {availableSubcategories.map((subcategory) => (
               <option key={subcategory.id} value={subcategory.id}>
                 {subcategory.name}
@@ -144,7 +150,7 @@ export function BudgetForm({
         </label>
 
         <label className="finance-field">
-          <span>Amount</span>
+          <span>{translateAppText('transactions.amount')}</span>
           <input
             inputMode="decimal"
             name="budgetAmount"
@@ -158,10 +164,10 @@ export function BudgetForm({
 
         <button className="primary-button finance-form__submit" disabled={isSubmitting} type="submit">
           {isSubmitting
-            ? 'Saving...'
+            ? translateAppText('transactions.saving')
             : budgetToEdit
-              ? 'Update default budget'
-              : 'Create default budget'}
+              ? translateAppText('budgets.updateDefault')
+              : translateAppText('budgets.createDefault')}
         </button>
       </form>
     </section>

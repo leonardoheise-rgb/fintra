@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 
+import { translateAppText } from '../../../shared/i18n/appText';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { getCategoryName, getSubcategoryName } from '../../finance/lib/financeSelectors';
 import type {
@@ -26,18 +27,16 @@ export function RecentTransactionsPanel({
     >
       <div className="finance-panel__heading">
         <div>
-          <p className="finance-panel__eyebrow">Recent activity</p>
-          <h2 id="recent-activity-title">Latest ledger entries</h2>
+          <p className="finance-panel__eyebrow">{translateAppText('dashboard.recentActivity')}</p>
+          <h2 id="recent-activity-title">{translateAppText('dashboard.latestEntries')}</h2>
         </div>
         <Link className="secondary-button" to="/transactions">
-          View all
+          {translateAppText('dashboard.viewAll')}
         </Link>
       </div>
 
       {transactions.length === 0 ? (
-        <p className="finance-empty-state">
-          Add your first transaction to start building a live activity stream.
-        </p>
+        <p className="finance-empty-state">{translateAppText('dashboard.addFirstTransaction')}</p>
       ) : (
         <div className="recent-activity-list">
           {transactions.slice(0, 5).map((transaction) => (
@@ -46,7 +45,7 @@ export function RecentTransactionsPanel({
                 {transaction.type === 'income' ? 'IN' : 'EX'}
               </div>
               <div>
-                <h3>{transaction.description || 'Untitled entry'}</h3>
+                <h3>{transaction.description || translateAppText('dashboard.untitledEntry')}</h3>
                 <p>
                   {getCategoryName(categories, transaction.categoryId)}
                   {' / '}

@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 
+import { translateAppText } from '../../../shared/i18n/appText';
 import { FinancePageHeader } from '../../finance/components/FinancePageHeader';
 import { CategoriesSummaryCard } from '../../finance/components/CategoriesSummaryCard';
 import { getCurrentMonthKey } from '../../../shared/lib/date/months';
@@ -54,16 +55,16 @@ export function SettingsPage() {
   return (
     <div className="finance-page">
       <FinancePageHeader
-        description="Shape how the app reads day to day, from your preferred currency to the day your monthly cycle begins."
-        eyebrow="Workspace"
-        title="Settings"
+        description={translateAppText('settings.description')}
+        eyebrow={translateAppText('settings.eyebrow')}
+        title={translateAppText('settings.title')}
       />
 
-      <section className="finance-summary-grid" aria-label="Settings summary">
-        <CategoriesSummaryCard label="Default currency" value={preferences.currency} />
-        <CategoriesSummaryCard label="Default locale" value={preferences.locale} />
+      <section className="finance-summary-grid" aria-label={translateAppText('settings.summary')}>
+        <CategoriesSummaryCard label={translateAppText('settings.defaultCurrency')} value={preferences.currency} />
+        <CategoriesSummaryCard label={translateAppText('settings.defaultLocale')} value={preferences.locale} />
         <CategoriesSummaryCard
-          label="Month starts on"
+          label={translateAppText('settings.monthStartsOn')}
           value={formatDayOfMonthLabel(preferences.monthStartDay)}
         />
       </section>
@@ -72,14 +73,14 @@ export function SettingsPage() {
         <section className="finance-panel">
           <div className="finance-panel__heading">
             <div>
-              <p className="finance-panel__eyebrow">Display preferences</p>
-              <h2>Currency, locale, and monthly cycle</h2>
+              <p className="finance-panel__eyebrow">{translateAppText('settings.preferencesEyebrow')}</p>
+              <h2>{translateAppText('settings.preferencesHeading')}</h2>
             </div>
           </div>
 
           <form className="finance-form" onSubmit={handleSubmit}>
             <label className="finance-field">
-              <span>Default currency</span>
+              <span>{translateAppText('settings.defaultCurrency')}</span>
               <select
                 name="displayCurrency"
                 onChange={(event) => {
@@ -93,14 +94,14 @@ export function SettingsPage() {
               >
                 {currencyOptions.map((option) => (
                   <option key={option.value} value={option.value}>
-                    {option.label}
+                    {translateAppText(`settings.currencyOption.${option.value}`) || option.label}
                   </option>
                 ))}
               </select>
             </label>
 
             <label className="finance-field">
-              <span>Default locale</span>
+              <span>{translateAppText('settings.defaultLocale')}</span>
               <select
                 name="displayLocale"
                 onChange={(event) => {
@@ -114,14 +115,14 @@ export function SettingsPage() {
               >
                 {localeOptions.map((option) => (
                   <option key={option.value} value={option.value}>
-                    {option.label}
+                    {translateAppText(`settings.localeOption.${option.value}`) || option.label}
                   </option>
                 ))}
               </select>
             </label>
 
             <label className="finance-field">
-              <span>Month starts on</span>
+              <span>{translateAppText('settings.monthStartsOn')}</span>
               <select
                 name="monthStartDay"
                 onChange={(event) => {
@@ -135,7 +136,7 @@ export function SettingsPage() {
               >
                 {monthStartDayOptions.map((day) => (
                   <option key={day} value={day}>
-                    {formatDayOfMonthLabel(day)}
+                    {formatDayOfMonthLabel(day, draftPreferences.locale)}
                   </option>
                 ))}
               </select>
@@ -146,7 +147,7 @@ export function SettingsPage() {
               disabled={!hasUnsavedChanges}
               type="submit"
             >
-              Save display preferences
+              {translateAppText('settings.save')}
             </button>
             <button
               className="secondary-button finance-form__submit"
@@ -154,21 +155,21 @@ export function SettingsPage() {
               onClick={handleReset}
               type="button"
             >
-              Reset to app defaults
+              {translateAppText('settings.reset')}
             </button>
           </form>
 
           {saveState === 'saved' ? (
             <p aria-live="polite" className="finance-message" role="status">
-              Display preferences saved.
+              {translateAppText('settings.saved')}
             </p>
           ) : hasUnsavedChanges ? (
             <p aria-live="polite" className="finance-message" role="status">
-              You have unsaved display preference changes.
+              {translateAppText('settings.unsaved')}
             </p>
           ) : (
             <p aria-live="polite" className="finance-empty-state" role="status">
-              Changes apply immediately after you save them.
+              {translateAppText('settings.appliesImmediately')}
             </p>
           )}
         </section>
@@ -176,14 +177,14 @@ export function SettingsPage() {
         <section className="finance-panel">
           <div className="finance-panel__heading">
             <div>
-              <p className="finance-panel__eyebrow">Preview</p>
-              <h2>How your workspace will read</h2>
+              <p className="finance-panel__eyebrow">{translateAppText('settings.previewEyebrow')}</p>
+              <h2>{translateAppText('settings.previewHeading')}</h2>
             </div>
           </div>
 
           <div className="settings-preview-grid">
             <article className="settings-preview-card">
-              <span className="finance-summary-card__label">Amount preview</span>
+              <span className="finance-summary-card__label">{translateAppText('settings.amountPreview')}</span>
               <strong>
                 {formatCurrency(12450.75, {
                   currency: draftPreferences.currency,
@@ -192,43 +193,44 @@ export function SettingsPage() {
               </strong>
             </article>
             <article className="settings-preview-card">
-              <span className="finance-summary-card__label">Month preview</span>
+              <span className="finance-summary-card__label">{translateAppText('settings.monthPreview')}</span>
               <strong>{formatMonthLabel(getCurrentMonthKey(), draftPreferences.locale)}</strong>
             </article>
             <article className="settings-preview-card">
-              <span className="finance-summary-card__label">Monthly cycle</span>
-              <strong>Starts on the {formatDayOfMonthLabel(draftPreferences.monthStartDay)}</strong>
+              <span className="finance-summary-card__label">{translateAppText('settings.monthlyCycle')}</span>
+              <strong>
+                {translateAppText('settings.startsOnDay', {
+                  day: formatDayOfMonthLabel(draftPreferences.monthStartDay, draftPreferences.locale),
+                })}
+              </strong>
             </article>
           </div>
 
           <p className="settings-note">
-            These choices shape how totals and month-based views feel throughout the app.
+            {translateAppText('settings.previewNote')}
           </p>
         </section>
       </div>
 
       <details className="finance-panel settings-support-panel">
-        <summary className="settings-support-summary">Support details</summary>
+        <summary className="settings-support-summary">{translateAppText('settings.supportDetails')}</summary>
 
         <div className="settings-preview-grid">
           <article className="settings-preview-card">
-            <span className="finance-summary-card__label">Signed-in account</span>
-            <strong>{auth.user?.email ?? 'Not available'}</strong>
+            <span className="finance-summary-card__label">{translateAppText('settings.signedInAccount')}</span>
+            <strong>{auth.user?.email ?? translateAppText('settings.notAvailable')}</strong>
           </article>
           <article className="settings-preview-card">
-            <span className="finance-summary-card__label">Data availability</span>
+            <span className="finance-summary-card__label">{translateAppText('settings.dataAvailability')}</span>
             <strong>
               {auth.mode === 'supabase'
-                ? 'Available whenever you sign in'
-                : 'Stored on this device for now'}
+                ? translateAppText('settings.availableOnSignIn')
+                : translateAppText('settings.storedOnDevice')}
             </strong>
           </article>
         </div>
 
-        <p className="settings-note">
-          Open this area when you need a quick support-oriented view of how this workspace is
-          currently behaving.
-        </p>
+        <p className="settings-note">{translateAppText('settings.supportNote')}</p>
       </details>
     </div>
   );

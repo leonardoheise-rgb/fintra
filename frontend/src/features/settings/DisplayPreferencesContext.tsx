@@ -36,6 +36,7 @@ export function DisplayPreferencesProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     setRuntimeDisplayPreferences(preferences);
+    document.documentElement.lang = preferences.locale;
   }, [preferences]);
 
   const value = useMemo<DisplayPreferencesContextValue>(

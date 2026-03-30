@@ -1,5 +1,6 @@
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { formatMonthLabel } from '../../../shared/lib/formatters/date';
+import { translateAppText } from '../../../shared/i18n/appText';
 import type { CategorySpendingTrend } from '../analytics.types';
 
 type CategoryTrendListProps = {
@@ -17,21 +18,21 @@ export function CategoryTrendList({ trends }: CategoryTrendListProps) {
     <section className="finance-panel analytics-panel">
       <div className="finance-panel__heading">
         <div>
-          <p className="finance-panel__eyebrow">Category drift</p>
-          <h2>Spending by category</h2>
+          <p className="finance-panel__eyebrow">{translateAppText('analytics.categoryDrift')}</p>
+          <h2>{translateAppText('analytics.spendingByCategory')}</h2>
         </div>
-        <p className="analytics-panel__caption">Sorted by total spend in the selected range</p>
+        <p className="analytics-panel__caption">{translateAppText('analytics.sortedBySpend')}</p>
       </div>
 
       {trends.length === 0 ? (
-        <p className="finance-empty-state">No expense activity is available for the selected range.</p>
+        <p className="finance-empty-state">{translateAppText('analytics.noExpenseActivity')}</p>
       ) : (
         <div className="analytics-category-list">
           {trends.map((trend) => (
             <article className="analytics-category-card" key={trend.categoryId}>
               <div className="analytics-category-card__header">
                 <div>
-                  <p className="finance-panel__eyebrow">Category</p>
+                  <p className="finance-panel__eyebrow">{translateAppText('analytics.categoryLabel')}</p>
                   <h3>{trend.categoryName}</h3>
                 </div>
                 <strong>{formatCurrency(trend.totalSpent)}</strong>
@@ -43,10 +44,16 @@ export function CategoryTrendList({ trends }: CategoryTrendListProps) {
               />
 
               <div className="analytics-category-card__meta">
-                <span>Average {formatCurrency(trend.averageMonthlySpent)} / month</span>
                 <span>
-                  Current {formatCurrency(trend.currentMonthSpent)} vs previous{' '}
-                  {formatCurrency(trend.previousMonthSpent)}
+                  {translateAppText('analytics.averagePerMonth', {
+                    amount: formatCurrency(trend.averageMonthlySpent),
+                  })}
+                </span>
+                <span>
+                  {translateAppText('analytics.currentVsPreviousShort', {
+                    current: formatCurrency(trend.currentMonthSpent),
+                    previous: formatCurrency(trend.previousMonthSpent),
+                  })}
                 </span>
               </div>
 

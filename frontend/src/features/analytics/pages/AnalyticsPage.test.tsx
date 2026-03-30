@@ -28,7 +28,7 @@ describe('AnalyticsPage', () => {
     await waitForAnalyticsToLoad();
 
     expect(
-      await screen.findByRole('heading', { name: /^analytics$/i }, { timeout: 5000 }),
+      await screen.findByRole('heading', { name: /^analytics$/i, level: 1 }, { timeout: 5000 }),
     ).toBeInTheDocument();
     expect(
       await screen.findByRole('heading', { name: /income versus expenses/i }, { timeout: 8000 }),

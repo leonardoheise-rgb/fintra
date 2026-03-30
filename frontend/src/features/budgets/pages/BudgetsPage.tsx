@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 
+import { translateAppText } from '../../../shared/i18n/appText';
 import { getCurrentMonthKey } from '../../../shared/lib/date/months';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { formatMonthLabel } from '../../../shared/lib/formatters/date';
@@ -77,18 +78,18 @@ export function BudgetsPage() {
   return (
     <div className="finance-page finance-page--budgets">
       <FinancePageHeader
-        description="Shape your monthly allowance, tune override moments, and review category pacing with the same architectural calm as the dashboard."
-        eyebrow="Monthly budgets"
-        title="Budgets"
+        description={translateAppText('budgets.description')}
+        eyebrow={translateAppText('budgets.eyebrow')}
+        title={translateAppText('budgets.title')}
       />
 
       <section className="finance-panel dashboard-toolbar">
         <div>
-          <p className="finance-panel__eyebrow">Override scope</p>
-          <h2>{formatMonthLabel(selectedMonth)} effective plan</h2>
+          <p className="finance-panel__eyebrow">{translateAppText('budgets.overrideScope')}</p>
+          <h2>{translateAppText('budgets.effectivePlan', { month: formatMonthLabel(selectedMonth) })}</h2>
         </div>
         <label className="finance-field dashboard-toolbar__field">
-          <span>Selected month</span>
+          <span>{translateAppText('dashboard.selectedMonth')}</span>
           <input
             name="budgetMonth"
             onChange={(event) => setSelectedMonth(event.target.value)}
@@ -99,14 +100,14 @@ export function BudgetsPage() {
       </section>
 
       <section className="finance-summary-grid">
-        <CategoriesSummaryCard label="Default plans" value={String(financeData.budgets.length)} />
-        <CategoriesSummaryCard label="Allocated total" value={formatCurrency(allocatedBudget)} />
+        <CategoriesSummaryCard label={translateAppText('budgets.defaultPlans')} value={String(financeData.budgets.length)} />
+        <CategoriesSummaryCard label={translateAppText('budgets.allocatedTotal')} value={formatCurrency(allocatedBudget)} />
         <CategoriesSummaryCard
-          label={`${selectedMonth} overrides`}
+          label={translateAppText('budgets.overridesLabel', { month: selectedMonth })}
           value={String(selectedMonthOverrides.length)}
         />
-        <CategoriesSummaryCard label="Effective total" value={formatCurrency(effectiveTotal)} />
-        <CategoriesSummaryCard label="Covered categories" value={String(coveredCategories)} />
+        <CategoriesSummaryCard label={translateAppText('budgets.effectiveTotal')} value={formatCurrency(effectiveTotal)} />
+        <CategoriesSummaryCard label={translateAppText('budgets.coveredCategories')} value={String(coveredCategories)} />
       </section>
 
       {financeData.errorMessage ? (
@@ -119,7 +120,7 @@ export function BudgetsPage() {
 
       {financeData.status === 'loading' ? (
         <section aria-live="polite" className="finance-panel">
-          <p className="finance-empty-state">Loading budgets...</p>
+          <p className="finance-empty-state">{translateAppText('budgets.loading')}</p>
         </section>
       ) : (
         <>

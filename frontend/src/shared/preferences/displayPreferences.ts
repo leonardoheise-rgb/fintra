@@ -22,7 +22,6 @@ export const supportedCurrencyOptions: DisplayPreferenceOption[] = [
 export const supportedLocaleOptions: DisplayPreferenceOption[] = [
   { value: 'en-US', label: 'English (United States)' },
   { value: 'pt-BR', label: 'Portuguese (Brazil)' },
-  { value: 'es-ES', label: 'Spanish (Spain)' },
 ];
 
 const supportedCurrencyValues = new Set(supportedCurrencyOptions.map((option) => option.value));

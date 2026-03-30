@@ -1,3 +1,5 @@
+import { translateAppText } from '../../../shared/i18n/appText';
+
 type AnalyticsTab = 'overview' | 'categories';
 
 type AnalyticsTabBarProps = {
@@ -7,10 +9,10 @@ type AnalyticsTabBarProps = {
 
 export function AnalyticsTabBar({ activeTab, onChange }: AnalyticsTabBarProps) {
   return (
-    <div className="analytics-tabbar" role="tablist" aria-label="Analytics views">
+    <div className="analytics-tabbar" role="tablist" aria-label={translateAppText('analytics.views')}>
       {[
-        { id: 'overview' as const, label: 'Overview' },
-        { id: 'categories' as const, label: 'Categories' },
+        { id: 'overview' as const, label: translateAppText('analytics.overview') },
+        { id: 'categories' as const, label: translateAppText('analytics.categoriesTab') },
       ].map((tab) => (
         <button
           aria-selected={activeTab === tab.id}

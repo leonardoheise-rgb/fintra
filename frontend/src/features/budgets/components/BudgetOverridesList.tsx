@@ -1,4 +1,5 @@
 import { formatMonthLabel } from '../../../shared/lib/formatters/date';
+import { translateAppText } from '../../../shared/i18n/appText';
 import type {
   BudgetOverrideRecord,
   CategoryRecord,
@@ -39,23 +40,27 @@ export function BudgetOverridesList({
     <section className="finance-panel">
       <div className="finance-panel__heading">
         <div>
-          <p className="finance-panel__eyebrow">Override registry</p>
-          <h2>{formatMonthLabel(month)} overrides</h2>
+          <p className="finance-panel__eyebrow">{translateAppText('budgets.overrideRegistry')}</p>
+          <h2>{translateAppText('budgets.overridesHeading', { month: formatMonthLabel(month) })}</h2>
         </div>
         <p className="budget-registry__summary">
-          {formatBudgetAmount(calculateAllocatedOverrideBudget(scopedOverrides))} overridden
+          {translateAppText('budgets.overridden', {
+            amount: formatBudgetAmount(calculateAllocatedOverrideBudget(scopedOverrides)),
+          })}
         </p>
       </div>
 
       {scopedOverrides.length === 0 ? (
         <p className="finance-empty-state">
-          No overrides are active for {formatMonthLabel(month)}. Delete-free reset behavior is ready when you add one.
+          {translateAppText('budgets.noOverrides', { month: formatMonthLabel(month) })}
         </p>
       ) : (
         <div className="finance-list">
           {scopedOverrides.map((budgetOverride) => (
             <article
-              aria-label={`${getBudgetScopeLabel(categories, subcategories, budgetOverride)} override`}
+              aria-label={translateAppText('budgets.overrideAria', {
+                name: getBudgetScopeLabel(categories, subcategories, budgetOverride),
+              })}
               className="budget-plan-card budget-plan-card--override"
               key={budgetOverride.id}
             >
@@ -73,20 +78,24 @@ export function BudgetOverridesList({
 
               <div className="transaction-card__actions">
                 <button
-                  aria-label={`Edit override ${getBudgetScopeLabel(categories, subcategories, budgetOverride)}`}
+                  aria-label={translateAppText('budgets.editOverride', {
+                    name: getBudgetScopeLabel(categories, subcategories, budgetOverride),
+                  })}
                   className="secondary-button"
                   onClick={() => onEdit(budgetOverride)}
                   type="button"
                 >
-                  Edit
+                  {translateAppText('transactions.edit')}
                 </button>
                 <button
-                  aria-label={`Reset override ${getBudgetScopeLabel(categories, subcategories, budgetOverride)}`}
+                  aria-label={translateAppText('budgets.resetOverride', {
+                    name: getBudgetScopeLabel(categories, subcategories, budgetOverride),
+                  })}
                   className="secondary-button secondary-button--danger"
                   onClick={() => void onDelete(budgetOverride.id)}
                   type="button"
                 >
-                  Reset to default
+                  {translateAppText('budgets.resetToDefault')}
                 </button>
               </div>
             </article>

@@ -1,3 +1,5 @@
+import { getDisplayPreferences } from '../../preferences/displayPreferences';
+
 function getOrdinalSuffix(day: number) {
   const lastTwoDigits = day % 100;
 
@@ -17,8 +19,15 @@ function getOrdinalSuffix(day: number) {
   }
 }
 
-export function formatDayOfMonthLabel(day: number) {
+export function formatDayOfMonthLabel(
+  day: number,
+  locale = getDisplayPreferences().locale,
+) {
   if (!Number.isInteger(day) || day < 1 || day > 31) {
+    return String(day);
+  }
+
+  if (!locale.startsWith('en')) {
     return String(day);
   }
 

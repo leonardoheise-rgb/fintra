@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 
+import { translateAppText } from '../../../shared/i18n/appText';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { formatMonthLabel } from '../../../shared/lib/formatters/date';
 import type { DashboardSnapshot } from '../dashboard.types';
@@ -14,7 +15,7 @@ export function HeroSummary({ snapshot }: HeroSummaryProps) {
       <div className="hero-panel__content">
         <div className="hero-panel__topline">
           <div>
-            <p className="hero-panel__eyebrow">Total net position</p>
+            <p className="hero-panel__eyebrow">{translateAppText('dashboard.totalNetPosition')}</p>
             <p className="metric-value">{formatCurrency(snapshot.remainingBalance)}</p>
           </div>
           <div className="metric-inline">
@@ -22,30 +23,29 @@ export function HeroSummary({ snapshot }: HeroSummaryProps) {
               {formatMonthLabel(snapshot.month)}
             </span>
             <span className="status-pill">
-              {formatCurrency(snapshot.remainingBudget)} budget left
+              {translateAppText('dashboard.budgetLeft', {
+                amount: formatCurrency(snapshot.remainingBudget),
+              })}
             </span>
           </div>
         </div>
 
         <div>
-          <h1>Wealth in motion</h1>
-          <p className="hero-panel__copy">
-            Default budgets, live transaction totals, and monthly pacing now share the same source
-            of truth.
-          </p>
+          <h1>{translateAppText('dashboard.heroTitle')}</h1>
+          <p className="hero-panel__copy">{translateAppText('dashboard.heroCopy')}</p>
         </div>
 
         <div className="hero-panel__metrics-grid">
           <article className="hero-stat">
-            <span className="hero-stat__label">Monthly allowance</span>
+            <span className="hero-stat__label">{translateAppText('dashboard.monthlyAllowance')}</span>
             <strong>{formatCurrency(snapshot.totalBudget)}</strong>
           </article>
           <article className="hero-stat">
-            <span className="hero-stat__label">Monthly income</span>
+            <span className="hero-stat__label">{translateAppText('dashboard.monthlyIncome')}</span>
             <strong>{formatCurrency(snapshot.totalIncome)}</strong>
           </article>
           <article className="hero-stat hero-stat--feature">
-            <span className="hero-stat__label">Savings pace</span>
+            <span className="hero-stat__label">{translateAppText('dashboard.savingsPace')}</span>
             <strong>{formatCurrency(snapshot.remainingBalance)}</strong>
           </article>
         </div>
@@ -54,23 +54,23 @@ export function HeroSummary({ snapshot }: HeroSummaryProps) {
       <div className="hero-panel__actions">
         <div className="hero-panel__action-group">
           <Link className="secondary-button" to="/transactions">
-            Open ledger
+            {translateAppText('dashboard.openLedger')}
           </Link>
           <Link className="primary-button" to="/analytics">
-            Monthly report
+            {translateAppText('dashboard.monthlyReport')}
           </Link>
         </div>
 
         <div className="hero-stat">
-          <span className="hero-stat__label">Net balance</span>
+          <span className="hero-stat__label">{translateAppText('dashboard.netBalance')}</span>
           <strong>{formatCurrency(snapshot.remainingBalance)}</strong>
         </div>
         <div className="hero-stat">
-          <span className="hero-stat__label">Average monthly expenses</span>
+          <span className="hero-stat__label">{translateAppText('dashboard.averageMonthlyExpenses')}</span>
           <strong>{formatCurrency(snapshot.averageMonthlyExpenses)}</strong>
         </div>
         <Link className="secondary-button" to="/budgets">
-          Configure default budgets
+          {translateAppText('dashboard.configureBudgets')}
         </Link>
       </div>
     </section>

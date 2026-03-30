@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 
+import { translateAppText } from '../../../shared/i18n/appText';
 import { calculateBudgetSummary } from '../../../shared/lib/budget/budgetSummary';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import type { BudgetCard } from '../dashboard.types';
@@ -13,20 +14,17 @@ export function BudgetHighlights({ cards }: BudgetHighlightsProps) {
     <section className="section-stack" aria-labelledby="budget-highlights-title">
       <div className="section-heading">
         <div>
-          <p className="section-heading__eyebrow">Budget posture</p>
-          <h3 id="budget-highlights-title">Category highlights</h3>
+          <p className="section-heading__eyebrow">{translateAppText('dashboard.budgetPosture')}</p>
+          <h3 id="budget-highlights-title">{translateAppText('dashboard.categoryHighlights')}</h3>
         </div>
         <Link className="secondary-button" to="/budgets">
-          Edit default budgets
+          {translateAppText('dashboard.editDefaultBudgets')}
         </Link>
       </div>
 
       {cards.length === 0 ? (
         <div className="insight-panel">
-          <p className="insight-panel__copy">
-            No default budgets are configured yet. Add your first plan to unlock category pacing on
-            the dashboard.
-          </p>
+          <p className="insight-panel__copy">{translateAppText('dashboard.noBudgets')}</p>
         </div>
       ) : (
         <div className="budget-grid">
@@ -44,7 +42,9 @@ export function BudgetHighlights({ cards }: BudgetHighlightsProps) {
                   </div>
                   <div>
                     <p className="budget-card__eyebrow">
-                      {card.isOverridden ? 'Monthly override' : 'Default budget'}
+                      {card.isOverridden
+                        ? translateAppText('dashboard.monthlyOverride')
+                        : translateAppText('dashboard.defaultBudgetLabel')}
                     </p>
                     <h4>{card.name}</h4>
                   </div>
@@ -52,7 +52,10 @@ export function BudgetHighlights({ cards }: BudgetHighlightsProps) {
 
                 <p className="budget-card__amount">{formatCurrency(summary.remaining)}</p>
                 <p className="budget-card__caption">
-                  {formatCurrency(card.spent)} spent of {formatCurrency(card.effectiveBudget)}
+                  {translateAppText('dashboard.spentOfBudget', {
+                    spent: formatCurrency(card.spent),
+                    budget: formatCurrency(card.effectiveBudget),
+                  })}
                 </p>
 
                 <div
@@ -70,13 +73,19 @@ export function BudgetHighlights({ cards }: BudgetHighlightsProps) {
                 </div>
 
                 <div className="budget-card__footer">
-                  <span>{Math.round(summary.rawPercentage)}% used</span>
+                  <span>
+                    {translateAppText('dashboard.percentUsed', {
+                      percent: Math.round(summary.rawPercentage),
+                    })}
+                  </span>
                   <span>
                     {card.isOverridden
-                      ? `Override active from ${formatCurrency(card.defaultBudget)}`
+                      ? translateAppText('dashboard.overrideActiveFrom', {
+                          amount: formatCurrency(card.defaultBudget),
+                        })
                       : summary.status === 'over'
-                        ? 'Needs attention'
-                        : 'On track'}
+                        ? translateAppText('dashboard.needsAttention')
+                        : translateAppText('dashboard.onTrack')}
                   </span>
                 </div>
               </article>

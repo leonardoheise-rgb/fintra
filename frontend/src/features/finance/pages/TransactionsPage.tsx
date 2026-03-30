@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { translateAppText } from '../../../shared/i18n/appText';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { useFinanceData } from '../useFinanceData';
 import { FinancePageHeader } from '../components/FinancePageHeader';
@@ -38,18 +39,18 @@ export function TransactionsPage() {
   return (
     <div className="finance-page finance-page--transactions">
       <FinancePageHeader
-        description="A definitive record of wealth circulation. Review the ledger, shape new entries, and keep every movement tied to the same live workspace."
-        eyebrow="Curation hub"
-        title="Transactions"
+        description={translateAppText('transactions.description')}
+        eyebrow={translateAppText('transactions.eyebrow')}
+        title={translateAppText('transactions.title')}
       />
 
       <section className="finance-summary-grid">
         <CategoriesSummaryCard
-          label="Tracked records"
+          label={translateAppText('transactions.trackedRecords')}
           value={String(financeData.transactions.length)}
         />
-        <CategoriesSummaryCard label="Income" value={formatCurrency(totalIncome)} />
-        <CategoriesSummaryCard label="Expenses" value={formatCurrency(totalExpense)} />
+        <CategoriesSummaryCard label={translateAppText('dashboard.income')} value={formatCurrency(totalIncome)} />
+        <CategoriesSummaryCard label={translateAppText('dashboard.expenses')} value={formatCurrency(totalExpense)} />
       </section>
 
       {financeData.errorMessage ? (
@@ -62,7 +63,7 @@ export function TransactionsPage() {
 
       {financeData.status === 'loading' ? (
         <section aria-live="polite" className="finance-panel">
-          <p className="finance-empty-state">Loading transactions...</p>
+          <p className="finance-empty-state">{translateAppText('transactions.loading')}</p>
         </section>
       ) : (
         <div className="finance-grid finance-grid--ledger">

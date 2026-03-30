@@ -1,4 +1,5 @@
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
+import { translateAppText } from '../../../shared/i18n/appText';
 import type {
   BudgetOverrideRecord,
   BudgetRecord,
@@ -27,7 +28,9 @@ export function getBudgetScopeLabel(
 export function getBudgetScopeTypeLabel(
   budget: Pick<BudgetRecord, 'subcategoryId'>,
 ) {
-  return budget.subcategoryId ? 'Subcategory budget' : 'Category budget';
+  return budget.subcategoryId
+    ? translateAppText('finance.scopeSubcategoryBudget')
+    : translateAppText('finance.scopeCategoryBudget');
 }
 
 export function sortBudgetsByScope(

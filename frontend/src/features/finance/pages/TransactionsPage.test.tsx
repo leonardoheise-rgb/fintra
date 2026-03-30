@@ -28,7 +28,7 @@ describe('TransactionsPage', () => {
     await waitForTransactionsToLoad();
 
     expect(
-      await screen.findByRole('heading', { name: /^transactions$/i }, { timeout: 8000 }),
+      await screen.findByRole('heading', { name: /^transactions$/i, level: 1 }, { timeout: 8000 }),
     ).toBeInTheDocument();
     expect(
       await screen.findByRole('heading', { name: /recent entries/i }, { timeout: 8000 }),
@@ -56,7 +56,7 @@ describe('TransactionsPage', () => {
     await user.clear(await screen.findByLabelText(/amount/i, {}, { timeout: 8000 }));
     await user.type(screen.getByLabelText(/amount/i), '45');
     await user.selectOptions(screen.getByLabelText(/^category$/i), 'category-food');
-    await user.selectOptions(screen.getByLabelText(/subcategory/i), 'subcategory-restaurants');
+    await user.selectOptions(screen.getByLabelText(/subcategor/i), 'subcategory-restaurants');
     await user.clear(screen.getByLabelText(/date/i));
     await user.type(screen.getByLabelText(/date/i), '2026-03-18');
     await user.type(screen.getByLabelText(/description/i), 'Coffee with client');

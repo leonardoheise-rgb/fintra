@@ -1,4 +1,5 @@
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
+import { translateAppText } from '../../../shared/i18n/appText';
 import { getCategoryName, getSubcategoryName } from '../lib/financeSelectors';
 import type { CategoryRecord, SubcategoryRecord, TransactionRecord } from '../finance.types';
 
@@ -18,32 +19,32 @@ export function TransactionsList({
   transactions,
 }: TransactionsListProps) {
   function getTransactionTitle(transaction: TransactionRecord) {
-    return transaction.description || 'No description';
+    return transaction.description || translateAppText('transactions.noDescription');
   }
 
   return (
     <section className="finance-panel ledger-panel">
       <div className="finance-panel__heading">
         <div>
-          <p className="finance-panel__eyebrow">Transaction ledger</p>
-          <h2>Recent entries</h2>
+          <p className="finance-panel__eyebrow">{translateAppText('transactions.ledgerEyebrow')}</p>
+          <h2>{translateAppText('transactions.recentEntries')}</h2>
         </div>
-        <p className="analytics-panel__caption">{transactions.length} items in view</p>
+        <p className="analytics-panel__caption">
+          {translateAppText('transactions.itemsInView', { count: transactions.length })}
+        </p>
       </div>
 
       {transactions.length === 0 ? (
-        <p className="finance-empty-state">
-          Create your first transaction to verify the CRUD flow and see records appear instantly.
-        </p>
+        <p className="finance-empty-state">{translateAppText('transactions.empty')}</p>
       ) : (
-        <div aria-label="Transactions ledger" className="ledger-table" role="table">
+        <div aria-label={translateAppText('transactions.tableLabel')} className="ledger-table" role="table">
           <div className="ledger-table__head" role="row">
-            <span>Date</span>
-            <span>Description</span>
-            <span>Category</span>
-            <span>Amount</span>
-            <span>Type</span>
-            <span>Actions</span>
+            <span>{translateAppText('transactions.date')}</span>
+            <span>{translateAppText('transactions.descriptionLabel')}</span>
+            <span>{translateAppText('transactions.category')}</span>
+            <span>{translateAppText('transactions.amount')}</span>
+            <span>{translateAppText('transactions.type')}</span>
+            <span>{translateAppText('transactions.actions')}</span>
           </div>
 
           {transactions.map((transaction) => (
@@ -59,7 +60,9 @@ export function TransactionsList({
                 <div>
                   <h3>{getTransactionTitle(transaction)}</h3>
                   <p className="ledger-row__subcopy">
-                    {transaction.description ? 'Workspace movement' : 'No detail added'}
+                    {transaction.description
+                      ? translateAppText('transactions.workspaceMovement')
+                      : translateAppText('transactions.noDetailAdded')}
                   </p>
                 </div>
               </div>
@@ -94,26 +97,32 @@ export function TransactionsList({
                       : 'ledger-row__type-pill ledger-row__type-pill--expense'
                   }
                 >
-                  {transaction.type}
+                  {transaction.type === 'income'
+                    ? translateAppText('transactions.incomeOption')
+                    : translateAppText('transactions.expense')}
                 </span>
               </div>
 
               <div className="transaction-card__actions ledger-row__actions">
                 <button
-                  aria-label={`Edit transaction ${getTransactionTitle(transaction)}`}
+                  aria-label={translateAppText('transactions.editTransaction', {
+                    name: getTransactionTitle(transaction),
+                  })}
                   className="secondary-button"
                   onClick={() => onEdit(transaction)}
                   type="button"
                 >
-                  Edit
+                  {translateAppText('transactions.edit')}
                 </button>
                 <button
-                  aria-label={`Delete transaction ${getTransactionTitle(transaction)}`}
+                  aria-label={translateAppText('transactions.deleteTransaction', {
+                    name: getTransactionTitle(transaction),
+                  })}
                   className="secondary-button secondary-button--danger"
                   onClick={() => void onDelete(transaction.id)}
                   type="button"
                 >
-                  Delete
+                  {translateAppText('transactions.delete')}
                 </button>
               </div>
             </article>

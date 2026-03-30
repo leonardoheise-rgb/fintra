@@ -22,24 +22,27 @@ describe('SettingsPage', () => {
     await renderAppAtPath('/settings', authService.service);
 
     expect(
-      await screen.findByRole('heading', { name: /^settings$/i }, { timeout: 8000 }),
+      await screen.findByRole('heading', { name: /^settings$/i, level: 1 }, { timeout: 8000 }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText(/settings summary/i)).toBeInTheDocument();
     expect(screen.getByText(/^brl$/i)).toBeInTheDocument();
     expect(screen.getByText(/^en-us$/i)).toBeInTheDocument();
     expect(screen.getAllByText(/^1st$/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/support details/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /save display preferences/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /save preferences/i })).toBeDisabled();
 
     await user.selectOptions(screen.getByLabelText(/default currency/i), 'USD');
-    expect(screen.getByText(/unsaved display preference changes/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /save display preferences/i })).toBeEnabled();
-    await user.selectOptions(screen.getByLabelText(/default locale/i), 'pt-BR');
+    expect(screen.getByText(/unsaved preference changes/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /save preferences/i })).toBeEnabled();
+    await user.selectOptions(screen.getByLabelText(/language and region/i), 'pt-BR');
     await user.selectOptions(screen.getByLabelText(/month starts on/i), '15');
-    await user.click(screen.getByRole('button', { name: /save display preferences/i }));
+    await user.click(screen.getByRole('button', { name: /save preferences/i }));
 
-    expect(await screen.findByText(/display preferences saved/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /save display preferences/i })).toBeDisabled();
+    expect(await screen.findByText(/preferências salvas/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /salvar preferências/i })).toBeDisabled();
+    expect(screen.getByRole('heading', { name: /configurações/i, level: 1 })).toBeInTheDocument();
+    expect(screen.getByText(/detalhes de suporte/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/^15$/i).length).toBeGreaterThan(0);
 
     expect(
       JSON.parse(window.localStorage.getItem('fintra.display-preferences.user-1') ?? '{}'),

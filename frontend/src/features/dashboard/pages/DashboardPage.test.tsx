@@ -27,7 +27,7 @@ describe('DashboardPage', () => {
     await waitForDashboardToLoad();
 
     expect(
-      await screen.findByRole('heading', { name: /wealth in motion/i }, { timeout: 8000 }),
+      await screen.findByRole('heading', { name: /your money this month/i }, { timeout: 8000 }),
     ).toBeInTheDocument();
     expect(
       await screen.findByRole('heading', { name: /^housing$/i, level: 4 }, { timeout: 8000 }),

@@ -28,7 +28,7 @@ describe('BudgetsPage', () => {
     await waitForBudgetsToLoad();
 
     expect(
-      await screen.findByRole('heading', { name: /^budgets$/i }, { timeout: 8000 }),
+      await screen.findByRole('heading', { name: /^budgets$/i, level: 1 }, { timeout: 8000 }),
     ).toBeInTheDocument();
     expect(
       await screen.findByRole('heading', { name: /^housing$/i, level: 3 }, { timeout: 8000 }),
@@ -51,7 +51,7 @@ describe('BudgetsPage', () => {
     await waitForBudgetsToLoad();
 
     const [defaultCategorySelect] = await screen.findAllByLabelText(/^category$/i, {}, { timeout: 8000 });
-    const [defaultSubcategorySelect] = screen.getAllByLabelText(/subcategory/i);
+    const [defaultSubcategorySelect] = screen.getAllByLabelText(/subcategor/i);
     const [defaultAmountInput] = screen.getAllByLabelText(/^amount$/i);
 
     await user.selectOptions(
@@ -86,7 +86,7 @@ describe('BudgetsPage', () => {
     expect(await screen.findByText('1')).toBeInTheDocument();
 
     const [, overrideCategorySelect] = await screen.findAllByLabelText(/^category$/i, {}, { timeout: 8000 });
-    const [, overrideSubcategorySelect] = screen.getAllByLabelText(/subcategory/i);
+    const [, overrideSubcategorySelect] = screen.getAllByLabelText(/subcategor/i);
     const [, overrideAmountInput] = screen.getAllByLabelText(/^amount$/i);
 
     await user.selectOptions(overrideCategorySelect, 'category-transport');

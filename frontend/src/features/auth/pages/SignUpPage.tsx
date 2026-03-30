@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+import { resolveAppErrorMessage } from '../../../shared/i18n/appErrors';
+import { translateAppText } from '../../../shared/i18n/appText';
 import { useAuth } from '../useAuth';
 import { AuthPageLayout } from '../components/AuthPageLayout';
 
@@ -8,15 +10,15 @@ function validateSignUpForm(email: string, password: string, confirmPassword: st
   const errors: string[] = [];
 
   if (!email.trim()) {
-    errors.push('Email is required.');
+    errors.push(translateAppText('auth.validationEmailRequired'));
   }
 
   if (password.trim().length < 8) {
-    errors.push('Password must be at least 8 characters.');
+    errors.push(translateAppText('auth.validationPasswordLength'));
   }
 
   if (password !== confirmPassword) {
-    errors.push('Password confirmation must match.');
+    errors.push(translateAppText('auth.validationPasswordMatch'));
   }
 
   return errors;
@@ -54,12 +56,12 @@ export function SignUpPage() {
       });
 
       if (result.requiresEmailConfirmation) {
-        setSuccessMessage('Check your email to confirm the account before signing in.');
+        setSuccessMessage(translateAppText('auth.confirmEmailMessage'));
       } else {
         navigate('/', { replace: true });
       }
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : 'Unable to create the account right now.');
+      setFormError(resolveAppErrorMessage(error, 'auth.errorUnableToCreateAccount'));
     } finally {
       setIsSubmitting(false);
     }
@@ -67,16 +69,16 @@ export function SignUpPage() {
 
   return (
     <AuthPageLayout
-      description="Create your account to build a personal space for your monthly plan, spending, and progress."
-      eyebrow="New account"
+      description={translateAppText('auth.signUpDescription')}
+      eyebrow={translateAppText('auth.newAccount')}
       footerActionHref="/sign-in"
-      footerActionLabel="Sign in"
-      footerPrompt="Already have an account?"
-      title="Create your account"
+      footerActionLabel={translateAppText('auth.signIn')}
+      footerPrompt={translateAppText('auth.alreadyHaveAccount')}
+      title={translateAppText('auth.createAccount')}
     >
       <form className="auth-form" onSubmit={handleSubmit}>
         <label className="auth-field">
-          <span>Email</span>
+          <span>{translateAppText('auth.email')}</span>
           <input
             autoComplete="email"
             name="email"
@@ -87,7 +89,7 @@ export function SignUpPage() {
         </label>
 
         <label className="auth-field">
-          <span>Password</span>
+          <span>{translateAppText('auth.password')}</span>
           <input
             autoComplete="new-password"
             name="password"
@@ -98,7 +100,7 @@ export function SignUpPage() {
         </label>
 
         <label className="auth-field">
-          <span>Confirm password</span>
+          <span>{translateAppText('auth.confirmPassword')}</span>
           <input
             autoComplete="new-password"
             name="confirmPassword"
@@ -112,12 +114,13 @@ export function SignUpPage() {
         {successMessage ? <p className="auth-form__success">{successMessage}</p> : null}
 
         <button className="primary-button auth-form__button" disabled={isSubmitting} type="submit">
-          {isSubmitting ? 'Creating account...' : 'Create account'}
+          {isSubmitting ? translateAppText('auth.creatingAccount') : translateAppText('auth.createAccount')}
         </button>
       </form>
 
       <p className="auth-card__microcopy">
-        Prefer to continue with an existing account? <Link to="/sign-in">Sign in here</Link>
+        {translateAppText('auth.preferExistingAccount')}{' '}
+        <Link to="/sign-in">{translateAppText('auth.signInHere')}</Link>
       </p>
     </AuthPageLayout>
   );

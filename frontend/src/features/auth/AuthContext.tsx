@@ -6,14 +6,14 @@ import {
   type PropsWithChildren,
 } from 'react';
 
-import { getErrorMessage } from '../../shared/lib/errors/getErrorMessage';
+import { resolveAppErrorMessage } from '../../shared/i18n/appErrors';
 import type { AuthResolvedState, AuthSession, AuthUser } from './auth.types';
 import { AuthContext, type AuthContextValue } from './authContextValue';
 import { createAuthService } from './services/createAuthService';
 import type { AuthService } from './services/authService';
 
 function normalizeAuthError(error: unknown) {
-  return getErrorMessage(error, 'Something went wrong while trying to authenticate.');
+  return resolveAppErrorMessage(error, 'errors.genericAuth');
 }
 
 function getUserFromSession(session: AuthSession | null) {
