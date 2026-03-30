@@ -1,4 +1,6 @@
-export function formatMonthLabel(month: string, locale = 'en-US') {
+import { getDisplayPreferences } from '../../preferences/displayPreferences';
+
+export function formatMonthLabel(month: string, locale = getDisplayPreferences().locale) {
   const [yearText, monthText] = month.split('-');
   const year = Number(yearText);
   const monthIndex = Number(monthText) - 1;

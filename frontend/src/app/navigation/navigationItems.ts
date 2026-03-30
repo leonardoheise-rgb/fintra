@@ -34,4 +34,11 @@ export const navigationItems = [
     href: '/analytics',
     isEnabled: true,
   },
+  {
+    label: 'Settings',
+    shortLabel: 'ST',
+    description: 'Choose the currency and locale used across your workspace.',
+    href: '/settings',
+    isEnabled: true,
+  },
 ];

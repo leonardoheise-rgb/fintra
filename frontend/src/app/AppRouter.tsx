@@ -4,6 +4,7 @@ import { ProtectedRoute } from '../features/auth/components/ProtectedRoute';
 import { AnalyticsPage } from '../features/analytics/pages/AnalyticsPage';
 import { BudgetsPage } from '../features/budgets/pages/BudgetsPage';
 import { PublicOnlyRoute } from '../features/auth/components/PublicOnlyRoute';
+import { SettingsPage } from '../features/settings/pages/SettingsPage';
 import { SignInPage } from '../features/auth/pages/SignInPage';
 import { SignUpPage } from '../features/auth/pages/SignUpPage';
 import { DashboardPage } from '../features/dashboard/pages/DashboardPage';
@@ -37,6 +38,7 @@ export function AppRouter() {
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/budgets" element={<BudgetsPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Route>
     </Routes>

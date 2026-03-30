@@ -10,6 +10,7 @@ const pageTitles: Record<string, string> = {
   '/categories': 'Category manager',
   '/budgets': 'Budget operations',
   '/analytics': 'Historical insights',
+  '/settings': 'Workspace settings',
 };
 
 export function AppLayout({ children }: PropsWithChildren) {

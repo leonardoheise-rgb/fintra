@@ -157,6 +157,31 @@
   font-weight: 600;
 }
 
+.settings-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 1rem;
+}
+
+.settings-preview-card {
+  display: grid;
+  gap: 0.55rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: var(--color-surface-container-low);
+}
+
+.settings-preview-card strong {
+  font-family: var(--font-headline);
+  color: var(--color-primary);
+  font-size: 1.35rem;
+  letter-spacing: -0.05em;
+}
+
+.settings-note {
+  color: var(--color-on-surface-variant);
+}
+
 .finance-message--error {
   background: rgba(255, 218, 214, 0.72);
   color: var(--color-error);

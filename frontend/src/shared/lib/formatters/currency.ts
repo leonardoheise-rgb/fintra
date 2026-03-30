@@ -1,5 +1,4 @@
-const defaultLocale = import.meta.env.VITE_DEFAULT_LOCALE ?? 'en-US';
-const defaultCurrency = import.meta.env.VITE_DEFAULT_CURRENCY ?? 'USD';
+import { getDisplayPreferences } from '../../preferences/displayPreferences';
 
 export function formatCurrency(
   value: number,
@@ -8,8 +7,9 @@ export function formatCurrency(
     currency?: string;
   },
 ) {
-  const locale = options?.locale ?? defaultLocale;
-  const currency = options?.currency ?? defaultCurrency;
+  const preferences = getDisplayPreferences();
+  const locale = options?.locale ?? preferences.locale;
+  const currency = options?.currency ?? preferences.currency;
 
   return new Intl.NumberFormat(locale, {
     style: 'currency',
