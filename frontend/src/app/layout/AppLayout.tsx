@@ -114,18 +114,24 @@ export function AppLayout({ children }: PropsWithChildren) {
                 type="search"
               />
             </label>
-            <div className="topbar__account">
-              <div className="status-pill">
-                {auth.mode === 'preview' ? 'Preview auth' : 'Supabase auth'}
+            <div className="topbar__controls">
+              <div className="topbar__account">
+                <div className="status-pill">
+                  {auth.mode === 'preview' ? 'Preview auth' : 'Supabase auth'}
+                </div>
+                <p className="topbar__email">{auth.user?.email}</p>
               </div>
-              <p className="topbar__email">{auth.user?.email}</p>
+              <div aria-hidden="true" className="avatar-chip">
+                {getUserInitials(auth.user?.email)}
+              </div>
+              <button
+                className="secondary-button topbar__signout"
+                onClick={() => void auth.signOut()}
+                type="button"
+              >
+                Sign out
+              </button>
             </div>
-            <div aria-hidden="true" className="avatar-chip">
-              {getUserInitials(auth.user?.email)}
-            </div>
-            <button className="secondary-button topbar__signout" onClick={() => void auth.signOut()} type="button">
-              Sign out
-            </button>
           </div>
         </header>
 

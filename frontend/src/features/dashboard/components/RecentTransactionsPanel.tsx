@@ -20,7 +20,10 @@ export function RecentTransactionsPanel({
   transactions,
 }: RecentTransactionsPanelProps) {
   return (
-    <section className="finance-panel recent-activity-panel" aria-labelledby="recent-activity-title">
+    <section
+      aria-labelledby="recent-activity-title"
+      className="finance-panel recent-activity-panel"
+    >
       <div className="finance-panel__heading">
         <div>
           <p className="finance-panel__eyebrow">Recent activity</p>
@@ -46,7 +49,7 @@ export function RecentTransactionsPanel({
                 <h3>{transaction.description || 'Untitled entry'}</h3>
                 <p>
                   {getCategoryName(categories, transaction.categoryId)}
-                  {' · '}
+                  {' / '}
                   {getSubcategoryName(subcategories, transaction.subcategoryId)}
                 </p>
                 <span>{transaction.date}</span>
