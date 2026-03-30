@@ -1,12 +1,13 @@
 import { useState } from 'react';
 
+import { getCurrentMonthKey } from '../../../shared/lib/date/months';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { CategoriesSummaryCard } from '../../finance/components/CategoriesSummaryCard';
 import { useFinanceData } from '../../finance/useFinanceData';
 import { BudgetHighlights } from '../components/BudgetHighlights';
 import { HeroSummary } from '../components/HeroSummary';
 import { InsightsPanel } from '../components/InsightsPanel';
-import { buildDashboardSnapshot, getCurrentMonthKey } from '../lib/buildDashboardSnapshot';
+import { buildDashboardSnapshot } from '../lib/buildDashboardSnapshot';
 
 export function DashboardPage() {
   const financeData = useFinanceData();

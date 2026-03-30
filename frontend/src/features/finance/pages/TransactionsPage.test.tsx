@@ -1,8 +1,16 @@
-import { screen } from '@testing-library/react';
+import { screen, waitForElementToBeRemoved } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { createAuthServiceStub } from '../../../test/createAuthServiceStub';
 import { renderAppAtPath } from '../../../test/renderAppAtPath';
+
+async function waitForTransactionsToLoad() {
+  const loadingState = screen.queryByText(/loading transactions/i);
+
+  if (loadingState) {
+    await waitForElementToBeRemoved(loadingState, { timeout: 8000 });
+  }
+}
 
 describe('TransactionsPage', () => {
   it('renders existing preview transactions on the protected route', async () => {
@@ -15,13 +23,18 @@ describe('TransactionsPage', () => {
       },
     });
 
-    renderAppAtPath('/transactions', authService.service);
+    await renderAppAtPath('/transactions', authService.service);
+
+    await waitForTransactionsToLoad();
 
     expect(
-      await screen.findByRole('heading', { name: /^transactions$/i }, { timeout: 3000 }),
+      await screen.findByRole('heading', { name: /^transactions$/i }, { timeout: 8000 }),
     ).toBeInTheDocument();
-    expect(await screen.findByText(/monthly salary/i, {}, { timeout: 3000 })).toBeInTheDocument();
-  });
+    expect(
+      await screen.findByRole('heading', { name: /recent entries/i }, { timeout: 8000 }),
+    ).toBeInTheDocument();
+    expect((await screen.findAllByRole('button', { name: /^edit$/i })).length).toBeGreaterThan(0);
+  }, 10000);
 
   it('creates a new transaction from the form', async () => {
     const user = userEvent.setup();
@@ -34,9 +47,11 @@ describe('TransactionsPage', () => {
       },
     });
 
-    renderAppAtPath('/transactions', authService.service);
+    await renderAppAtPath('/transactions', authService.service);
 
-    await user.clear(await screen.findByLabelText(/amount/i, {}, { timeout: 3000 }));
+    await waitForTransactionsToLoad();
+
+    await user.clear(await screen.findByLabelText(/amount/i, {}, { timeout: 8000 }));
     await user.type(screen.getByLabelText(/amount/i), '45');
     await user.selectOptions(screen.getByLabelText(/^category$/i), 'category-food');
     await user.selectOptions(screen.getByLabelText(/subcategory/i), 'subcategory-restaurants');

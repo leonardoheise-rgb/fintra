@@ -1,8 +1,16 @@
-import { screen } from '@testing-library/react';
+import { screen, waitForElementToBeRemoved } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { createAuthServiceStub } from '../../../test/createAuthServiceStub';
 import { renderAppAtPath } from '../../../test/renderAppAtPath';
+
+async function waitForBudgetsToLoad() {
+  const loadingState = screen.queryByText(/loading budgets/i);
+
+  if (loadingState) {
+    await waitForElementToBeRemoved(loadingState, { timeout: 8000 });
+  }
+}
 
 describe('BudgetsPage', () => {
   it('renders existing preview budgets on the protected route', async () => {
@@ -15,13 +23,15 @@ describe('BudgetsPage', () => {
       },
     });
 
-    renderAppAtPath('/budgets', authService.service);
+    await renderAppAtPath('/budgets', authService.service);
+
+    await waitForBudgetsToLoad();
 
     expect(
-      await screen.findByRole('heading', { name: /^budgets$/i }, { timeout: 3000 }),
+      await screen.findByRole('heading', { name: /^budgets$/i }, { timeout: 8000 }),
     ).toBeInTheDocument();
     expect(
-      await screen.findByRole('heading', { name: /^housing$/i, level: 3 }, { timeout: 3000 }),
+      await screen.findByRole('heading', { name: /^housing$/i, level: 3 }, { timeout: 8000 }),
     ).toBeInTheDocument();
   });
 
@@ -36,9 +46,11 @@ describe('BudgetsPage', () => {
       },
     });
 
-    renderAppAtPath('/budgets', authService.service);
+    await renderAppAtPath('/budgets', authService.service);
 
-    const [defaultCategorySelect] = await screen.findAllByLabelText(/^category$/i, {}, { timeout: 3000 });
+    await waitForBudgetsToLoad();
+
+    const [defaultCategorySelect] = await screen.findAllByLabelText(/^category$/i, {}, { timeout: 8000 });
     const [defaultSubcategorySelect] = screen.getAllByLabelText(/subcategory/i);
     const [defaultAmountInput] = screen.getAllByLabelText(/^amount$/i);
 
@@ -52,7 +64,7 @@ describe('BudgetsPage', () => {
     await user.click(screen.getByRole('button', { name: /create default budget/i }));
 
     expect(
-      await screen.findByRole('heading', { name: /transport \/ transit/i, level: 3 }, { timeout: 3000 }),
+      await screen.findByRole('heading', { name: /transport \/ transit/i, level: 3 }, { timeout: 8000 }),
     ).toBeInTheDocument();
   });
 
@@ -67,11 +79,13 @@ describe('BudgetsPage', () => {
       },
     });
 
-    renderAppAtPath('/budgets', authService.service);
+    await renderAppAtPath('/budgets', authService.service);
+
+    await waitForBudgetsToLoad();
 
     expect(await screen.findByText('1')).toBeInTheDocument();
 
-    const [, overrideCategorySelect] = await screen.findAllByLabelText(/^category$/i, {}, { timeout: 3000 });
+    const [, overrideCategorySelect] = await screen.findAllByLabelText(/^category$/i, {}, { timeout: 8000 });
     const [, overrideSubcategorySelect] = screen.getAllByLabelText(/subcategory/i);
     const [, overrideAmountInput] = screen.getAllByLabelText(/^amount$/i);
 

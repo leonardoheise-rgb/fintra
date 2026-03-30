@@ -63,7 +63,7 @@ The frontend currently expects:
 
 - Preview mode stores categories, subcategories, transactions, budgets, and monthly budget overrides in local storage per signed-in preview user
 - Supabase mode expects the current migrations inside `database/migrations/` to be applied, including `20260329201000_create_budgets.sql` and `20260330091000_create_budget_overrides.sql`
-- The app now includes protected routes for `/transactions`, `/categories`, and `/budgets`
+- The app now includes protected routes for `/transactions`, `/categories`, `/budgets`, and `/analytics`
 
 ## Deployment flow
 

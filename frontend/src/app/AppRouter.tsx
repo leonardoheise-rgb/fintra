@@ -1,6 +1,7 @@
 import { Outlet, Route, Routes } from 'react-router-dom';
 
 import { ProtectedRoute } from '../features/auth/components/ProtectedRoute';
+import { AnalyticsPage } from '../features/analytics/pages/AnalyticsPage';
 import { BudgetsPage } from '../features/budgets/pages/BudgetsPage';
 import { PublicOnlyRoute } from '../features/auth/components/PublicOnlyRoute';
 import { SignInPage } from '../features/auth/pages/SignInPage';
@@ -35,6 +36,7 @@ export function AppRouter() {
           <Route path="/transactions" element={<TransactionsPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/budgets" element={<BudgetsPage />} />
+          <Route path="/analytics" element={<AnalyticsPage />} />
         </Route>
       </Route>
     </Routes>

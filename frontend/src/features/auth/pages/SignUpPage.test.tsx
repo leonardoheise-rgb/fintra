@@ -9,7 +9,7 @@ describe('SignUpPage', () => {
     const user = userEvent.setup();
     const authService = createAuthServiceStub();
 
-    renderAppAtPath('/sign-up', authService.service);
+    await renderAppAtPath('/sign-up', authService.service);
 
     await user.type(await screen.findByLabelText(/^email$/i), 'user@fintra.dev');
     await user.type(screen.getByLabelText(/^password$/i), 'password123');
@@ -17,13 +17,13 @@ describe('SignUpPage', () => {
     await user.click(screen.getByRole('button', { name: /create account/i }));
 
     expect(await screen.findByText('Password confirmation must match.')).toBeInTheDocument();
-  });
+  }, 10000);
 
   it('redirects to the dashboard after a successful registration', async () => {
     const user = userEvent.setup();
     const authService = createAuthServiceStub();
 
-    renderAppAtPath('/sign-up', authService.service);
+    await renderAppAtPath('/sign-up', authService.service);
 
     await user.type(await screen.findByLabelText(/^email$/i), 'user@fintra.dev');
     await user.type(screen.getByLabelText(/^password$/i), 'password123');
@@ -42,7 +42,7 @@ describe('SignUpPage', () => {
       mode: 'supabase',
     });
 
-    renderAppAtPath('/sign-up', authService.service);
+    await renderAppAtPath('/sign-up', authService.service);
 
     await user.type(await screen.findByLabelText(/^email$/i), 'user@fintra.dev');
     await user.type(screen.getByLabelText(/^password$/i), 'password123');

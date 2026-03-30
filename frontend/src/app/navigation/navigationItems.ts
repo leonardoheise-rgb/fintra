@@ -30,8 +30,8 @@ export const navigationItems = [
   {
     label: 'Analytics',
     shortLabel: 'AN',
-    description: 'Historical insights and trend surfaces are reserved.',
+    description: 'Review historical trends, savings rate, and category drift.',
     href: '/analytics',
-    isEnabled: false,
+    isEnabled: true,
   },
 ];

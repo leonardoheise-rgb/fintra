@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 
+import { getCurrentMonthKey } from '../../../shared/lib/date/months';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { formatMonthLabel } from '../../../shared/lib/formatters/date';
-import { getCurrentMonthKey } from '../../dashboard/lib/buildDashboardSnapshot';
 import { CategoriesSummaryCard } from '../../finance/components/CategoriesSummaryCard';
 import { FinancePageHeader } from '../../finance/components/FinancePageHeader';
 import type {

@@ -9,6 +9,7 @@ const pageTitles: Record<string, string> = {
   '/transactions': 'Transaction ledger',
   '/categories': 'Category manager',
   '/budgets': 'Budget operations',
+  '/analytics': 'Historical insights',
 };
 
 export function AppLayout({ children }: PropsWithChildren) {
@@ -57,8 +58,8 @@ export function AppLayout({ children }: PropsWithChildren) {
         </nav>
 
         <div className="sidebar__footnote">
-          Phase 4 overrides
-          <span>Monthly overrides now sit on top of default budgets and feed the same dashboard math.</span>
+          Phase 5 analytics
+          <span>Historical trends, category drift, and savings behavior now share the same live workspace data.</span>
         </div>
       </aside>
 

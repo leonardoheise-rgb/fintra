@@ -78,6 +78,16 @@
   letter-spacing: -0.05em;
 }
 
+.analytics-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.analytics-overview-grid > :last-child {
+  grid-column: 1 / -1;
+}
+
 .finance-panel {
   display: grid;
   gap: 1rem;
@@ -134,6 +144,11 @@
 
 .finance-form__submit {
   width: 100%;
+}
+
+.analytics-filters {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
 }
 
 .finance-message {
@@ -198,6 +213,160 @@
 .budget-plan-card--override {
   border: 1px solid rgba(62, 94, 149, 0.14);
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(215, 226, 255, 0.48));
+}
+
+.analytics-panel__caption,
+.analytics-comparison-averages,
+.analytics-category-card__meta,
+.analytics-mini-series__item span,
+.analytics-chart__labels span,
+.analytics-rate-chart__group span {
+  color: var(--color-on-surface-variant);
+}
+
+.analytics-tabbar {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.analytics-tabbar__button {
+  min-height: 3rem;
+  padding: 0.85rem 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--color-primary);
+  font-weight: 800;
+}
+
+.analytics-tabbar__button--active {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(215, 226, 255, 0.88));
+  box-shadow: 0 16px 36px rgba(0, 25, 60, 0.08);
+}
+
+.analytics-chart,
+.analytics-rate-chart {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
+  gap: 1rem;
+  align-items: end;
+}
+
+.analytics-chart__group,
+.analytics-rate-chart__group {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.analytics-chart__bars {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+  align-items: end;
+  min-height: 13rem;
+}
+
+.analytics-chart__bar,
+.analytics-rate-chart__fill,
+.analytics-category-card__bar {
+  border-radius: 999px;
+}
+
+.analytics-chart__bar--income {
+  background: linear-gradient(180deg, rgba(139, 248, 194, 0.4), var(--color-secondary));
+}
+
+.analytics-chart__bar--expense {
+  background: linear-gradient(180deg, rgba(255, 143, 128, 0.32), var(--color-error));
+}
+
+.analytics-chart__labels {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.analytics-rate-chart__track {
+  display: flex;
+  align-items: end;
+  min-height: 11rem;
+  padding: 0.65rem;
+  border-radius: 1.25rem;
+  background: var(--color-surface-container-low);
+}
+
+.analytics-rate-chart__fill {
+  width: 100%;
+}
+
+.analytics-rate-chart__fill--positive {
+  background: linear-gradient(180deg, rgba(139, 248, 194, 0.32), var(--color-secondary));
+}
+
+.analytics-rate-chart__fill--negative {
+  background: linear-gradient(180deg, rgba(255, 143, 128, 0.32), var(--color-error));
+}
+
+.analytics-comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.analytics-comparison-card {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: var(--color-surface-container-low);
+}
+
+.analytics-comparison-card span,
+.analytics-category-card__meta {
+  font-size: 0.9rem;
+}
+
+.analytics-comparison-card strong,
+.analytics-category-card strong {
+  font-size: 1.25rem;
+  letter-spacing: -0.04em;
+}
+
+.analytics-comparison-averages {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.analytics-category-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.analytics-category-card {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem;
+  border-radius: 1.25rem;
+  background: var(--color-surface-container-low);
+}
+
+.analytics-category-card__header,
+.analytics-category-card__meta,
+.analytics-mini-series__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.analytics-category-card__bar {
+  height: 0.8rem;
+  background: linear-gradient(90deg, var(--color-primary-fixed), var(--color-primary));
+}
+
+.analytics-mini-series {
+  display: grid;
+  gap: 0.55rem;
 }
 
 .transaction-card__amounts {
@@ -276,7 +445,14 @@
 @media (max-width: 960px) {
   .finance-grid,
   .finance-form--inline,
-  .dashboard-toolbar {
+  .dashboard-toolbar,
+  .analytics-filters,
+  .analytics-overview-grid,
+  .analytics-comparison-grid {
     grid-template-columns: 1fr;
+  }
+
+  .analytics-overview-grid > :last-child {
+    grid-column: auto;
   }
 }

@@ -9,7 +9,7 @@ describe('SignInPage', () => {
     const user = userEvent.setup();
     const authService = createAuthServiceStub();
 
-    renderAppAtPath('/sign-in', authService.service);
+    await renderAppAtPath('/sign-in', authService.service);
 
     await user.click(await screen.findByRole('button', { name: /^sign in$/i }));
 
@@ -20,7 +20,7 @@ describe('SignInPage', () => {
     const user = userEvent.setup();
     const authService = createAuthServiceStub();
 
-    renderAppAtPath('/sign-in', authService.service);
+    await renderAppAtPath('/sign-in', authService.service);
 
     await user.type(await screen.findByLabelText(/email/i), 'user@fintra.dev');
     await user.type(screen.getByLabelText(/password/i), 'password123');
@@ -37,7 +37,7 @@ describe('SignInPage', () => {
       signInError: new Error('Invalid login credentials.'),
     });
 
-    renderAppAtPath('/sign-in', authService.service);
+    await renderAppAtPath('/sign-in', authService.service);
 
     await user.type(await screen.findByLabelText(/email/i), 'user@fintra.dev');
     await user.type(screen.getByLabelText(/password/i), 'password123');

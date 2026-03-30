@@ -1,4 +1,7 @@
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
+import {
+  getMonthKey,
+} from '../../../shared/lib/date/months';
 import type {
   BudgetOverrideRecord,
   BudgetRecord,
@@ -30,10 +33,6 @@ function buildShortLabel(name: string) {
 
 function sumValues(values: number[]) {
   return values.reduce((total, value) => total + value, 0);
-}
-
-function getMonthKey(date: string) {
-  return date.slice(0, 7);
 }
 
 function getBudgetTotalForCategory(budgets: BudgetRecord[], categoryId: string) {
@@ -134,10 +133,6 @@ function buildInsight(cards: BudgetCard[], remainingBudget: number) {
   return `You still have ${formatCurrency(
     remainingBudget,
   )} available across the default monthly plan. The dashboard is now reconciling budgets against live transactions.`;
-}
-
-export function getCurrentMonthKey(now = new Date()) {
-  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
 }
 
 export function filterTransactionsByMonth(

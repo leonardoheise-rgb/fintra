@@ -8,7 +8,7 @@ describe('App authentication routing', () => {
   it('redirects unauthenticated users to sign in', async () => {
     const authService = createAuthServiceStub();
 
-    renderAppAtPath('/', authService.service);
+    await renderAppAtPath('/', authService.service);
 
     expect(
       await screen.findByRole('heading', { name: /sign in/i }, { timeout: 5000 }),
@@ -25,7 +25,7 @@ describe('App authentication routing', () => {
       },
     });
 
-    renderAppAtPath('/', authService.service);
+    await renderAppAtPath('/', authService.service);
 
     expect(
       await screen.findByRole('heading', { name: /wealth in motion/i }, { timeout: 3000 }),
@@ -43,7 +43,7 @@ describe('App authentication routing', () => {
       },
     });
 
-    renderAppAtPath('/sign-in', authService.service);
+    await renderAppAtPath('/sign-in', authService.service);
 
     expect(
       await screen.findByRole('heading', { name: /wealth in motion/i }, { timeout: 3000 }),
@@ -61,7 +61,7 @@ describe('App authentication routing', () => {
       },
     });
 
-    renderAppAtPath('/', authService.service);
+    await renderAppAtPath('/', authService.service);
 
     await user.click(await screen.findByRole('button', { name: /sign out/i }));
 

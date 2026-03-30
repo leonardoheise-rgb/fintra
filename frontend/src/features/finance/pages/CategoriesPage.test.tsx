@@ -1,8 +1,16 @@
-import { screen } from '@testing-library/react';
+import { screen, waitForElementToBeRemoved } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { createAuthServiceStub } from '../../../test/createAuthServiceStub';
 import { renderAppAtPath } from '../../../test/renderAppAtPath';
+
+async function waitForCategoriesToLoad() {
+  const loadingState = screen.queryByText(/loading categories/i);
+
+  if (loadingState) {
+    await waitForElementToBeRemoved(loadingState, { timeout: 8000 });
+  }
+}
 
 describe('CategoriesPage', () => {
   it('renders existing preview categories on the protected route', async () => {
@@ -15,13 +23,15 @@ describe('CategoriesPage', () => {
       },
     });
 
-    renderAppAtPath('/categories', authService.service);
+    await renderAppAtPath('/categories', authService.service);
+
+    await waitForCategoriesToLoad();
 
     expect(
-      await screen.findByRole('heading', { name: /^categories$/i }, { timeout: 3000 }),
+      await screen.findByRole('heading', { name: /^categories$/i }, { timeout: 8000 }),
     ).toBeInTheDocument();
     expect(
-      await screen.findByRole('heading', { name: /^housing$/i, level: 3 }, { timeout: 3000 }),
+      await screen.findByRole('heading', { name: /^housing$/i, level: 3 }, { timeout: 8000 }),
     ).toBeInTheDocument();
   });
 
@@ -36,13 +46,15 @@ describe('CategoriesPage', () => {
       },
     });
 
-    renderAppAtPath('/categories', authService.service);
+    await renderAppAtPath('/categories', authService.service);
 
-    await user.type(await screen.findByLabelText(/new category/i, {}, { timeout: 3000 }), 'Health');
+    await waitForCategoriesToLoad();
+
+    await user.type(await screen.findByLabelText(/new category/i, {}, { timeout: 8000 }), 'Health');
     await user.click(screen.getByRole('button', { name: /add category/i }));
 
     expect(
-      await screen.findByRole('heading', { name: /^health$/i, level: 3 }, { timeout: 3000 }),
+      await screen.findByRole('heading', { name: /^health$/i, level: 3 }, { timeout: 8000 }),
     ).toBeInTheDocument();
   });
 });

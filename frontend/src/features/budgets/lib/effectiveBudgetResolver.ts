@@ -1,3 +1,4 @@
+import { isValidMonthKey } from '../../../shared/lib/date/months';
 import type {
   BudgetOverrideRecord,
   BudgetRecord,
@@ -24,7 +25,7 @@ export function getBudgetScopeKey(
 }
 
 export function isValidBudgetMonth(month: string) {
-  return /^\d{4}-(0[1-9]|1[0-2])$/.test(month);
+  return isValidMonthKey(month);
 }
 
 export function resolveEffectiveBudgets(
