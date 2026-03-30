@@ -82,20 +82,18 @@ export function AppLayout({ children }: PropsWithChildren) {
           </button>
         </div>
 
-        <div
-          className="sidebar__mobile-panel"
-          hidden={!isMobileNavigationOpen}
-          id="mobile-navigation-panel"
-        >
-          <NavLink
-            className="primary-button sidebar__cta"
-            onClick={() => setIsMobileNavigationOpen(false)}
-            to="/transactions"
-          >
-            {translateAppText('shell.addTransaction')}
-          </NavLink>
-          <SidebarNavigation onNavigate={() => setIsMobileNavigationOpen(false)} />
-        </div>
+        {isMobileNavigationOpen ? (
+          <div className="sidebar__mobile-panel" id="mobile-navigation-panel">
+            <NavLink
+              className="primary-button sidebar__cta"
+              onClick={() => setIsMobileNavigationOpen(false)}
+              to="/transactions"
+            >
+              {translateAppText('shell.addTransaction')}
+            </NavLink>
+            <SidebarNavigation onNavigate={() => setIsMobileNavigationOpen(false)} />
+          </div>
+        ) : null}
 
         <div className="sidebar__section sidebar__section--desktop">
           <div>

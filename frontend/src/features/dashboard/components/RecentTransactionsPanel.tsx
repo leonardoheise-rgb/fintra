@@ -27,7 +27,6 @@ export function RecentTransactionsPanel({
     >
       <div className="finance-panel__heading">
         <div>
-          <p className="finance-panel__eyebrow">{translateAppText('dashboard.recentActivity')}</p>
           <h2 id="recent-activity-title">{translateAppText('dashboard.latestEntries')}</h2>
         </div>
         <Link className="secondary-button" to="/transactions">

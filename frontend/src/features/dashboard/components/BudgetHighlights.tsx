@@ -1,20 +1,26 @@
 import { Link } from 'react-router-dom';
 
+import { useDisplayPreferences } from '../../settings/useDisplayPreferences';
 import { translateAppText } from '../../../shared/i18n/appText';
 import { calculateBudgetSummary } from '../../../shared/lib/budget/budgetSummary';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
+import { resolveBudgetPacing } from '../lib/budgetPacing';
 import type { BudgetCard } from '../dashboard.types';
 
 type BudgetHighlightsProps = {
   cards: BudgetCard[];
+  month: string;
 };
 
-export function BudgetHighlights({ cards }: BudgetHighlightsProps) {
+export function BudgetHighlights({ cards, month }: BudgetHighlightsProps) {
+  const {
+    preferences: { monthStartDay },
+  } = useDisplayPreferences();
+
   return (
     <section className="section-stack" aria-labelledby="budget-highlights-title">
       <div className="section-heading">
         <div>
-          <p className="section-heading__eyebrow">{translateAppText('dashboard.budgetPosture')}</p>
           <h3 id="budget-highlights-title">{translateAppText('dashboard.categoryHighlights')}</h3>
         </div>
         <Link className="secondary-button" to="/budgets">
@@ -33,6 +39,13 @@ export function BudgetHighlights({ cards }: BudgetHighlightsProps) {
               budget: card.effectiveBudget,
               spent: card.spent,
             });
+            const pacing = resolveBudgetPacing(summary.rawPercentage, month, monthStartDay);
+            const paceLabel =
+              pacing.status === 'above'
+                ? translateAppText('dashboard.aboveIdeal')
+                : pacing.status === 'below'
+                  ? translateAppText('dashboard.belowIdeal')
+                  : translateAppText('dashboard.alignedWithIdeal');
 
             return (
               <article className="budget-card" key={card.id}>
@@ -41,11 +54,11 @@ export function BudgetHighlights({ cards }: BudgetHighlightsProps) {
                     {card.shortLabel}
                   </div>
                   <div>
-                    <p className="budget-card__eyebrow">
-                      {card.isOverridden
-                        ? translateAppText('dashboard.monthlyOverride')
-                        : translateAppText('dashboard.defaultBudgetLabel')}
-                    </p>
+                    {card.isOverridden ? (
+                      <p className="budget-card__eyebrow">
+                        {translateAppText('dashboard.monthlyOverride')}
+                      </p>
+                    ) : null}
                     <h4>{card.name}</h4>
                   </div>
                 </div>
@@ -78,15 +91,7 @@ export function BudgetHighlights({ cards }: BudgetHighlightsProps) {
                       percent: Math.round(summary.rawPercentage),
                     })}
                   </span>
-                  <span>
-                    {card.isOverridden
-                      ? translateAppText('dashboard.overrideActiveFrom', {
-                          amount: formatCurrency(card.defaultBudget),
-                        })
-                      : summary.status === 'over'
-                        ? translateAppText('dashboard.needsAttention')
-                        : translateAppText('dashboard.onTrack')}
-                  </span>
+                  <span>{paceLabel}</span>
                 </div>
               </article>
             );

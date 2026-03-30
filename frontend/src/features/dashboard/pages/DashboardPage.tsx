@@ -2,8 +2,6 @@ import { useState } from 'react';
 
 import { translateAppText } from '../../../shared/i18n/appText';
 import { getCurrentMonthKey } from '../../../shared/lib/date/months';
-import { formatCurrency } from '../../../shared/lib/formatters/currency';
-import { CategoriesSummaryCard } from '../../finance/components/CategoriesSummaryCard';
 import { sortTransactionsByDateDesc } from '../../finance/lib/financeSelectors';
 import { useFinanceData } from '../../finance/useFinanceData';
 import { AvailableBalancePanel } from '../components/AvailableBalancePanel';
@@ -62,21 +60,8 @@ export function DashboardPage() {
 
       <AvailableBalancePanel snapshot={snapshot} />
 
-      <section className="finance-summary-grid" aria-label="Dashboard summary">
-        <CategoriesSummaryCard
-          label={translateAppText('dashboard.defaultBudget')}
-          value={formatCurrency(snapshot.totalBudget)}
-        />
-        <CategoriesSummaryCard label={translateAppText('dashboard.income')} value={formatCurrency(snapshot.totalIncome)} />
-        <CategoriesSummaryCard label={translateAppText('dashboard.expenses')} value={formatCurrency(snapshot.totalExpenses)} />
-        <CategoriesSummaryCard
-          label={translateAppText('dashboard.netBalance')}
-          value={formatCurrency(snapshot.remainingBalance)}
-        />
-      </section>
-
       <section className="dashboard-main-grid">
-        <BudgetHighlights cards={snapshot.cards} />
+        <BudgetHighlights cards={snapshot.cards} month={selectedMonth} />
         <RecentTransactionsPanel
           categories={financeData.categories}
           subcategories={financeData.subcategories}
