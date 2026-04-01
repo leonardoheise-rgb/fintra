@@ -10,5 +10,8 @@ coverage/
 *.tsbuildinfo
 .DS_Store
 Thumbs.db
-pw.md
 pwd.md
+AGENTS.md
+MASTER_PROMPT.md
+PROJECT_CHARTER.md
+DESIGN/
