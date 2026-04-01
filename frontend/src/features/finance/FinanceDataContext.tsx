@@ -44,8 +44,8 @@ export function FinanceDataProvider({ children, service }: FinanceDataProviderPr
       return null;
     }
 
-    return createFinanceService(auth.user.id, auth.mode);
-  }, [auth.mode, auth.user, service]);
+    return createFinanceService(auth.user.id);
+  }, [auth.user, service]);
 
   async function loadWorkspace(activeService: FinanceService) {
     const nextWorkspace = await activeService.getWorkspace();

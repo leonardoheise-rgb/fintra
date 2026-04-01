@@ -1,4 +1,4 @@
-import { useDeferredValue, useMemo, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 
 import { translateAppText } from '../../../shared/i18n/appText';
 import { getCurrentMonthKey, shiftMonthKey } from '../../../shared/lib/date/months';
@@ -7,6 +7,7 @@ import { formatPercentage } from '../../../shared/lib/formatters/percentage';
 import { CategoriesSummaryCard } from '../../finance/components/CategoriesSummaryCard';
 import { FinancePageHeader } from '../../finance/components/FinancePageHeader';
 import { useFinanceData } from '../../finance/useFinanceData';
+import { useDisplayPreferences } from '../../settings/useDisplayPreferences';
 import type { AnalyticsRangePreset } from '../analytics.types';
 import { AnalyticsComparisonPanel } from '../components/AnalyticsComparisonPanel';
 import { AnalyticsTabBar } from '../components/AnalyticsTabBar';
@@ -47,11 +48,21 @@ function buildAnalyticsInsight(
 
 export function AnalyticsPage() {
   const financeData = useFinanceData();
+  const {
+    preferences: { monthStartDay },
+  } = useDisplayPreferences();
+  const currentMonth = useMemo(() => getCurrentMonthKey(new Date(), monthStartDay), [monthStartDay]);
   const [activeTab, setActiveTab] = useState<'overview' | 'categories'>('overview');
   const [preset, setPreset] = useState<AnalyticsRangePreset>('3m');
-  const [selectedEndMonth, setSelectedEndMonth] = useState(getCurrentMonthKey());
-  const [customStartMonth, setCustomStartMonth] = useState(shiftMonthKey(getCurrentMonthKey(), -2));
-  const [customEndMonth, setCustomEndMonth] = useState(getCurrentMonthKey());
+  const [selectedEndMonth, setSelectedEndMonth] = useState(currentMonth);
+  const [customStartMonth, setCustomStartMonth] = useState(shiftMonthKey(currentMonth, -2));
+  const [customEndMonth, setCustomEndMonth] = useState(currentMonth);
+
+  useEffect(() => {
+    setSelectedEndMonth(currentMonth);
+    setCustomEndMonth(currentMonth);
+    setCustomStartMonth(shiftMonthKey(currentMonth, -2));
+  }, [currentMonth]);
 
   const analyticsRange = useMemo(
     () =>
@@ -71,6 +82,7 @@ export function AnalyticsPage() {
         budgets: financeData.budgets,
         budgetOverrides: financeData.budgetOverrides,
         months: deferredRange.months,
+        monthStartDay,
         transactions: financeData.transactions,
       }),
     [
@@ -79,6 +91,7 @@ export function AnalyticsPage() {
       financeData.budgets,
       financeData.categories,
       financeData.transactions,
+      monthStartDay,
     ],
   );
   const comparison = useMemo(
@@ -90,9 +103,10 @@ export function AnalyticsPage() {
       buildCategorySpendingTrends({
         categories: financeData.categories,
         months: deferredRange.months,
+        monthStartDay,
         transactions: financeData.transactions,
       }),
-    [deferredRange.months, financeData.categories, financeData.transactions],
+    [deferredRange.months, financeData.categories, financeData.transactions, monthStartDay],
   );
   const totalIncome = sumValues(monthlySeries.map((point) => point.income));
   const totalExpenses = sumValues(monthlySeries.map((point) => point.expenses));

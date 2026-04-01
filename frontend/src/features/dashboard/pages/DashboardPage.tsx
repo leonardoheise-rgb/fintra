@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { translateAppText } from '../../../shared/i18n/appText';
 import { getCurrentMonthKey } from '../../../shared/lib/date/months';
+import { useDisplayPreferences } from '../../settings/useDisplayPreferences';
 import { sortTransactionsByDateDesc } from '../../finance/lib/financeSelectors';
 import { useFinanceData } from '../../finance/useFinanceData';
 import { AvailableBalancePanel } from '../components/AvailableBalancePanel';
@@ -12,7 +13,15 @@ import { buildDashboardSnapshot } from '../lib/buildDashboardSnapshot';
 
 export function DashboardPage() {
   const financeData = useFinanceData();
-  const [selectedMonth, setSelectedMonth] = useState(getCurrentMonthKey());
+  const {
+    preferences: { monthStartDay },
+  } = useDisplayPreferences();
+  const currentMonth = useMemo(() => getCurrentMonthKey(new Date(), monthStartDay), [monthStartDay]);
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+
+  useEffect(() => {
+    setSelectedMonth(currentMonth);
+  }, [currentMonth]);
 
   if (financeData.status === 'loading') {
     return (
@@ -30,6 +39,7 @@ export function DashboardPage() {
       transactions: financeData.transactions,
     },
     selectedMonth,
+    monthStartDay,
   );
   const recentTransactions = sortTransactionsByDateDesc(financeData.transactions);
 

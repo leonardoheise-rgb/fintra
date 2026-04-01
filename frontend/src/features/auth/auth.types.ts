@@ -18,4 +18,4 @@ export type AuthRegistrationData = AuthCredentials & {
 
 export type AuthResolvedState = 'loading' | 'authenticated' | 'unauthenticated';
 
-export type AuthMode = 'preview' | 'supabase';
+export type AuthMode = 'supabase';

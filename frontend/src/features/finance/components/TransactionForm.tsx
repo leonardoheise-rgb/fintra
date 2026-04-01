@@ -26,6 +26,7 @@ function createInitialFormState(categories: CategoryRecord[]) {
     subcategoryId: '',
     date: new Date().toISOString().slice(0, 10),
     description: '',
+    installmentCount: '1',
   };
 }
 
@@ -46,6 +47,7 @@ export function TransactionForm({
     transactionToEdit?.date ?? new Date().toISOString().slice(0, 10),
   );
   const [description, setDescription] = useState(transactionToEdit?.description ?? '');
+  const [installmentCount, setInstallmentCount] = useState('1');
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -62,6 +64,7 @@ export function TransactionForm({
       setSubcategoryId(transactionToEdit.subcategoryId ?? '');
       setDate(transactionToEdit.date);
       setDescription(transactionToEdit.description);
+      setInstallmentCount(String(transactionToEdit.installmentCount ?? 1));
       return;
     }
 
@@ -72,6 +75,7 @@ export function TransactionForm({
     setSubcategoryId(initialState.subcategoryId);
     setDate(initialState.date);
     setDescription(initialState.description);
+    setInstallmentCount(initialState.installmentCount);
   }, [categories, transactionToEdit]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -94,6 +98,16 @@ export function TransactionForm({
       return;
     }
 
+    const parsedInstallmentCount = Number(installmentCount);
+
+    if (
+      !Number.isInteger(parsedInstallmentCount) ||
+      parsedInstallmentCount <= 0
+    ) {
+      setFormError(translateAppText('transactions.errorInstallmentCount'));
+      return;
+    }
+
     setFormError(null);
     setIsSubmitting(true);
 
@@ -105,6 +119,7 @@ export function TransactionForm({
         subcategoryId: subcategoryId || null,
         date,
         description,
+        installmentCount: transactionToEdit ? 1 : parsedInstallmentCount,
       });
 
       const initialState = createInitialFormState(categories);
@@ -114,6 +129,7 @@ export function TransactionForm({
       setSubcategoryId(initialState.subcategoryId);
       setDate(initialState.date);
       setDescription(initialState.description);
+      setInstallmentCount(initialState.installmentCount);
     } catch (error) {
       setFormError(resolveAppErrorMessage(error, 'transactions.errorSave'));
     } finally {
@@ -199,6 +215,20 @@ export function TransactionForm({
           <span>{translateAppText('transactions.date')}</span>
           <input name="date" onChange={(event) => setDate(event.target.value)} type="date" value={date} />
         </label>
+
+        {!transactionToEdit ? (
+          <label className="finance-field">
+            <span>{translateAppText('transactions.installmentCount')}</span>
+            <input
+              inputMode="numeric"
+              min="1"
+              name="installmentCount"
+              onChange={(event) => setInstallmentCount(event.target.value)}
+              type="number"
+              value={installmentCount}
+            />
+          </label>
+        ) : null}
 
         <label className="finance-field finance-field--full">
           <span>{translateAppText('transactions.descriptionLabel')}</span>

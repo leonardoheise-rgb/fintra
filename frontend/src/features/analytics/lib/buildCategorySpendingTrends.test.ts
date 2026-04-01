@@ -18,6 +18,9 @@ const transactions: TransactionRecord[] = [
     subcategoryId: null,
     date: '2026-01-03',
     description: 'Rent',
+    installmentGroupId: null,
+    installmentIndex: null,
+    installmentCount: null,
   },
   {
     id: 'food-jan',
@@ -27,6 +30,9 @@ const transactions: TransactionRecord[] = [
     subcategoryId: null,
     date: '2026-01-10',
     description: 'Food',
+    installmentGroupId: null,
+    installmentIndex: null,
+    installmentCount: null,
   },
   {
     id: 'food-feb',
@@ -36,6 +42,9 @@ const transactions: TransactionRecord[] = [
     subcategoryId: null,
     date: '2026-02-08',
     description: 'Food',
+    installmentGroupId: null,
+    installmentIndex: null,
+    installmentCount: null,
   },
 ];
 
@@ -45,6 +54,7 @@ describe('buildCategorySpendingTrends', () => {
       buildCategorySpendingTrends({
         categories,
         months: ['2026-01', '2026-02'],
+        monthStartDay: 1,
         transactions,
       }),
     ).toEqual([

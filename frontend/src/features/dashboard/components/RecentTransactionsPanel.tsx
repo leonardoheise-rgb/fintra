@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 
 import { translateAppText } from '../../../shared/i18n/appText';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
+import { getInstallmentLabel } from '../../finance/lib/installments';
 import { getCategoryName, getSubcategoryName } from '../../finance/lib/financeSelectors';
 import type {
   CategoryRecord,
@@ -50,6 +51,14 @@ export function RecentTransactionsPanel({
                   {' / '}
                   {getSubcategoryName(subcategories, transaction.subcategoryId)}
                 </p>
+                {getInstallmentLabel(transaction.installmentIndex, transaction.installmentCount) ? (
+                  <p>
+                    {translateAppText('transactions.installmentCaption', {
+                      installment:
+                        getInstallmentLabel(transaction.installmentIndex, transaction.installmentCount) ?? '',
+                    })}
+                  </p>
+                ) : null}
                 <span>{transaction.date}</span>
               </div>
               <strong

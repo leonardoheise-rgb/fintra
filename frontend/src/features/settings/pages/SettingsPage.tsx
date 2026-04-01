@@ -194,7 +194,12 @@ export function SettingsPage() {
             </article>
             <article className="settings-preview-card">
               <span className="finance-summary-card__label">{translateAppText('settings.monthPreview')}</span>
-              <strong>{formatMonthLabel(getCurrentMonthKey(), draftPreferences.locale)}</strong>
+              <strong>
+                {formatMonthLabel(
+                  getCurrentMonthKey(new Date(), draftPreferences.monthStartDay),
+                  draftPreferences.locale,
+                )}
+              </strong>
             </article>
             <article className="settings-preview-card">
               <span className="finance-summary-card__label">{translateAppText('settings.monthlyCycle')}</span>
@@ -222,11 +227,7 @@ export function SettingsPage() {
           </article>
           <article className="settings-preview-card">
             <span className="finance-summary-card__label">{translateAppText('settings.dataAvailability')}</span>
-            <strong>
-              {auth.mode === 'supabase'
-                ? translateAppText('settings.availableOnSignIn')
-                : translateAppText('settings.storedOnDevice')}
-            </strong>
+            <strong>{translateAppText('settings.availableOnSignIn')}</strong>
           </article>
         </div>
 

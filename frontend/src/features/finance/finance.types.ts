@@ -19,6 +19,9 @@ export type TransactionRecord = {
   subcategoryId: string | null;
   date: string;
   description: string;
+  installmentGroupId: string | null;
+  installmentIndex: number | null;
+  installmentCount: number | null;
 };
 
 export type BudgetRecord = {
@@ -60,6 +63,7 @@ export type TransactionInput = {
   subcategoryId: string | null;
   date: string;
   description: string;
+  installmentCount: number;
 };
 
 export type BudgetInput = {

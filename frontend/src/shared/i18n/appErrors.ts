@@ -9,6 +9,7 @@ const errorKeyByMessage: Record<string, string> = {
   'Subcategory name is required.': 'errors.subcategoryNameRequired',
   'Amount must be greater than zero.': 'errors.amountGreaterThanZero',
   'Transaction date is required.': 'errors.transactionDateRequired',
+  'Installment count must be at least one.': 'transactions.errorInstallmentCount',
   'A category is required.': 'errors.categoryRequired',
   'Override month must use the YYYY-MM format.': 'errors.overrideMonthFormat',
   'Override amount must be greater than zero.': 'errors.overrideAmountGreaterThanZero',

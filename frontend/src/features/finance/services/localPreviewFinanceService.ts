@@ -1,4 +1,5 @@
 import { createLocalId } from '../lib/createLocalId';
+import { buildInstallmentDates, splitAmountIntoInstallments } from '../lib/installments';
 import { createPreviewWorkspace } from '../lib/previewWorkspace';
 import type {
   BudgetInput,
@@ -53,6 +54,10 @@ function ensureValidTransaction(input: TransactionInput) {
   if (!input.categoryId) {
     throw new Error('A category is required.');
   }
+
+  if (!Number.isInteger(input.installmentCount) || input.installmentCount <= 0) {
+    throw new Error('Installment count must be at least one.');
+  }
 }
 
 function ensureValidBudget(input: BudgetInput) {
@@ -94,7 +99,12 @@ function readWorkspace(userId: string): PreviewFinanceStore {
     return {
       categories: parsedValue.categories ?? [],
       subcategories: parsedValue.subcategories ?? [],
-      transactions: parsedValue.transactions ?? [],
+      transactions: (parsedValue.transactions ?? []).map((transaction) => ({
+        ...transaction,
+        installmentGroupId: transaction.installmentGroupId ?? null,
+        installmentIndex: transaction.installmentIndex ?? null,
+        installmentCount: transaction.installmentCount ?? null,
+      })),
       budgets: parsedValue.budgets ?? [],
       budgetOverrides: parsedValue.budgetOverrides ?? [],
     };
@@ -341,7 +351,7 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
         subcategories: workspace.subcategories.filter((item) => item.id !== subcategoryId),
       });
     },
-    async createTransaction(input: TransactionInput): Promise<TransactionRecord> {
+    async createTransaction(input: TransactionInput): Promise<TransactionRecord[]> {
       ensureValidTransaction(input);
 
       const workspace = readWorkspace(userId);
@@ -355,22 +365,29 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
         }
       }
 
-      const transaction = {
+      const installmentAmounts = splitAmountIntoInstallments(input.amount, input.installmentCount);
+      const installmentDates = buildInstallmentDates(input.date, input.installmentCount);
+      const installmentGroupId =
+        input.installmentCount > 1 ? createLocalId('transaction-group') : null;
+      const transactions = installmentAmounts.map((amount, index) => ({
         id: createLocalId('transaction'),
-        amount: input.amount,
+        amount,
         type: input.type,
         categoryId: input.categoryId,
         subcategoryId: input.subcategoryId,
-        date: input.date,
+        date: installmentDates[index],
         description: input.description.trim(),
-      };
+        installmentGroupId,
+        installmentIndex: input.installmentCount > 1 ? index + 1 : null,
+        installmentCount: input.installmentCount > 1 ? input.installmentCount : null,
+      }));
 
       writeWorkspace(userId, {
         ...workspace,
-        transactions: [transaction, ...workspace.transactions],
+        transactions: [...transactions, ...workspace.transactions],
       });
 
-      return transaction;
+      return transactions;
     },
     async updateTransaction(
       transactionId: string,
@@ -399,6 +416,7 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
         ...existingTransaction,
         ...input,
         description: input.description.trim(),
+        installmentCount: existingTransaction.installmentCount,
       };
 
       writeWorkspace(userId, {

@@ -13,6 +13,7 @@ type BuildMonthlyAnalyticsSeriesSource = {
   budgetOverrides: BudgetOverrideRecord[];
   categories: CategoryRecord[];
   months: string[];
+  monthStartDay: number;
   transactions: TransactionRecord[];
 };
 
@@ -33,10 +34,13 @@ export function buildMonthlyAnalyticsSeries({
   budgetOverrides,
   categories,
   months,
+  monthStartDay,
   transactions,
 }: BuildMonthlyAnalyticsSeriesSource): MonthlyAnalyticsPoint[] {
   return months.map((month) => {
-    const monthlyTransactions = transactions.filter((transaction) => getMonthKey(transaction.date) === month);
+    const monthlyTransactions = transactions.filter(
+      (transaction) => getMonthKey(transaction.date, monthStartDay) === month,
+    );
     const income = sumValues(
       monthlyTransactions
         .filter((transaction) => transaction.type === 'income')

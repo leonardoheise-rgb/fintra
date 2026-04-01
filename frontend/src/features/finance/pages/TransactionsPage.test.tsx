@@ -1,4 +1,4 @@
-import { screen, waitForElementToBeRemoved } from '@testing-library/react';
+import { screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { createAuthServiceStub } from '../../../test/createAuthServiceStub';
@@ -41,7 +41,7 @@ describe('TransactionsPage', () => {
     ).toBeGreaterThan(0);
   }, 10000);
 
-  it('creates a new transaction from the form', async () => {
+  it('creates a split transaction from the form', async () => {
     const user = userEvent.setup();
     const authService = createAuthServiceStub({
       initialSession: {
@@ -62,9 +62,46 @@ describe('TransactionsPage', () => {
     await user.selectOptions(screen.getByLabelText(/subcategor/i), 'subcategory-restaurants');
     await user.clear(screen.getByLabelText(/date/i));
     await user.type(screen.getByLabelText(/date/i), '2026-03-18');
+    await user.clear(screen.getByLabelText(/split across months/i));
+    await user.type(screen.getByLabelText(/split across months/i), '3');
     await user.type(screen.getByLabelText(/description/i), 'Coffee with client');
     await user.click(screen.getByRole('button', { name: /create transaction/i }));
 
-    expect(await screen.findByText(/coffee with client/i)).toBeInTheDocument();
+    expect((await screen.findAllByText(/coffee with client/i)).length).toBe(3);
+    expect(await screen.findByText(/installment 1\/3/i)).toBeInTheDocument();
+  });
+
+  it('offers to rebalance the month after an expense pushes a category over budget', async () => {
+    const user = userEvent.setup();
+    const authService = createAuthServiceStub({
+      initialSession: {
+        user: {
+          id: 'user-1',
+          email: 'owner@fintra.dev',
+        },
+      },
+    });
+
+    await renderAppAtPath('/transactions', authService.service);
+
+    await waitForTransactionsToLoad();
+
+    await user.clear(await screen.findByLabelText(/amount/i, {}, { timeout: 8000 }));
+    await user.type(screen.getByLabelText(/amount/i), '500');
+    await user.selectOptions(screen.getByLabelText(/^category$/i), 'category-food');
+    await user.selectOptions(screen.getByLabelText(/subcategor/i), 'subcategory-restaurants');
+    await user.clear(screen.getByLabelText(/date/i));
+    await user.type(screen.getByLabelText(/date/i), '2026-03-18');
+    await user.type(screen.getByLabelText(/description/i), 'Big team dinner');
+    await user.click(screen.getByRole('button', { name: /create transaction/i }));
+
+    expect(await screen.findByRole('heading', { name: /move budget for this month/i })).toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText(/take budget from/i), 'category-housing');
+    await user.click(screen.getByRole('button', { name: /update monthly budgets/i }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('heading', { name: /move budget for this month/i })).not.toBeInTheDocument();
+    });
   });
 });

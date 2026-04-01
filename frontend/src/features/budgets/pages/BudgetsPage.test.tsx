@@ -1,4 +1,4 @@
-import { screen, waitForElementToBeRemoved } from '@testing-library/react';
+import { screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { createAuthServiceStub } from '../../../test/createAuthServiceStub';
@@ -83,8 +83,12 @@ describe('BudgetsPage', () => {
     await renderAppAtPath('/budgets', authService.service);
 
     await waitForBudgetsToLoad();
+    await user.clear(screen.getByLabelText(/selected month/i));
+    await user.type(screen.getByLabelText(/selected month/i), '2026-03');
 
-    expect(await screen.findByText('1')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getAllByRole('button', { name: /reset override/i }).length).toBe(1);
+    });
 
     const [, overrideCategorySelect] = await screen.findAllByLabelText(/^category$/i, {}, { timeout: 8000 });
     const [, overrideSubcategorySelect] = screen.getAllByLabelText(/subcategor/i);
@@ -96,7 +100,8 @@ describe('BudgetsPage', () => {
     await user.click(screen.getByRole('button', { name: /create monthly override/i }));
 
     expect(overrideSubcategorySelect).toHaveValue('');
-    expect(await screen.findByText('2')).toBeInTheDocument();
-    expect(await screen.findByRole('heading', { name: /^march 2026 overrides$/i })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getAllByRole('button', { name: /reset override/i }).length).toBe(2);
+    });
   });
 });

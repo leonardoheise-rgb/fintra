@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { translateAppText } from '../../../shared/i18n/appText';
 import { getCurrentMonthKey } from '../../../shared/lib/date/months';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { formatMonthLabel } from '../../../shared/lib/formatters/date';
+import { useDisplayPreferences } from '../../settings/useDisplayPreferences';
 import { CategoriesSummaryCard } from '../../finance/components/CategoriesSummaryCard';
 import type {
   BudgetInput,
@@ -25,11 +26,19 @@ function countCategoriesCovered(budgets: BudgetRecord[]) {
 
 export function BudgetsPage() {
   const financeData = useFinanceData();
-  const [selectedMonth, setSelectedMonth] = useState(getCurrentMonthKey());
+  const {
+    preferences: { monthStartDay },
+  } = useDisplayPreferences();
+  const currentMonth = useMemo(() => getCurrentMonthKey(new Date(), monthStartDay), [monthStartDay]);
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [budgetToEdit, setBudgetToEdit] = useState<BudgetRecord | null>(null);
   const [budgetOverrideToEdit, setBudgetOverrideToEdit] = useState<BudgetOverrideRecord | null>(
     null,
   );
+
+  useEffect(() => {
+    setSelectedMonth(currentMonth);
+  }, [currentMonth]);
 
   const allocatedBudget = useMemo(
     () => calculateAllocatedBudget(financeData.budgets),

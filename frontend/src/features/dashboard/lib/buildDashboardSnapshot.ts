@@ -91,13 +91,16 @@ function buildBudgetCards(
     );
 }
 
-function calculateAverageMonthlyExpenses(transactions: TransactionRecord[]) {
+function calculateAverageMonthlyExpenses(
+  transactions: TransactionRecord[],
+  monthStartDay: number,
+) {
   const monthlyExpenseTotals = new Map<string, number>();
 
   transactions
     .filter((item) => item.type === 'expense')
     .forEach((item) => {
-      const month = getMonthKey(item.date);
+      const month = getMonthKey(item.date, monthStartDay);
       monthlyExpenseTotals.set(month, (monthlyExpenseTotals.get(month) ?? 0) + item.amount);
     });
 
@@ -173,15 +176,17 @@ function buildInsight(cards: BudgetCard[], remainingBudget: number) {
 export function filterTransactionsByMonth(
   transactions: TransactionRecord[],
   month: string,
+  monthStartDay = 1,
 ) {
-  return transactions.filter((item) => getMonthKey(item.date) === month);
+  return transactions.filter((item) => getMonthKey(item.date, monthStartDay) === month);
 }
 
 export function buildDashboardSnapshot(
   source: DashboardSource,
   month: string,
+  monthStartDay = 1,
 ): DashboardSnapshot {
-  const monthlyTransactions = filterTransactionsByMonth(source.transactions, month);
+  const monthlyTransactions = filterTransactionsByMonth(source.transactions, month, monthStartDay);
   const cards = buildBudgetCards(
     source.categories,
     source.budgets,
@@ -213,7 +218,7 @@ export function buildDashboardSnapshot(
     remainingBudget,
     remainingBalance,
     totalAvailable,
-    averageMonthlyExpenses: calculateAverageMonthlyExpenses(source.transactions),
+    averageMonthlyExpenses: calculateAverageMonthlyExpenses(source.transactions, monthStartDay),
     insight: buildInsight(cards, remainingBudget),
     cards,
     categoryAvailability,

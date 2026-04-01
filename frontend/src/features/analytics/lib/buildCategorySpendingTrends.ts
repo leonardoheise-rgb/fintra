@@ -5,6 +5,7 @@ import type { CategorySpendingTrend } from '../analytics.types';
 type BuildCategorySpendingTrendsSource = {
   categories: CategoryRecord[];
   months: string[];
+  monthStartDay: number;
   transactions: TransactionRecord[];
 };
 
@@ -23,6 +24,7 @@ function calculateAverage(values: number[]) {
 export function buildCategorySpendingTrends({
   categories,
   months,
+  monthStartDay,
   transactions,
 }: BuildCategorySpendingTrendsSource): CategorySpendingTrend[] {
   return categories
@@ -34,7 +36,7 @@ export function buildCategorySpendingTrends({
               (transaction) =>
                 transaction.type === 'expense' &&
                 transaction.categoryId === category.id &&
-                getMonthKey(transaction.date) === month,
+                getMonthKey(transaction.date, monthStartDay) === month,
             )
             .map((transaction) => transaction.amount),
         );

@@ -9,13 +9,18 @@ import { SignInPage } from '../features/auth/pages/SignInPage';
 import { SignUpPage } from '../features/auth/pages/SignUpPage';
 import { DashboardPage } from '../features/dashboard/pages/DashboardPage';
 import { FinanceDataProvider } from '../features/finance/FinanceDataContext';
+import type { FinanceService } from '../features/finance/services/financeService';
 import { CategoriesPage } from '../features/finance/pages/CategoriesPage';
 import { TransactionsPage } from '../features/finance/pages/TransactionsPage';
 import { AppLayout } from './layout/AppLayout';
 
-function AppShell() {
+type AppRouterProps = {
+  financeService?: FinanceService;
+};
+
+function AppShell({ financeService }: AppRouterProps) {
   return (
-    <FinanceDataProvider>
+    <FinanceDataProvider service={financeService}>
       <AppLayout>
         <Outlet />
       </AppLayout>
@@ -23,7 +28,7 @@ function AppShell() {
   );
 }
 
-export function AppRouter() {
+export function AppRouter({ financeService }: AppRouterProps) {
   return (
     <Routes>
       <Route element={<PublicOnlyRoute />}>
@@ -32,7 +37,7 @@ export function AppRouter() {
       </Route>
 
       <Route element={<ProtectedRoute />}>
-        <Route element={<AppShell />}>
+        <Route element={<AppShell financeService={financeService} />}>
           <Route index element={<DashboardPage />} />
           <Route path="/transactions" element={<TransactionsPage />} />
           <Route path="/categories" element={<CategoriesPage />} />

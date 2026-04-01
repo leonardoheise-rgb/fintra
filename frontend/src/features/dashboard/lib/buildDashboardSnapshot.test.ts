@@ -46,6 +46,9 @@ const transactions: TransactionRecord[] = [
     subcategoryId: null,
     date: '2026-03-01',
     description: 'Salary',
+    installmentGroupId: null,
+    installmentIndex: null,
+    installmentCount: null,
   },
   {
     id: 'transaction-rent',
@@ -55,6 +58,9 @@ const transactions: TransactionRecord[] = [
     subcategoryId: null,
     date: '2026-03-03',
     description: 'Rent',
+    installmentGroupId: null,
+    installmentIndex: null,
+    installmentCount: null,
   },
   {
     id: 'transaction-grocery',
@@ -64,6 +70,9 @@ const transactions: TransactionRecord[] = [
     subcategoryId: null,
     date: '2026-03-05',
     description: 'Groceries',
+    installmentGroupId: null,
+    installmentIndex: null,
+    installmentCount: null,
   },
   {
     id: 'transaction-feb-food',
@@ -73,6 +82,9 @@ const transactions: TransactionRecord[] = [
     subcategoryId: null,
     date: '2026-02-11',
     description: 'February groceries',
+    installmentGroupId: null,
+    installmentIndex: null,
+    installmentCount: null,
   },
 ];
 
@@ -80,6 +92,11 @@ describe('buildDashboardSnapshot', () => {
   it('filters transactions by month', () => {
     expect(filterTransactionsByMonth(transactions, '2026-03')).toHaveLength(3);
     expect(filterTransactionsByMonth(transactions, '2026-02')).toHaveLength(1);
+  });
+
+  it('uses the configured month start day when grouping transactions', () => {
+    expect(filterTransactionsByMonth(transactions, '2026-02', 15)).toHaveLength(3);
+    expect(filterTransactionsByMonth(transactions, '2026-03', 15)).toHaveLength(0);
   });
 
   it('calculates monthly totals and category budget cards', () => {
@@ -156,6 +173,9 @@ describe('buildDashboardSnapshot', () => {
             subcategoryId: null,
             date: '2026-03-12',
             description: 'Extra dining',
+            installmentGroupId: null,
+            installmentIndex: null,
+            installmentCount: null,
           },
         ],
       },

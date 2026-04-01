@@ -37,6 +37,9 @@ const transactions: TransactionRecord[] = [
     subcategoryId: null,
     date: '2026-02-01',
     description: 'Salary',
+    installmentGroupId: null,
+    installmentIndex: null,
+    installmentCount: null,
   },
   {
     id: 'rent-feb',
@@ -46,6 +49,9 @@ const transactions: TransactionRecord[] = [
     subcategoryId: null,
     date: '2026-02-03',
     description: 'Rent',
+    installmentGroupId: null,
+    installmentIndex: null,
+    installmentCount: null,
   },
   {
     id: 'salary-mar',
@@ -55,6 +61,9 @@ const transactions: TransactionRecord[] = [
     subcategoryId: null,
     date: '2026-03-01',
     description: 'Salary',
+    installmentGroupId: null,
+    installmentIndex: null,
+    installmentCount: null,
   },
   {
     id: 'food-mar',
@@ -64,6 +73,9 @@ const transactions: TransactionRecord[] = [
     subcategoryId: null,
     date: '2026-03-10',
     description: 'Food',
+    installmentGroupId: null,
+    installmentIndex: null,
+    installmentCount: null,
   },
 ];
 
@@ -75,6 +87,7 @@ describe('buildMonthlyAnalyticsSeries', () => {
         budgets,
         budgetOverrides,
         months: ['2026-02', '2026-03'],
+        monthStartDay: 1,
         transactions,
       }),
     ).toEqual([

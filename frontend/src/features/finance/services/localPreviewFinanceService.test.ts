@@ -31,6 +31,7 @@ describe('localPreviewFinanceService', () => {
         subcategoryId: 'subcategory-groceries',
         date: '2026-03-09',
         description: 'Invalid assignment',
+        installmentCount: 1,
       }),
     ).rejects.toThrow('The selected subcategory does not belong to the selected category.');
   });
@@ -46,13 +47,14 @@ describe('localPreviewFinanceService', () => {
   it('creates, updates, and deletes a transaction', async () => {
     const service = createLocalPreviewFinanceService('user-1');
 
-    const createdTransaction = await service.createTransaction({
+    const [createdTransaction] = await service.createTransaction({
       amount: 55,
       type: 'expense',
       categoryId: 'category-food',
       subcategoryId: 'subcategory-restaurants',
       date: '2026-03-11',
       description: 'Lunch',
+      installmentCount: 1,
     });
 
     expect(createdTransaction.description).toBe('Lunch');
@@ -64,6 +66,7 @@ describe('localPreviewFinanceService', () => {
       subcategoryId: 'subcategory-restaurants',
       date: '2026-03-11',
       description: 'Team lunch',
+      installmentCount: 1,
     });
 
     expect(updatedTransaction.description).toBe('Team lunch');

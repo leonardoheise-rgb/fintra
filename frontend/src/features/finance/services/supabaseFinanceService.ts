@@ -1,4 +1,5 @@
 import { getSupabaseBrowserClient } from '../../../shared/supabase/client';
+import { buildInstallmentDates, splitAmountIntoInstallments } from '../lib/installments';
 import type {
   BudgetInput,
   BudgetOverrideInput,
@@ -41,6 +42,9 @@ function mapTransaction(record: {
   subcategory_id: string | null;
   date: string;
   description: string | null;
+  installment_group_id: string | null;
+  installment_index: number | null;
+  installment_count: number | null;
 }): TransactionRecord {
   return {
     id: record.id,
@@ -50,6 +54,9 @@ function mapTransaction(record: {
     subcategoryId: record.subcategory_id,
     date: record.date,
     description: record.description ?? '',
+    installmentGroupId: record.installment_group_id,
+    installmentIndex: record.installment_index,
+    installmentCount: record.installment_count,
   };
 }
 
@@ -139,7 +146,9 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
             .order('name'),
           client
             .from('transactions')
-            .select('id, amount, type, category_id, subcategory_id, date, description')
+            .select(
+              'id, amount, type, category_id, subcategory_id, date, description, installment_group_id, installment_index, installment_count',
+            )
             .eq('user_id', userId)
             .order('date', { ascending: false }),
           client
@@ -266,25 +275,36 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
       }
     },
     async createTransaction(input: TransactionInput) {
+      const normalizedDescription = input.description.trim();
+      const installmentAmounts = splitAmountIntoInstallments(input.amount, input.installmentCount);
+      const installmentDates = buildInstallmentDates(input.date, input.installmentCount);
+      const installmentGroupId =
+        input.installmentCount > 1 ? crypto.randomUUID() : null;
       const { data, error } = await client
         .from('transactions')
-        .insert({
-          user_id: userId,
-          amount: input.amount,
-          type: input.type,
-          category_id: input.categoryId,
-          subcategory_id: input.subcategoryId,
-          date: input.date,
-          description: input.description.trim(),
-        })
-        .select('id, amount, type, category_id, subcategory_id, date, description')
-        .single();
+        .insert(
+          installmentAmounts.map((amount, index) => ({
+            user_id: userId,
+            amount,
+            type: input.type,
+            category_id: input.categoryId,
+            subcategory_id: input.subcategoryId,
+            date: installmentDates[index],
+            description: normalizedDescription,
+            installment_group_id: installmentGroupId,
+            installment_index: input.installmentCount > 1 ? index + 1 : null,
+            installment_count: input.installmentCount > 1 ? input.installmentCount : null,
+          })),
+        )
+        .select(
+          'id, amount, type, category_id, subcategory_id, date, description, installment_group_id, installment_index, installment_count',
+        );
 
       if (error) {
         throw error;
       }
 
-      return mapTransaction(data);
+      return (data ?? []).map(mapTransaction);
     },
     async updateTransaction(transactionId: string, input: TransactionInput) {
       const { data, error } = await client
@@ -299,7 +319,9 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
         })
         .eq('id', transactionId)
         .eq('user_id', userId)
-        .select('id, amount, type, category_id, subcategory_id, date, description')
+        .select(
+          'id, amount, type, category_id, subcategory_id, date, description, installment_group_id, installment_index, installment_count',
+        )
         .single();
 
       if (error) {

@@ -1,5 +1,6 @@
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { translateAppText } from '../../../shared/i18n/appText';
+import { getInstallmentLabel } from '../lib/installments';
 import { getCategoryName, getSubcategoryName } from '../lib/financeSelectors';
 import type { CategoryRecord, SubcategoryRecord, TransactionRecord } from '../finance.types';
 
@@ -57,9 +58,19 @@ export function TransactionsList({
                 <div>
                   <h3>{getTransactionTitle(transaction)}</h3>
                   <p className="ledger-row__subcopy">
-                    {transaction.description
-                      ? translateAppText('transactions.workspaceMovement')
-                      : translateAppText('transactions.noDetailAdded')}
+                    {getInstallmentLabel(
+                      transaction.installmentIndex,
+                      transaction.installmentCount,
+                    )
+                      ? translateAppText('transactions.installmentCaption', {
+                          installment: getInstallmentLabel(
+                            transaction.installmentIndex,
+                            transaction.installmentCount,
+                          ) ?? '',
+                        })
+                      : transaction.description
+                        ? translateAppText('transactions.workspaceMovement')
+                        : translateAppText('transactions.noDetailAdded')}
                   </p>
                 </div>
               </div>

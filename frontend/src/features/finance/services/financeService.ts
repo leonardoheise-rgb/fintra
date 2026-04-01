@@ -20,7 +20,7 @@ export interface FinanceService {
   createSubcategory(input: SubcategoryInput): Promise<SubcategoryRecord>;
   updateSubcategory(subcategoryId: string, input: SubcategoryInput): Promise<SubcategoryRecord>;
   deleteSubcategory(subcategoryId: string): Promise<void>;
-  createTransaction(input: TransactionInput): Promise<TransactionRecord>;
+  createTransaction(input: TransactionInput): Promise<TransactionRecord[]>;
   updateTransaction(transactionId: string, input: TransactionInput): Promise<TransactionRecord>;
   deleteTransaction(transactionId: string): Promise<void>;
   createBudget(input: BudgetInput): Promise<BudgetRecord>;

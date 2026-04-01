@@ -23,6 +23,9 @@ export function createPreviewWorkspace(): FinanceWorkspace {
         subcategoryId: null,
         date: '2026-01-01',
         description: 'Monthly salary',
+        installmentGroupId: null,
+        installmentIndex: null,
+        installmentCount: null,
       },
       {
         id: 'transaction-rent-jan',
@@ -32,6 +35,9 @@ export function createPreviewWorkspace(): FinanceWorkspace {
         subcategoryId: 'subcategory-rent',
         date: '2026-01-03',
         description: 'Apartment rent',
+        installmentGroupId: null,
+        installmentIndex: null,
+        installmentCount: null,
       },
       {
         id: 'transaction-grocery-jan',
@@ -41,6 +47,9 @@ export function createPreviewWorkspace(): FinanceWorkspace {
         subcategoryId: 'subcategory-groceries',
         date: '2026-01-05',
         description: 'Weekly grocery run',
+        installmentGroupId: null,
+        installmentIndex: null,
+        installmentCount: null,
       },
       {
         id: 'transaction-restaurants-jan',
@@ -50,6 +59,9 @@ export function createPreviewWorkspace(): FinanceWorkspace {
         subcategoryId: 'subcategory-restaurants',
         date: '2026-01-12',
         description: 'Dinner downtown',
+        installmentGroupId: null,
+        installmentIndex: null,
+        installmentCount: null,
       },
       {
         id: 'transaction-transit-jan',
@@ -59,6 +71,9 @@ export function createPreviewWorkspace(): FinanceWorkspace {
         subcategoryId: 'subcategory-transit',
         date: '2026-01-18',
         description: 'Transit pass',
+        installmentGroupId: null,
+        installmentIndex: null,
+        installmentCount: null,
       },
       {
         id: 'transaction-salary-feb',
@@ -68,6 +83,9 @@ export function createPreviewWorkspace(): FinanceWorkspace {
         subcategoryId: null,
         date: '2026-02-01',
         description: 'Monthly salary',
+        installmentGroupId: null,
+        installmentIndex: null,
+        installmentCount: null,
       },
       {
         id: 'transaction-rent-feb',
@@ -77,6 +95,9 @@ export function createPreviewWorkspace(): FinanceWorkspace {
         subcategoryId: 'subcategory-rent',
         date: '2026-02-03',
         description: 'Apartment rent',
+        installmentGroupId: null,
+        installmentIndex: null,
+        installmentCount: null,
       },
       {
         id: 'transaction-grocery-feb',
@@ -86,6 +107,9 @@ export function createPreviewWorkspace(): FinanceWorkspace {
         subcategoryId: 'subcategory-groceries',
         date: '2026-02-06',
         description: 'Weekly grocery run',
+        installmentGroupId: null,
+        installmentIndex: null,
+        installmentCount: null,
       },
       {
         id: 'transaction-restaurants-feb',
@@ -95,6 +119,9 @@ export function createPreviewWorkspace(): FinanceWorkspace {
         subcategoryId: 'subcategory-restaurants',
         date: '2026-02-14',
         description: 'Weekend dinner',
+        installmentGroupId: null,
+        installmentIndex: null,
+        installmentCount: null,
       },
       {
         id: 'transaction-transit-feb',
@@ -104,6 +131,9 @@ export function createPreviewWorkspace(): FinanceWorkspace {
         subcategoryId: 'subcategory-transit',
         date: '2026-02-19',
         description: 'Transit pass',
+        installmentGroupId: null,
+        installmentIndex: null,
+        installmentCount: null,
       },
       {
         id: 'transaction-salary',
@@ -113,6 +143,9 @@ export function createPreviewWorkspace(): FinanceWorkspace {
         subcategoryId: null,
         date: '2026-03-01',
         description: 'Monthly salary',
+        installmentGroupId: null,
+        installmentIndex: null,
+        installmentCount: null,
       },
       {
         id: 'transaction-rent',
@@ -122,6 +155,9 @@ export function createPreviewWorkspace(): FinanceWorkspace {
         subcategoryId: 'subcategory-rent',
         date: '2026-03-03',
         description: 'Apartment rent',
+        installmentGroupId: null,
+        installmentIndex: null,
+        installmentCount: null,
       },
       {
         id: 'transaction-grocery',
@@ -131,6 +167,9 @@ export function createPreviewWorkspace(): FinanceWorkspace {
         subcategoryId: 'subcategory-groceries',
         date: '2026-03-05',
         description: 'Weekly grocery run',
+        installmentGroupId: null,
+        installmentIndex: null,
+        installmentCount: null,
       },
       {
         id: 'transaction-restaurants',
@@ -140,6 +179,9 @@ export function createPreviewWorkspace(): FinanceWorkspace {
         subcategoryId: 'subcategory-restaurants',
         date: '2026-03-12',
         description: 'Client dinner',
+        installmentGroupId: null,
+        installmentIndex: null,
+        installmentCount: null,
       },
       {
         id: 'transaction-transit',
@@ -149,6 +191,9 @@ export function createPreviewWorkspace(): FinanceWorkspace {
         subcategoryId: 'subcategory-transit',
         date: '2026-03-19',
         description: 'Transit pass',
+        installmentGroupId: null,
+        installmentIndex: null,
+        installmentCount: null,
       },
     ],
     budgets: [

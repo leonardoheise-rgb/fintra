@@ -22,7 +22,7 @@ export function createAuthServiceStub(options: CreateAuthServiceStubOptions = {}
   };
 
   const service: AuthService = {
-    mode: options.mode ?? 'preview',
+    mode: options.mode ?? 'supabase',
     getSession: vi.fn(async () => session),
     signIn: vi.fn(async ({ email }) => {
       if (options.signInError) {
