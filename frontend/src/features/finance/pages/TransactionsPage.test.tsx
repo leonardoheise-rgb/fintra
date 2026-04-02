@@ -13,6 +13,10 @@ async function waitForTransactionsToLoad() {
 }
 
 describe('TransactionsPage', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
   it('renders existing preview transactions on the protected route', async () => {
     const authService = createAuthServiceStub({
       initialSession: {
@@ -69,6 +73,56 @@ describe('TransactionsPage', () => {
 
     expect((await screen.findAllByText(/coffee with client/i)).length).toBe(3);
     expect(await screen.findByText(/installment 1\/3/i)).toBeInTheDocument();
+  });
+
+  it('accepts decimal comma input and masks the amount using portuguese formatting', async () => {
+    const user = userEvent.setup();
+    const authService = createAuthServiceStub({
+      initialSession: {
+        user: {
+          id: 'user-1',
+          email: 'owner@fintra.dev',
+        },
+      },
+    });
+
+    window.localStorage.setItem(
+      'fintra.display-preferences.user-1',
+      JSON.stringify({
+        currency: 'BRL',
+        locale: 'pt-BR',
+        monthStartDay: 1,
+      }),
+    );
+
+    const { container } = await renderAppAtPath('/transactions', authService.service);
+
+    await waitForTransactionsToLoad();
+
+    const amountInput = container.querySelector<HTMLInputElement>('input[name="amount"]');
+    const categorySelect = container.querySelector<HTMLSelectElement>('select[name="categoryId"]');
+    const subcategorySelect = container.querySelector<HTMLSelectElement>('select[name="subcategoryId"]');
+    const dateInput = container.querySelector<HTMLInputElement>('input[name="date"]');
+    const descriptionInput = container.querySelector<HTMLTextAreaElement>('textarea[name="description"]');
+
+    expect(amountInput).not.toBeNull();
+    expect(categorySelect).not.toBeNull();
+    expect(subcategorySelect).not.toBeNull();
+    expect(dateInput).not.toBeNull();
+    expect(descriptionInput).not.toBeNull();
+
+    await user.clear(amountInput!);
+    await user.type(amountInput!, '45.5');
+    expect(amountInput).toHaveValue('45,5');
+
+    await user.selectOptions(categorySelect!, 'category-food');
+    await user.selectOptions(subcategorySelect!, 'subcategory-restaurants');
+    await user.clear(dateInput!);
+    await user.type(dateInput!, '2026-03-18');
+    await user.type(descriptionInput!, 'Cafe com cliente');
+    await user.click(screen.getByRole('button', { name: /create transaction|criar transa/i }));
+
+    expect(await screen.findByText(/cafe com cliente/i)).toBeInTheDocument();
   });
 
   it('offers to rebalance the month after an expense pushes a category over budget', async () => {

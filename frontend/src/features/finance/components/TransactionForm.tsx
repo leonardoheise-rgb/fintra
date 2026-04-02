@@ -2,6 +2,12 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 
 import { resolveAppErrorMessage } from '../../../shared/i18n/appErrors';
 import { translateAppText } from '../../../shared/i18n/appText';
+import {
+  formatDecimalInput,
+  normalizeDecimalInput,
+  parseDecimalInput,
+} from '../../../shared/lib/formatters/decimalInput';
+import { useDisplayPreferences } from '../../settings/useDisplayPreferences';
 import type {
   CategoryRecord,
   SubcategoryRecord,
@@ -37,7 +43,12 @@ export function TransactionForm({
   subcategories,
   transactionToEdit,
 }: TransactionFormProps) {
-  const [amount, setAmount] = useState(transactionToEdit ? String(transactionToEdit.amount) : '');
+  const {
+    preferences: { locale },
+  } = useDisplayPreferences();
+  const [amount, setAmount] = useState(
+    transactionToEdit ? formatDecimalInput(transactionToEdit.amount, locale) : '',
+  );
   const [type, setType] = useState<TransactionInput['type']>(transactionToEdit?.type ?? 'expense');
   const [categoryId, setCategoryId] = useState(
     transactionToEdit?.categoryId ?? categories[0]?.id ?? '',
@@ -58,7 +69,7 @@ export function TransactionForm({
 
   useEffect(() => {
     if (transactionToEdit) {
-      setAmount(String(transactionToEdit.amount));
+      setAmount(formatDecimalInput(transactionToEdit.amount, locale));
       setType(transactionToEdit.type);
       setCategoryId(transactionToEdit.categoryId);
       setSubcategoryId(transactionToEdit.subcategoryId ?? '');
@@ -76,7 +87,7 @@ export function TransactionForm({
     setDate(initialState.date);
     setDescription(initialState.description);
     setInstallmentCount(initialState.installmentCount);
-  }, [categories, transactionToEdit]);
+  }, [categories, locale, transactionToEdit]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -86,9 +97,9 @@ export function TransactionForm({
       return;
     }
 
-    const parsedAmount = Number(amount);
+    const parsedAmount = parseDecimalInput(amount, locale);
 
-    if (Number.isNaN(parsedAmount) || parsedAmount <= 0) {
+    if (parsedAmount === null || parsedAmount <= 0) {
       setFormError(translateAppText('transactions.errorAmount'));
       return;
     }
@@ -161,8 +172,9 @@ export function TransactionForm({
           <input
             inputMode="decimal"
             name="amount"
-            onChange={(event) => setAmount(event.target.value)}
-            type="number"
+            onBlur={(event) => setAmount(normalizeDecimalInput(event.target.value, locale))}
+            onChange={(event) => setAmount(normalizeDecimalInput(event.target.value, locale))}
+            type="text"
             value={amount}
           />
         </label>
