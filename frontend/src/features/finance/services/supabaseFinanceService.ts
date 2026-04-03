@@ -8,6 +8,8 @@ import type {
   CategoryInput,
   CategoryRecord,
   FinanceWorkspace,
+  SetAsideInput,
+  SetAsideRecord,
   SubcategoryInput,
   SubcategoryRecord,
   TransactionInput,
@@ -90,6 +92,24 @@ function mapBudgetOverride(record: {
   };
 }
 
+function mapSetAside(record: {
+  id: string;
+  amount: number;
+  category_id: string;
+  subcategory_id: string | null;
+  date: string;
+  description: string | null;
+}): SetAsideRecord {
+  return {
+    id: record.id,
+    amount: Number(record.amount),
+    categoryId: record.category_id,
+    subcategoryId: record.subcategory_id,
+    date: record.date,
+    description: record.description ?? '',
+  };
+}
+
 async function withTimeout<T>(operation: Promise<T>, timeoutInMilliseconds = 12000): Promise<T> {
   let timer: number | undefined;
 
@@ -134,6 +154,7 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
         { data: categories, error: categoriesError },
         { data: subcategories, error: subcategoriesError },
         { data: transactions, error: transactionsError },
+        { data: setAsides, error: setAsidesError },
         { data: budgets, error: budgetsError },
         { data: budgetOverrides, error: budgetOverridesError },
       ] = await withTimeout(
@@ -149,6 +170,11 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
             .select(
               'id, amount, type, category_id, subcategory_id, date, description, installment_group_id, installment_index, installment_count',
             )
+            .eq('user_id', userId)
+            .order('date', { ascending: false }),
+          client
+            .from('set_asides')
+            .select('id, amount, category_id, subcategory_id, date, description')
             .eq('user_id', userId)
             .order('date', { ascending: false }),
           client
@@ -168,6 +194,7 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
         categoriesError ||
         subcategoriesError ||
         transactionsError ||
+        setAsidesError ||
         budgetsError ||
         budgetOverridesError
       ) {
@@ -175,6 +202,7 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
           categoriesError ??
           subcategoriesError ??
           transactionsError ??
+          setAsidesError ??
           budgetsError ??
           budgetOverridesError
         );
@@ -184,6 +212,7 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
         categories: (categories ?? []).map(mapCategory),
         subcategories: (subcategories ?? []).map(mapSubcategory),
         transactions: (transactions ?? []).map(mapTransaction),
+        setAsides: (setAsides ?? []).map(mapSetAside),
         budgets: (budgets ?? []).map(mapBudget),
         budgetOverrides: (budgetOverrides ?? []).map(mapBudgetOverride),
       };
@@ -340,6 +369,84 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
       if (error) {
         throw error;
       }
+    },
+    async createSetAside(input: SetAsideInput) {
+      const { data, error } = await client
+        .from('set_asides')
+        .insert({
+          user_id: userId,
+          amount: input.amount,
+          category_id: input.categoryId,
+          subcategory_id: input.subcategoryId,
+          date: input.date,
+          description: input.description.trim(),
+        })
+        .select('id, amount, category_id, subcategory_id, date, description')
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      return mapSetAside(data);
+    },
+    async discardSetAside(setAsideId: string) {
+      const { error } = await client
+        .from('set_asides')
+        .delete()
+        .eq('id', setAsideId)
+        .eq('user_id', userId);
+
+      if (error) {
+        throw error;
+      }
+    },
+    async convertSetAsideToTransaction(setAsideId: string) {
+      const { data: setAside, error: setAsideError } = await client
+        .from('set_asides')
+        .select('id, amount, category_id, subcategory_id, date, description')
+        .eq('id', setAsideId)
+        .eq('user_id', userId)
+        .single();
+
+      if (setAsideError) {
+        throw setAsideError;
+      }
+
+      const { data: transaction, error: transactionError } = await client
+        .from('transactions')
+        .insert({
+          user_id: userId,
+          amount: setAside.amount,
+          type: 'expense',
+          category_id: setAside.category_id,
+          subcategory_id: setAside.subcategory_id,
+          date: setAside.date,
+          description: setAside.description ?? '',
+          installment_group_id: null,
+          installment_index: null,
+          installment_count: null,
+        })
+        .select(
+          'id, amount, type, category_id, subcategory_id, date, description, installment_group_id, installment_index, installment_count',
+        )
+        .single();
+
+      if (transactionError) {
+        throw transactionError;
+      }
+
+      const { error: deleteError } = await client
+        .from('set_asides')
+        .delete()
+        .eq('id', setAsideId)
+        .eq('user_id', userId);
+
+      if (deleteError) {
+        throw deleteError;
+      }
+
+      return mapTransaction(transaction);
     },
     async createBudget(input: BudgetInput) {
       const { data, error } = await client

@@ -17,6 +17,7 @@ const emptyWorkspace: FinanceWorkspace = {
   categories: [],
   subcategories: [],
   transactions: [],
+  setAsides: [],
   budgets: [],
   budgetOverrides: [],
 };
@@ -124,6 +125,9 @@ export function FinanceDataProvider({ children, service }: FinanceDataProviderPr
         async createTransaction() {},
         async updateTransaction() {},
         async deleteTransaction() {},
+        async createSetAside() {},
+        async discardSetAside() {},
+        async convertSetAsideToTransaction() {},
         async createBudget() {},
         async updateBudget() {},
         async deleteBudget() {},
@@ -196,6 +200,24 @@ export function FinanceDataProvider({ children, service }: FinanceDataProviderPr
       async deleteTransaction(transactionId) {
         await runMutation(async () => {
           await financeService.deleteTransaction(transactionId);
+          await loadWorkspace(financeService);
+        });
+      },
+      async createSetAside(input) {
+        await runMutation(async () => {
+          await financeService.createSetAside(input);
+          await loadWorkspace(financeService);
+        });
+      },
+      async discardSetAside(setAsideId) {
+        await runMutation(async () => {
+          await financeService.discardSetAside(setAsideId);
+          await loadWorkspace(financeService);
+        });
+      },
+      async convertSetAsideToTransaction(setAsideId) {
+        await runMutation(async () => {
+          await financeService.convertSetAsideToTransaction(setAsideId);
           await loadWorkspace(financeService);
         });
       },

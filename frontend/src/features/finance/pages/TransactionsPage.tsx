@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { translateAppText } from '../../../shared/i18n/appText';
+import { formatLocalIsoDate } from '../../../shared/lib/date/isoDates';
 import { getMonthKey } from '../../../shared/lib/date/months';
 import { useDisplayPreferences } from '../../settings/useDisplayPreferences';
 import { buildDashboardSnapshot } from '../../dashboard/lib/buildDashboardSnapshot';
 import { BudgetReallocationPrompt } from '../components/BudgetReallocationPrompt';
+import { SetAsideForm } from '../components/SetAsideForm';
+import { SetAsidesList } from '../components/SetAsidesList';
 import { useFinanceData } from '../useFinanceData';
 import { TransactionForm } from '../components/TransactionForm';
 import { TransactionsList } from '../components/TransactionsList';
@@ -14,6 +17,7 @@ import {
 } from '../lib/budgetReallocation';
 import { splitAmountIntoInstallments } from '../lib/installments';
 import { sortTransactionsByDateDesc } from '../lib/financeSelectors';
+import { buildTransactionsCsv } from '../lib/transactionsCsv';
 import type { TransactionInput, TransactionRecord } from '../finance.types';
 
 type PendingBudgetReallocation = {
@@ -48,6 +52,7 @@ export function TransactionsPage() {
         budgets: financeData.budgets,
         budgetOverrides: financeData.budgetOverrides,
         transactions: financeData.transactions,
+        setAsides: financeData.setAsides,
       },
       pendingBudgetReallocation.month,
       monthStartDay,
@@ -81,6 +86,7 @@ export function TransactionsPage() {
     financeData.budgetOverrides,
     financeData.budgets,
     financeData.categories,
+    financeData.setAsides,
     financeData.transactions,
     monthStartDay,
     pendingBudgetReallocation,
@@ -102,6 +108,7 @@ export function TransactionsPage() {
         budgets: financeData.budgets,
         budgetOverrides: financeData.budgetOverrides,
         transactions: financeData.transactions,
+        setAsides: financeData.setAsides,
       },
       month,
       monthStartDay,
@@ -120,7 +127,7 @@ export function TransactionsPage() {
     }
 
     const [firstInstallmentAmount] = splitAmountIntoInstallments(input.amount, input.installmentCount);
-    const projectedSpent = sourceCard.spent + (firstInstallmentAmount ?? input.amount);
+    const projectedSpent = sourceCard.spent + sourceCard.reserved + (firstInstallmentAmount ?? input.amount);
     const overage = projectedSpent - sourceCard.effectiveBudget;
 
     if (overage <= 0) {
@@ -225,6 +232,24 @@ export function TransactionsPage() {
     }
   }
 
+  function handleExportCsv() {
+    const csvContent = buildTransactionsCsv(
+      sortedTransactions,
+      financeData.categories,
+      financeData.subcategories,
+    );
+    const blob = new Blob(['\uFEFF', csvContent], {
+      type: 'text/csv;charset=utf-8;',
+    });
+    const downloadUrl = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+
+    anchor.href = downloadUrl;
+    anchor.download = `fintra-transactions-${formatLocalIsoDate()}.csv`;
+    anchor.click();
+    URL.revokeObjectURL(downloadUrl);
+  }
+
   return (
     <div className="finance-page finance-page--transactions">
       {pendingBudgetReallocation ? (
@@ -259,20 +284,36 @@ export function TransactionsPage() {
         </section>
       ) : (
         <div className="finance-grid finance-grid--ledger">
-          <TransactionsList
-            categories={financeData.categories}
-            onDelete={financeData.deleteTransaction}
-            onEdit={setTransactionToEdit}
-            subcategories={financeData.subcategories}
-            transactions={sortedTransactions}
-          />
-          <TransactionForm
-            categories={financeData.categories}
-            onCancelEdit={() => setTransactionToEdit(null)}
-            onSubmit={handleSubmit}
-            subcategories={financeData.subcategories}
-            transactionToEdit={transactionToEdit}
-          />
+          <div className="finance-grid--stacked">
+            <TransactionsList
+              categories={financeData.categories}
+              onDelete={financeData.deleteTransaction}
+              onEdit={setTransactionToEdit}
+              onExportCsv={handleExportCsv}
+              subcategories={financeData.subcategories}
+              transactions={sortedTransactions}
+            />
+            <SetAsidesList
+              categories={financeData.categories}
+              onDiscard={financeData.discardSetAside}
+              setAsides={financeData.setAsides}
+              subcategories={financeData.subcategories}
+            />
+          </div>
+          <div className="finance-grid--stacked">
+            <TransactionForm
+              categories={financeData.categories}
+              onCancelEdit={() => setTransactionToEdit(null)}
+              onSubmit={handleSubmit}
+              subcategories={financeData.subcategories}
+              transactionToEdit={transactionToEdit}
+            />
+            <SetAsideForm
+              categories={financeData.categories}
+              onSubmit={financeData.createSetAside}
+              subcategories={financeData.subcategories}
+            />
+          </div>
         </div>
       )}
     </div>

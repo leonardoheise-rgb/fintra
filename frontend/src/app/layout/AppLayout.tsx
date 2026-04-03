@@ -2,7 +2,12 @@ import { useEffect, useState, type PropsWithChildren } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
 import { useAuth } from '../../features/auth/useAuth';
+import { SetAsideDecisionPrompt } from '../../features/finance/components/SetAsideDecisionPrompt';
+import { getCategoryName, getSubcategoryName } from '../../features/finance/lib/financeSelectors';
+import { getDueSetAsides } from '../../features/finance/lib/setAsides';
+import { useFinanceData } from '../../features/finance/useFinanceData';
 import { translateAppText } from '../../shared/i18n/appText';
+import { formatLocalIsoDate } from '../../shared/lib/date/isoDates';
 import { SidebarNavigation } from './SidebarNavigation';
 
 function getUserInitials(email: string | undefined) {
@@ -21,8 +26,11 @@ function getUserInitials(email: string | undefined) {
 
 export function AppLayout({ children }: PropsWithChildren) {
   const auth = useAuth();
+  const financeData = useFinanceData();
   const location = useLocation();
   const [isMobileNavigationOpen, setIsMobileNavigationOpen] = useState(false);
+  const [isResolvingSetAside, setIsResolvingSetAside] = useState(false);
+  const [setAsidePromptError, setSetAsidePromptError] = useState<string | null>(null);
   const pageTitle =
     location.pathname === '/'
       ? translateAppText('page.title.dashboard')
@@ -55,6 +63,55 @@ export function AppLayout({ children }: PropsWithChildren) {
   useEffect(() => {
     setIsMobileNavigationOpen(false);
   }, [location.pathname]);
+
+  const dueSetAside =
+    financeData.status === 'ready'
+      ? getDueSetAsides(financeData.setAsides, formatLocalIsoDate())[0] ?? null
+      : null;
+  const dueSetAsideTitle = dueSetAside
+    ? `${getCategoryName(financeData.categories, dueSetAside.categoryId)} / ${getSubcategoryName(
+        financeData.subcategories,
+        dueSetAside.subcategoryId,
+      )}`
+    : '';
+
+  async function handleMarkSetAsideSpent() {
+    if (!dueSetAside) {
+      return;
+    }
+
+    setIsResolvingSetAside(true);
+    setSetAsidePromptError(null);
+
+    try {
+      await financeData.convertSetAsideToTransaction(dueSetAside.id);
+    } catch (error) {
+      setSetAsidePromptError(
+        error instanceof Error ? error.message : translateAppText('setAsides.promptError'),
+      );
+    } finally {
+      setIsResolvingSetAside(false);
+    }
+  }
+
+  async function handleDiscardSetAside() {
+    if (!dueSetAside) {
+      return;
+    }
+
+    setIsResolvingSetAside(true);
+    setSetAsidePromptError(null);
+
+    try {
+      await financeData.discardSetAside(dueSetAside.id);
+    } catch (error) {
+      setSetAsidePromptError(
+        error instanceof Error ? error.message : translateAppText('setAsides.promptError'),
+      );
+    } finally {
+      setIsResolvingSetAside(false);
+    }
+  }
 
   return (
     <div className="app-shell">
@@ -110,6 +167,17 @@ export function AppLayout({ children }: PropsWithChildren) {
       </aside>
 
       <div className="main-panel">
+        {dueSetAside ? (
+          <SetAsideDecisionPrompt
+            errorMessage={setAsidePromptError}
+            isSubmitting={isResolvingSetAside}
+            onDiscard={() => void handleDiscardSetAside()}
+            onMarkSpent={() => void handleMarkSetAsideSpent()}
+            setAside={dueSetAside}
+            title={dueSetAsideTitle}
+          />
+        ) : null}
+
         <header className="topbar">
           <div className="topbar__intro">
             <h2 className="topbar__title">{pageTitle}</h2>

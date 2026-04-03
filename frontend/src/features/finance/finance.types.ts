@@ -24,6 +24,15 @@ export type TransactionRecord = {
   installmentCount: number | null;
 };
 
+export type SetAsideRecord = {
+  id: string;
+  amount: number;
+  categoryId: string;
+  subcategoryId: string | null;
+  date: string;
+  description: string;
+};
+
 export type BudgetRecord = {
   id: string;
   categoryId: string;
@@ -43,6 +52,7 @@ export type FinanceWorkspace = {
   categories: CategoryRecord[];
   subcategories: SubcategoryRecord[];
   transactions: TransactionRecord[];
+  setAsides: SetAsideRecord[];
   budgets: BudgetRecord[];
   budgetOverrides: BudgetOverrideRecord[];
 };
@@ -64,6 +74,14 @@ export type TransactionInput = {
   date: string;
   description: string;
   installmentCount: number;
+};
+
+export type SetAsideInput = {
+  amount: number;
+  categoryId: string;
+  subcategoryId: string | null;
+  date: string;
+  description: string;
 };
 
 export type BudgetInput = {

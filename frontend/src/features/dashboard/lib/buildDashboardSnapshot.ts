@@ -6,8 +6,10 @@ import type {
   BudgetOverrideRecord,
   BudgetRecord,
   CategoryRecord,
+  SetAsideRecord,
   TransactionRecord,
 } from '../../finance/finance.types';
+import { filterSetAsidesByMonth } from '../../finance/lib/setAsides';
 import { resolveEffectiveBudgets } from '../../budgets/lib/effectiveBudgetResolver';
 import type { BudgetCard, CategoryAvailability, DashboardSnapshot } from '../dashboard.types';
 
@@ -16,6 +18,7 @@ type DashboardSource = {
   budgets: BudgetRecord[];
   budgetOverrides: BudgetOverrideRecord[];
   transactions: TransactionRecord[];
+  setAsides: SetAsideRecord[];
 };
 
 function buildShortLabel(name: string) {
@@ -54,11 +57,20 @@ function getExpenseTotalForCategory(
   );
 }
 
+function getReservedTotalForCategory(setAsides: SetAsideRecord[], categoryId: string) {
+  return sumValues(
+    setAsides
+      .filter((item) => item.categoryId === categoryId)
+      .map((item) => item.amount),
+  );
+}
+
 function buildBudgetCards(
   categories: CategoryRecord[],
   budgets: BudgetRecord[],
   budgetOverrides: BudgetOverrideRecord[],
   transactions: TransactionRecord[],
+  setAsides: SetAsideRecord[],
   month: string,
 ): BudgetCard[] {
   const effectiveBudgets = resolveEffectiveBudgets(budgets, budgetOverrides, month);
@@ -83,6 +95,7 @@ function buildBudgetCards(
         (item) => item.categoryId === category.id && item.isOverridden,
       ),
       spent: getExpenseTotalForCategory(transactions, category.id),
+      reserved: getReservedTotalForCategory(setAsides, category.id),
     }))
     .filter((card) => card.effectiveBudget > 0)
     .sort(
@@ -115,15 +128,17 @@ function buildCategoryAvailability(cards: BudgetCard[]): CategoryAvailability[] 
   return cards.map((card) => ({
     id: card.id,
     name: card.name,
-    available: card.effectiveBudget - card.spent,
+    available: card.effectiveBudget - card.spent - card.reserved,
     budget: card.effectiveBudget,
     spent: card.spent,
+    reserved: card.reserved,
   }));
 }
 
 function calculateTotalAvailable(
   cards: BudgetCard[],
   transactions: TransactionRecord[],
+  setAsides: SetAsideRecord[],
 ): number {
   const budgetedCategoryIds = new Set(cards.map((card) => card.id));
   const forecastedBudgetedSpending = sumValues(
@@ -137,13 +152,18 @@ function calculateTotalAvailable(
       )
       .map((transaction) => transaction.amount),
   );
+  const nonBudgetedSetAsides = sumValues(
+    setAsides
+      .filter((setAside) => !budgetedCategoryIds.has(setAside.categoryId))
+      .map((setAside) => setAside.amount),
+  );
   const totalIncome = sumValues(
     transactions
       .filter((transaction) => transaction.type === 'income')
       .map((transaction) => transaction.amount),
   );
 
-  return totalIncome - forecastedBudgetedSpending - nonBudgetedExpenses;
+  return totalIncome - forecastedBudgetedSpending - nonBudgetedExpenses - nonBudgetedSetAsides;
 }
 
 function buildInsight(cards: BudgetCard[], remainingBudget: number) {
@@ -187,11 +207,13 @@ export function buildDashboardSnapshot(
   monthStartDay = 1,
 ): DashboardSnapshot {
   const monthlyTransactions = filterTransactionsByMonth(source.transactions, month, monthStartDay);
+  const monthlySetAsides = filterSetAsidesByMonth(source.setAsides, month, monthStartDay);
   const cards = buildBudgetCards(
     source.categories,
     source.budgets,
     source.budgetOverrides,
     monthlyTransactions,
+    monthlySetAsides,
     month,
   );
   const totalBudget = sumValues(cards.map((card) => card.effectiveBudget));
@@ -205,16 +227,18 @@ export function buildDashboardSnapshot(
       .filter((item) => item.type === 'expense')
       .map((item) => item.amount),
   );
-  const remainingBudget = totalBudget - totalExpenses;
+  const totalReserved = sumValues(monthlySetAsides.map((item) => item.amount));
+  const remainingBudget = totalBudget - totalExpenses - totalReserved;
   const remainingBalance = totalIncome - totalExpenses;
   const categoryAvailability = buildCategoryAvailability(cards);
-  const totalAvailable = calculateTotalAvailable(cards, monthlyTransactions);
+  const totalAvailable = calculateTotalAvailable(cards, monthlyTransactions, monthlySetAsides);
 
   return {
     month,
     totalBudget,
     totalIncome,
     totalExpenses,
+    totalReserved,
     remainingBudget,
     remainingBalance,
     totalAvailable,

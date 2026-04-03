@@ -3,6 +3,7 @@ import type {
   BudgetOverrideRecord,
   BudgetRecord,
   CategoryRecord,
+  SetAsideRecord,
   TransactionRecord,
 } from '../../finance/finance.types';
 
@@ -88,6 +89,17 @@ const transactions: TransactionRecord[] = [
   },
 ];
 
+const setAsides: SetAsideRecord[] = [
+  {
+    id: 'set-aside-food',
+    amount: 120,
+    categoryId: 'category-food',
+    subcategoryId: null,
+    date: '2026-03-22',
+    description: 'Birthday dinner',
+  },
+];
+
 describe('buildDashboardSnapshot', () => {
   it('filters transactions by month', () => {
     expect(filterTransactionsByMonth(transactions, '2026-03')).toHaveLength(3);
@@ -106,6 +118,7 @@ describe('buildDashboardSnapshot', () => {
         budgets,
         budgetOverrides,
         transactions,
+        setAsides,
       },
       '2026-03',
     );
@@ -113,7 +126,8 @@ describe('buildDashboardSnapshot', () => {
     expect(snapshot.totalBudget).toBe(3250);
     expect(snapshot.totalIncome).toBe(6500);
     expect(snapshot.totalExpenses).toBe(2280);
-    expect(snapshot.remainingBudget).toBe(970);
+    expect(snapshot.totalReserved).toBe(120);
+    expect(snapshot.remainingBudget).toBe(850);
     expect(snapshot.remainingBalance).toBe(4220);
     expect(snapshot.totalAvailable).toBe(3250);
     expect(snapshot.averageMonthlyExpenses).toBe(1250);
@@ -124,13 +138,15 @@ describe('buildDashboardSnapshot', () => {
         available: 400,
         budget: 2500,
         spent: 2100,
+        reserved: 0,
       },
       {
         id: 'category-food',
         name: 'Food and dining',
-        available: 570,
+        available: 450,
         budget: 750,
         spent: 180,
+        reserved: 120,
       },
     ]);
     expect(snapshot.cards).toEqual([
@@ -143,6 +159,7 @@ describe('buildDashboardSnapshot', () => {
         overrideAmount: null,
         isOverridden: false,
         spent: 2100,
+        reserved: 0,
       },
       {
         id: 'category-food',
@@ -153,6 +170,7 @@ describe('buildDashboardSnapshot', () => {
         overrideAmount: 750,
         isOverridden: true,
         spent: 180,
+        reserved: 120,
       },
     ]);
   });
@@ -178,18 +196,20 @@ describe('buildDashboardSnapshot', () => {
             installmentCount: null,
           },
         ],
+        setAsides,
       },
       '2026-03',
     );
 
     expect(snapshot.totalAvailable).toBe(3120);
     expect(snapshot.categoryAvailability).toContainEqual({
-      id: 'category-food',
-      name: 'Food and dining',
-      available: -130,
-      budget: 750,
-      spent: 880,
-    });
+        id: 'category-food',
+        name: 'Food and dining',
+        available: -250,
+        budget: 750,
+        spent: 880,
+        reserved: 120,
+      });
   });
 
   it('returns an onboarding insight when no budgets exist yet', () => {
@@ -199,6 +219,7 @@ describe('buildDashboardSnapshot', () => {
         budgets: [],
         budgetOverrides: [],
         transactions,
+        setAsides: [],
       },
       '2026-03',
     );

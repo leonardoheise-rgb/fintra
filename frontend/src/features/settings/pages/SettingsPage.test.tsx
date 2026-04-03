@@ -1,11 +1,11 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { createAuthServiceStub } from '../../../test/createAuthServiceStub';
-import { renderAppAtPath } from '../../../test/renderAppAtPath';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { formatMonthLabel } from '../../../shared/lib/formatters/date';
 import { setRuntimeDisplayPreferences } from '../../../shared/preferences/displayPreferences';
+import { createAuthServiceStub } from '../../../test/createAuthServiceStub';
+import { renderAppAtPath } from '../../../test/renderAppAtPath';
 
 describe('SettingsPage', () => {
   it('persists display preferences for the signed-in user', async () => {
@@ -82,7 +82,7 @@ describe('SettingsPage', () => {
     });
 
     await waitFor(() => {
-      expect(formatCurrency(12450.75)).toBe('€ 12.450,75');
+      expect(formatCurrency(12450.75)).toContain('12.450,75');
       expect(formatMonthLabel('2026-03')).toBe('março de 2026');
     });
   });

@@ -5,6 +5,7 @@ import type {
   BudgetOverrideInput,
   CategoryInput,
   FinanceWorkspace,
+  SetAsideInput,
   SubcategoryInput,
   TransactionInput,
 } from './finance.types';
@@ -25,6 +26,9 @@ export type FinanceDataContextValue = FinanceWorkspace & {
   createTransaction(input: TransactionInput): Promise<void>;
   updateTransaction(transactionId: string, input: TransactionInput): Promise<void>;
   deleteTransaction(transactionId: string): Promise<void>;
+  createSetAside(input: SetAsideInput): Promise<void>;
+  discardSetAside(setAsideId: string): Promise<void>;
+  convertSetAsideToTransaction(setAsideId: string): Promise<void>;
   createBudget(input: BudgetInput): Promise<void>;
   updateBudget(budgetId: string, input: BudgetInput): Promise<void>;
   deleteBudget(budgetId: string): Promise<void>;

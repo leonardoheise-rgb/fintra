@@ -3,6 +3,26 @@ import { getDisplayPreferences } from '../preferences/displayPreferences';
 type SupportedLocale = 'en-US' | 'pt-BR';
 type TranslationValues = Record<string, number | string>;
 
+function fixEncodingArtifacts(value: string) {
+  let normalizedValue = value;
+
+  for (let index = 0; index < 3 && /[ÃÂ]/.test(normalizedValue); index += 1) {
+    try {
+      normalizedValue = decodeURIComponent(escape(normalizedValue));
+    } catch {
+      break;
+    }
+  }
+
+  return normalizedValue;
+}
+
+function normalizeTranslations(entries: Record<string, string>) {
+  return Object.fromEntries(
+    Object.entries(entries).map(([key, value]) => [key, fixEncodingArtifacts(value)]),
+  );
+}
+
 const translations: Record<SupportedLocale, Record<string, string>> = {
   'en-US': {
     'nav.dashboard': 'Dashboard',
@@ -820,6 +840,79 @@ const translations: Record<SupportedLocale, Record<string, string>> = {
     'common.delete': 'Excluir',
   },
 };
+
+translations['pt-BR'] = normalizeTranslations(translations['pt-BR']);
+
+Object.assign(translations['en-US'], {
+  'dashboard.totalNetPosition': 'Available this month',
+  'dashboard.reservedOfBudget': '{reserved} set aside',
+  'dashboard.setAsideBalanceNote': '{reserved} reserved for later',
+  'transactions.exportCsv': 'Export CSV',
+  'setAsides.formEyebrow': 'Reserve money',
+  'setAsides.addHeading': 'Set money aside',
+  'setAsides.targetDate': 'Future date',
+  'setAsides.saving': 'Saving reserve...',
+  'setAsides.create': 'Set aside money',
+  'setAsides.listEyebrow': 'Reserved money',
+  'setAsides.listHeading': 'Pending set-asides',
+  'setAsides.empty': 'No money is set aside right now.',
+  'setAsides.arrivesOn': 'Planned for',
+  'setAsides.defaultDescription': 'Reserved amount',
+  'setAsides.discard': 'Discard',
+  'setAsides.promptEyebrow': 'Follow up',
+  'setAsides.promptHeading': 'Did this reserved money get spent?',
+  'setAsides.promptDescription':
+    '{title} was set aside for {date} with {amount}. Confirm whether it was spent or discard it.',
+  'setAsides.processing': 'Updating...',
+  'setAsides.markSpent': 'Mark as spent',
+  'setAsides.errorAmount': 'Set-aside amount must be greater than zero.',
+  'setAsides.errorDate': 'A future date is required.',
+  'setAsides.errorFutureDate': 'Choose a date after today.',
+  'setAsides.errorSave': 'Unable to save the reserved money.',
+  'setAsides.promptError': 'Unable to update the reserved money.',
+  'errors.setAsideDateRequired': 'Set-aside date is required.',
+  'errors.deleteSetAsidesBeforeCategory':
+    'Delete related set-asides before removing this category.',
+  'errors.deleteSetAsidesBeforeSubcategory':
+    'Delete related set-asides before removing this subcategory.',
+  'errors.selectedSetAsideMissing': 'The selected set-aside does not exist.',
+});
+
+Object.assign(translations['pt-BR'], {
+  'dashboard.totalNetPosition': 'Disponível no mês',
+  'dashboard.reservedOfBudget': '{reserved} reservados',
+  'dashboard.setAsideBalanceNote': '{reserved} reservados para depois',
+  'settings.previewEyebrow': 'Prévia',
+  'transactions.exportCsv': 'Exportar CSV',
+  'setAsides.formEyebrow': 'Reservar dinheiro',
+  'setAsides.addHeading': 'Separar dinheiro',
+  'setAsides.targetDate': 'Data futura',
+  'setAsides.saving': 'Salvando reserva...',
+  'setAsides.create': 'Separar dinheiro',
+  'setAsides.listEyebrow': 'Dinheiro reservado',
+  'setAsides.listHeading': 'Reservas pendentes',
+  'setAsides.empty': 'Nenhum valor está reservado agora.',
+  'setAsides.arrivesOn': 'Planejado para',
+  'setAsides.defaultDescription': 'Valor reservado',
+  'setAsides.discard': 'Descartar',
+  'setAsides.promptEyebrow': 'Acompanhamento',
+  'setAsides.promptHeading': 'Esse dinheiro reservado foi gasto?',
+  'setAsides.promptDescription':
+    '{title} foi reservado para {date} no valor de {amount}. Confirme se foi gasto ou descarte a reserva.',
+  'setAsides.processing': 'Atualizando...',
+  'setAsides.markSpent': 'Marcar como gasto',
+  'setAsides.errorAmount': 'O valor reservado deve ser maior que zero.',
+  'setAsides.errorDate': 'A data da reserva é obrigatória.',
+  'setAsides.errorFutureDate': 'Escolha uma data depois de hoje.',
+  'setAsides.errorSave': 'Não foi possível salvar a reserva.',
+  'setAsides.promptError': 'Não foi possível atualizar a reserva.',
+  'errors.setAsideDateRequired': 'A data da reserva é obrigatória.',
+  'errors.deleteSetAsidesBeforeCategory':
+    'Exclua as reservas relacionadas antes de remover esta categoria.',
+  'errors.deleteSetAsidesBeforeSubcategory':
+    'Exclua as reservas relacionadas antes de remover esta subcategoria.',
+  'errors.selectedSetAsideMissing': 'A reserva selecionada não existe.',
+});
 
 function getSupportedLocale(locale: string): SupportedLocale {
   if (locale.startsWith('pt')) {

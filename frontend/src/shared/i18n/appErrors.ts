@@ -8,6 +8,7 @@ const errorKeyByMessage: Record<string, string> = {
   'Category name is required.': 'errors.categoryNameRequired',
   'Subcategory name is required.': 'errors.subcategoryNameRequired',
   'Amount must be greater than zero.': 'errors.amountGreaterThanZero',
+  'Set-aside date is required.': 'errors.setAsideDateRequired',
   'Transaction date is required.': 'errors.transactionDateRequired',
   'Installment count must be at least one.': 'transactions.errorInstallmentCount',
   'A category is required.': 'errors.categoryRequired',
@@ -25,15 +26,20 @@ const errorKeyByMessage: Record<string, string> = {
   'Delete related budgets before removing this category.': 'errors.deleteBudgetsBeforeCategory',
   'Delete related budget overrides before removing this category.':
     'errors.deleteBudgetOverridesBeforeCategory',
+  'Delete related set asides before removing this category.':
+    'errors.deleteSetAsidesBeforeCategory',
   'Subcategory names must be unique within the same category.':
     'errors.subcategoryUniqueInCategory',
   'Delete related transactions before removing this subcategory.':
     'errors.deleteTransactionsBeforeSubcategory',
+  'Delete related set asides before removing this subcategory.':
+    'errors.deleteSetAsidesBeforeSubcategory',
   'Delete related budgets before removing this subcategory.':
     'errors.deleteBudgetsBeforeSubcategory',
   'Delete related budget overrides before removing this subcategory.':
     'errors.deleteBudgetOverridesBeforeSubcategory',
   'The selected transaction does not exist.': 'errors.selectedTransactionMissing',
+  'The selected set-aside does not exist.': 'errors.selectedSetAsideMissing',
   'A default budget already exists for this scope.': 'errors.defaultBudgetAlreadyExists',
   'The selected budget does not exist.': 'errors.selectedBudgetMissing',
   'Reset related monthly overrides before changing this budget scope.':

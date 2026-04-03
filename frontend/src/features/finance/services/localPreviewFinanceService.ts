@@ -9,6 +9,8 @@ import type {
   CategoryInput,
   CategoryRecord,
   FinanceWorkspace,
+  SetAsideInput,
+  SetAsideRecord,
   SubcategoryInput,
   SubcategoryRecord,
   TransactionInput,
@@ -60,6 +62,20 @@ function ensureValidTransaction(input: TransactionInput) {
   }
 }
 
+function ensureValidSetAside(input: SetAsideInput) {
+  if (Number.isNaN(input.amount) || input.amount <= 0) {
+    throw new Error('Amount must be greater than zero.');
+  }
+
+  if (!input.date) {
+    throw new Error('Set-aside date is required.');
+  }
+
+  if (!input.categoryId) {
+    throw new Error('A category is required.');
+  }
+}
+
 function ensureValidBudget(input: BudgetInput) {
   if (!input.categoryId) {
     throw new Error('A category is required.');
@@ -105,6 +121,7 @@ function readWorkspace(userId: string): PreviewFinanceStore {
         installmentIndex: transaction.installmentIndex ?? null,
         installmentCount: transaction.installmentCount ?? null,
       })),
+      setAsides: parsedValue.setAsides ?? [],
       budgets: parsedValue.budgets ?? [],
       budgetOverrides: parsedValue.budgetOverrides ?? [],
     };
@@ -247,6 +264,10 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
         throw new Error('Delete related transactions before removing this category.');
       }
 
+      if (workspace.setAsides.some((item) => item.categoryId === categoryId)) {
+        throw new Error('Delete related set asides before removing this category.');
+      }
+
       if (workspace.budgets.some((item) => item.categoryId === categoryId)) {
         throw new Error('Delete related budgets before removing this category.');
       }
@@ -336,6 +357,10 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
 
       if (workspace.transactions.some((item) => item.subcategoryId === subcategoryId)) {
         throw new Error('Delete related transactions before removing this subcategory.');
+      }
+
+      if (workspace.setAsides.some((item) => item.subcategoryId === subcategoryId)) {
+        throw new Error('Delete related set asides before removing this subcategory.');
       }
 
       if (workspace.budgets.some((item) => item.subcategoryId === subcategoryId)) {
@@ -435,6 +460,73 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
         ...workspace,
         transactions: workspace.transactions.filter((item) => item.id !== transactionId),
       });
+    },
+    async createSetAside(input: SetAsideInput): Promise<SetAsideRecord> {
+      ensureValidSetAside(input);
+
+      const workspace = readWorkspace(userId);
+      getCategoryOrThrow(workspace, input.categoryId);
+
+      if (input.subcategoryId) {
+        const subcategory = getSubcategoryOrThrow(workspace, input.subcategoryId);
+
+        if (subcategory.categoryId !== input.categoryId) {
+          throw new Error('The selected subcategory does not belong to the selected category.');
+        }
+      }
+
+      const setAside = {
+        id: createLocalId('set-aside'),
+        amount: input.amount,
+        categoryId: input.categoryId,
+        subcategoryId: input.subcategoryId,
+        date: input.date,
+        description: input.description.trim(),
+      };
+
+      writeWorkspace(userId, {
+        ...workspace,
+        setAsides: [setAside, ...workspace.setAsides],
+      });
+
+      return setAside;
+    },
+    async discardSetAside(setAsideId: string) {
+      const workspace = readWorkspace(userId);
+
+      writeWorkspace(userId, {
+        ...workspace,
+        setAsides: workspace.setAsides.filter((item) => item.id !== setAsideId),
+      });
+    },
+    async convertSetAsideToTransaction(setAsideId: string): Promise<TransactionRecord> {
+      const workspace = readWorkspace(userId);
+      const setAside = workspace.setAsides.find((item) => item.id === setAsideId);
+
+      if (!setAside) {
+        throw new Error('The selected set-aside does not exist.');
+      }
+
+      const transaction = {
+        id: createLocalId('transaction'),
+        amount: setAside.amount,
+        type: 'expense' as const,
+        categoryId: setAside.categoryId,
+        subcategoryId: setAside.subcategoryId,
+        date: setAside.date,
+        description: setAside.description,
+        installmentGroupId: null,
+        installmentIndex: null,
+        installmentCount: null,
+      };
+
+      writeWorkspace(userId, {
+        ...workspace,
+        transactions: [transaction, ...workspace.transactions],
+        setAsides: workspace.setAsides.filter((item) => item.id !== setAsideId),
+      });
+
+      return transaction;
     },
     async createBudget(input: BudgetInput): Promise<BudgetRecord> {
       ensureValidBudget(input);

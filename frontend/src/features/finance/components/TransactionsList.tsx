@@ -8,6 +8,7 @@ type TransactionsListProps = {
   categories: CategoryRecord[];
   onDelete(transactionId: string): Promise<void>;
   onEdit(transaction: TransactionRecord): void;
+  onExportCsv(): void;
   subcategories: SubcategoryRecord[];
   transactions: TransactionRecord[];
 };
@@ -16,6 +17,7 @@ export function TransactionsList({
   categories,
   onDelete,
   onEdit,
+  onExportCsv,
   subcategories,
   transactions,
 }: TransactionsListProps) {
@@ -30,6 +32,9 @@ export function TransactionsList({
           <p className="finance-panel__eyebrow">{translateAppText('transactions.ledgerEyebrow')}</p>
           <h2>{translateAppText('transactions.recentEntries')}</h2>
         </div>
+        <button className="secondary-button" onClick={onExportCsv} type="button">
+          {translateAppText('transactions.exportCsv')}
+        </button>
       </div>
 
       {transactions.length === 0 ? (

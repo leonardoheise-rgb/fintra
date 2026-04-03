@@ -6,6 +6,8 @@ import type {
   CategoryInput,
   CategoryRecord,
   FinanceWorkspace,
+  SetAsideInput,
+  SetAsideRecord,
   SubcategoryInput,
   SubcategoryRecord,
   TransactionInput,
@@ -23,6 +25,9 @@ export interface FinanceService {
   createTransaction(input: TransactionInput): Promise<TransactionRecord[]>;
   updateTransaction(transactionId: string, input: TransactionInput): Promise<TransactionRecord>;
   deleteTransaction(transactionId: string): Promise<void>;
+  createSetAside(input: SetAsideInput): Promise<SetAsideRecord>;
+  discardSetAside(setAsideId: string): Promise<void>;
+  convertSetAsideToTransaction(setAsideId: string): Promise<TransactionRecord>;
   createBudget(input: BudgetInput): Promise<BudgetRecord>;
   updateBudget(budgetId: string, input: BudgetInput): Promise<BudgetRecord>;
   deleteBudget(budgetId: string): Promise<void>;

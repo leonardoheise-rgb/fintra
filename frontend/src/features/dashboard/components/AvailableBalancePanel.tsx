@@ -25,16 +25,27 @@ export function AvailableBalancePanel({ snapshot }: AvailableBalancePanelProps) 
           <div className="available-balance-list">
             {snapshot.categoryAvailability.map((category) => (
               <div className="available-balance-list__item" key={category.id}>
-                <span>{category.name}</span>
-                <strong
-                  className={
-                    category.available < 0
-                      ? 'available-balance-list__amount available-balance-list__amount--negative'
-                      : 'available-balance-list__amount'
-                  }
-                >
-                  {formatCurrency(category.available)}
-                </strong>
+                <div>
+                  <span>{category.name}</span>
+                  {category.reserved > 0 ? (
+                    <p className="available-balance-list__note">
+                      {translateAppText('dashboard.setAsideBalanceNote', {
+                        reserved: formatCurrency(category.reserved),
+                      })}
+                    </p>
+                  ) : null}
+                </div>
+                <div>
+                  <strong
+                    className={
+                      category.available < 0
+                        ? 'available-balance-list__amount available-balance-list__amount--negative'
+                        : 'available-balance-list__amount'
+                    }
+                  >
+                    {formatCurrency(category.available)}
+                  </strong>
+                </div>
               </div>
             ))}
           </div>

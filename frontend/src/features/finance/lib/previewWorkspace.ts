@@ -196,6 +196,7 @@ export function createPreviewWorkspace(): FinanceWorkspace {
         installmentCount: null,
       },
     ],
+    setAsides: [],
     budgets: [
       {
         id: 'budget-housing',

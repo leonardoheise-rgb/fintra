@@ -5,6 +5,7 @@ export type BudgetCard = {
   defaultBudget: number;
   effectiveBudget: number;
   spent: number;
+  reserved: number;
   overrideAmount: number | null;
   isOverridden: boolean;
 };
@@ -15,6 +16,7 @@ export type CategoryAvailability = {
   available: number;
   budget: number;
   spent: number;
+  reserved: number;
 };
 
 export type DashboardSnapshot = {
@@ -22,6 +24,7 @@ export type DashboardSnapshot = {
   totalBudget: number;
   totalIncome: number;
   totalExpenses: number;
+  totalReserved: number;
   remainingBudget: number;
   remainingBalance: number;
   totalAvailable: number;

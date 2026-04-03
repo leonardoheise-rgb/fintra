@@ -453,6 +453,12 @@ p {
   font-weight: 700;
 }
 
+.available-balance-list__note {
+  margin-top: 0.25rem;
+  color: var(--color-on-surface-variant);
+  font-size: 0.78rem;
+}
+
 .available-balance-list__amount {
   font-family: var(--font-headline);
   color: var(--color-primary);

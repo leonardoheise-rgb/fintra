@@ -37,7 +37,7 @@ export function BudgetHighlights({ cards, month }: BudgetHighlightsProps) {
           {cards.map((card) => {
             const summary = calculateBudgetSummary({
               budget: card.effectiveBudget,
-              spent: card.spent,
+              spent: card.spent + card.reserved,
             });
             const pacing = resolveBudgetPacing(summary.rawPercentage, month, monthStartDay);
             const paceLabel =
@@ -70,6 +70,13 @@ export function BudgetHighlights({ cards, month }: BudgetHighlightsProps) {
                     budget: formatCurrency(card.effectiveBudget),
                   })}
                 </p>
+                {card.reserved > 0 ? (
+                  <p className="budget-card__caption">
+                    {translateAppText('dashboard.reservedOfBudget', {
+                      reserved: formatCurrency(card.reserved),
+                    })}
+                  </p>
+                ) : null}
 
                 <div
                   aria-label={`${card.name} budget usage`}
