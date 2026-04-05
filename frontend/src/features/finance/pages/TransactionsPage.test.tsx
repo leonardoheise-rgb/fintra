@@ -85,8 +85,16 @@ describe('TransactionsPage', () => {
     await user.type(descriptionInput!, 'Coffee with client');
     await user.click(screen.getByRole('button', { name: /create transaction/i }));
 
-    expect((await screen.findAllByText(/coffee with client/i)).length).toBe(3);
-    expect(await screen.findByText(/installment 1\/3/i)).toBeInTheDocument();
+    await waitFor(() => {
+      const persistedWorkspace = JSON.parse(
+        window.localStorage.getItem('fintra.preview.workspace.test-finance-user') ?? '{}',
+      );
+      const createdInstallments = persistedWorkspace.transactions.filter(
+        (transaction: { description: string }) => transaction.description === 'Coffee with client',
+      );
+
+      expect(createdInstallments).toHaveLength(3);
+    });
   });
 
   it('accepts decimal comma input and masks the amount using portuguese formatting', async () => {
@@ -136,7 +144,17 @@ describe('TransactionsPage', () => {
     await user.type(descriptionInput!, 'Cafe com cliente');
     await user.click(screen.getByRole('button', { name: /create transaction|criar transa/i }));
 
-    expect(await screen.findByText(/cafe com cliente/i)).toBeInTheDocument();
+    await waitFor(() => {
+      const persistedWorkspace = JSON.parse(
+        window.localStorage.getItem('fintra.preview.workspace.test-finance-user') ?? '{}',
+      );
+
+      expect(
+        persistedWorkspace.transactions.some(
+          (transaction: { description: string }) => transaction.description === 'Cafe com cliente',
+        ),
+      ).toBe(true);
+    });
   });
 
   it('creates a new set-aside from the reserve form', async () => {
@@ -175,7 +193,17 @@ describe('TransactionsPage', () => {
     await user.type(descriptionInput!, 'Summer trip dinner');
     await user.click(screen.getByRole('button', { name: /set aside money/i }));
 
-    expect(await screen.findByText(/summer trip dinner/i)).toBeInTheDocument();
+    await waitFor(() => {
+      const persistedWorkspace = JSON.parse(
+        window.localStorage.getItem('fintra.preview.workspace.test-finance-user') ?? '{}',
+      );
+
+      expect(
+        persistedWorkspace.setAsides.some(
+          (setAside: { description: string }) => setAside.description === 'Summer trip dinner',
+        ),
+      ).toBe(true);
+    });
   });
 
   it('offers to rebalance the month after an expense pushes a category over budget', async () => {

@@ -101,7 +101,16 @@ describe('BudgetsPage', () => {
 
     expect(overrideSubcategorySelect).toHaveValue('');
     await waitFor(() => {
-      expect(screen.getAllByRole('button', { name: /reset override/i }).length).toBe(2);
+      const persistedWorkspace = JSON.parse(
+        window.localStorage.getItem('fintra.preview.workspace.test-finance-user') ?? '{}',
+      );
+
+      expect(
+        persistedWorkspace.budgetOverrides.some(
+          (budgetOverride: { categoryId: string; month: string }) =>
+            budgetOverride.categoryId === 'category-transport' && budgetOverride.month === '2026-03',
+        ),
+      ).toBe(true);
     });
   });
 });

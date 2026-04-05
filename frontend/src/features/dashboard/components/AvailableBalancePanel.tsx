@@ -11,8 +11,7 @@ export function AvailableBalancePanel({ snapshot }: AvailableBalancePanelProps) 
     <section className="hero-panel available-balance-panel" aria-labelledby="available-balance-title">
       <div className="available-balance-panel__header">
         <div>
-          <p className="hero-panel__eyebrow">{translateAppText('dashboard.totalNetPosition')}</p>
-          <h2 id="available-balance-title">{translateAppText('dashboard.financialOverview')}</h2>
+          <h2 id="available-balance-title">{translateAppText('dashboard.totalNetPosition')}</h2>
           <p className="metric-value">{formatCurrency(snapshot.totalAvailable)}</p>
         </div>
       </div>
@@ -32,7 +31,7 @@ export function AvailableBalancePanel({ snapshot }: AvailableBalancePanelProps) 
             </strong>
           </div>
           <div className="available-balance-list__item">
-            <span>{translateAppText('setAsides.listEyebrow')}</span>
+            <span>{translateAppText('setAsides.listHeading')}</span>
             <strong className="available-balance-list__amount">
               {formatCurrency(snapshot.totalReserved)}
             </strong>

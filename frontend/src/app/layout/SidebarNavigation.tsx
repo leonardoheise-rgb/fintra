@@ -76,10 +76,18 @@ export function SidebarNavigation({
   variant = 'drawer',
 }: SidebarNavigationProps) {
   const { unreadCount } = useNotifications();
+  const visibleItems = navigationItems.filter((item) =>
+    variant === 'bottom' ? item.showInBottomNav : true,
+  );
 
   return (
-    <nav className={`sidebar__nav sidebar__nav--${variant}`}>
-      {navigationItems.map((item) =>
+    <nav
+      aria-label={translateAppText(
+        variant === 'bottom' ? 'shell.bottomNavigation' : 'shell.primaryNavigation',
+      )}
+      className={`sidebar__nav sidebar__nav--${variant}`}
+    >
+      {visibleItems.map((item) =>
         item.isEnabled ? (
           <NavLink
             className={({ isActive }) =>

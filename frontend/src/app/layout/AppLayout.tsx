@@ -26,6 +26,16 @@ function getUserInitials(email: string | undefined) {
     .join('');
 }
 
+const pageTitleByPath: Record<string, string> = {
+  '/': 'page.title.dashboard',
+  '/transactions': 'page.title.transactions',
+  '/categories': 'page.title.categories',
+  '/budgets': 'page.title.budgets',
+  '/analytics': 'page.title.analytics',
+  '/notifications': 'page.title.notifications',
+  '/settings': 'page.title.settings',
+};
+
 export function AppLayout({ children }: PropsWithChildren) {
   const auth = useAuth();
   const financeData = useFinanceData();
@@ -36,22 +46,9 @@ export function AppLayout({ children }: PropsWithChildren) {
   const [isResolvingSetAside, setIsResolvingSetAside] = useState(false);
   const [setAsidePromptError, setSetAsidePromptError] = useState<string | null>(null);
   const [dismissedSetAsideId, setDismissedSetAsideId] = useState<string | null>(null);
-  const pageTitle =
-    location.pathname === '/'
-      ? translateAppText('page.title.dashboard')
-      : location.pathname === '/transactions'
-        ? translateAppText('page.title.transactions')
-        : location.pathname === '/categories'
-          ? translateAppText('page.title.categories')
-          : location.pathname === '/budgets'
-            ? translateAppText('page.title.budgets')
-            : location.pathname === '/analytics'
-              ? translateAppText('page.title.analytics')
-              : location.pathname === '/notifications'
-                ? translateAppText('page.title.notifications')
-              : location.pathname === '/settings'
-                ? translateAppText('page.title.settings')
-                : translateAppText('shell.defaultTitle');
+  const pageTitle = translateAppText(
+    pageTitleByPath[location.pathname] ?? 'shell.defaultTitle',
+  );
 
   void preferences;
   useEffect(() => {
@@ -132,25 +129,42 @@ export function AppLayout({ children }: PropsWithChildren) {
       ) : null}
 
       <aside
-        aria-label="Primary"
+        aria-label={translateAppText('shell.primaryNavigation')}
         className={`sidebar${isMobileNavigationOpen ? ' sidebar--open' : ''}`}
         id="mobile-navigation-panel"
       >
         <div className="sidebar__section">
-          <div className="sidebar__brand-row">
-            <div className="sidebar__brand-mark" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path d="M4 9.5L12 5l8 4.5" />
-                <path d="M6.5 9.5V18M11 9.5V18M15.5 9.5V18M4 18h16" />
-              </svg>
+          <div className="sidebar__header">
+            <div className="sidebar__brand-row">
+              <div className="sidebar__brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M4 9.5L12 5l8 4.5" />
+                  <path d="M6.5 9.5V18M11 9.5V18M15.5 9.5V18M4 18h16" />
+                </svg>
+              </div>
+
+              <div>
+                <h2 className="sidebar__brand">{translateAppText('shell.brand')}</h2>
+                <p className="sidebar__copy">{auth.user?.email}</p>
+              </div>
             </div>
 
-            <div>
-              <h2 className="sidebar__brand">{translateAppText('shell.brand')}</h2>
-              <p className="sidebar__copy">{translateAppText('page.desc.dashboard')}</p>
-            </div>
+            <button
+              aria-label={translateAppText('shell.closeNavigation')}
+              className="sidebar__close-button"
+              onClick={() => setIsMobileNavigationOpen(false)}
+              type="button"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            </button>
           </div>
 
+          <SidebarNavigation onNavigate={() => setIsMobileNavigationOpen(false)} variant="drawer" />
+        </div>
+
+        <div className="sidebar__actions">
           <NavLink
             className="primary-button sidebar__cta"
             onClick={() => setIsMobileNavigationOpen(false)}
@@ -159,16 +173,14 @@ export function AppLayout({ children }: PropsWithChildren) {
             {translateAppText('shell.addTransaction')}
           </NavLink>
 
-          <SidebarNavigation onNavigate={() => setIsMobileNavigationOpen(false)} variant="drawer" />
+          <button
+            className="secondary-button sidebar__signout"
+            onClick={() => void auth.signOut()}
+            type="button"
+          >
+            {translateAppText('shell.signOut')}
+          </button>
         </div>
-
-        <button
-          className="secondary-button sidebar__signout"
-          onClick={() => void auth.signOut()}
-          type="button"
-        >
-          {translateAppText('shell.signOut')}
-        </button>
       </aside>
 
       <div className="main-panel">

@@ -50,7 +50,6 @@ export function NotificationsPage() {
       <section className="finance-panel notifications-toolbar">
         <div className="finance-panel__heading">
           <div>
-            <p className="finance-panel__eyebrow">{translateAppText('notifications.inboxEyebrow')}</p>
             <h2>{translateAppText('notifications.inboxHeading')}</h2>
           </div>
 
@@ -77,10 +76,10 @@ export function NotificationsPage() {
               >
                 <div className="notification-card__header">
                   <div>
-                    <p className="notification-card__eyebrow">
+                    <h3>{notification.title}</h3>
+                    <p className="notification-card__date">
                       {getSeverityLabel(notification.severity)}
                     </p>
-                    <h3>{notification.title}</h3>
                   </div>
                   <span className="notification-card__date">{notification.occurredLabel}</span>
                 </div>

@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { createPreviewWorkspace } from '../features/finance/lib/previewWorkspace';
@@ -35,7 +35,7 @@ describe('App authentication routing', () => {
     expect(
       await screen.findByRole('heading', { name: /^dashboard$/i, level: 1 }, { timeout: 3000 }),
     ).toBeInTheDocument();
-    expect(screen.getByText('owner@fintra.dev')).toBeInTheDocument();
+    expect(screen.getAllByText('owner@fintra.dev').length).toBeGreaterThan(0);
   });
 
   it('redirects authenticated users away from the sign-in page', async () => {
@@ -53,6 +53,43 @@ describe('App authentication routing', () => {
     expect(
       await screen.findByRole('heading', { name: /^dashboard$/i, level: 1 }, { timeout: 3000 }),
     ).toBeInTheDocument();
+  });
+
+  it('keeps the bottom navigation focused on the three main routes', async () => {
+    const authService = createAuthServiceStub({
+      initialSession: {
+        user: {
+          id: 'user-1',
+          email: 'owner@fintra.dev',
+        },
+      },
+    });
+
+    await renderAppAtPath('/', authService.service);
+
+    const bottomNavigation = screen.getByRole('navigation', { name: /bottom navigation/i });
+    const primaryNavigation = screen.getByRole('navigation', { name: /primary navigation/i });
+
+    expect(within(bottomNavigation).getByRole('link', { name: /^dashboard$/i })).toBeInTheDocument();
+    expect(
+      within(bottomNavigation).getByRole('link', { name: /^transactions$/i }),
+    ).toBeInTheDocument();
+    expect(
+      within(bottomNavigation).getByRole('link', { name: /^notifications$/i }),
+    ).toBeInTheDocument();
+    expect(
+      within(bottomNavigation).queryByRole('link', { name: /^categories$/i }),
+    ).not.toBeInTheDocument();
+    expect(within(bottomNavigation).queryByRole('link', { name: /^budgets$/i })).not.toBeInTheDocument();
+    expect(
+      within(bottomNavigation).queryByRole('link', { name: /^analytics$/i }),
+    ).not.toBeInTheDocument();
+    expect(within(bottomNavigation).queryByRole('link', { name: /^settings$/i })).not.toBeInTheDocument();
+
+    expect(within(primaryNavigation).getByRole('link', { name: /^categories$/i })).toBeInTheDocument();
+    expect(within(primaryNavigation).getByRole('link', { name: /^budgets$/i })).toBeInTheDocument();
+    expect(within(primaryNavigation).getByRole('link', { name: /^analytics$/i })).toBeInTheDocument();
+    expect(within(primaryNavigation).getByRole('link', { name: /^settings$/i })).toBeInTheDocument();
   });
 
   it('signs the user out from the protected shell', async () => {

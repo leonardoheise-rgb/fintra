@@ -37,6 +37,8 @@ const translations: Record<SupportedLocale, Record<string, string>> = {
     'shell.menu': 'Menu',
     'shell.openNavigation': 'Open navigation menu',
     'shell.closeNavigation': 'Close navigation menu',
+    'shell.primaryNavigation': 'Primary navigation',
+    'shell.bottomNavigation': 'Bottom navigation',
     'shell.signOut': 'Sign out',
     'shell.defaultTitle': 'Finance Tracker',
     'shell.defaultDescription':
@@ -436,6 +438,8 @@ const translations: Record<SupportedLocale, Record<string, string>> = {
     'shell.menu': 'Menu',
     'shell.openNavigation': 'Abrir menu de navegação',
     'shell.closeNavigation': 'Fechar menu de navegação',
+    'shell.primaryNavigation': 'Navegação principal',
+    'shell.bottomNavigation': 'Navegação inferior',
     'shell.signOut': 'Sair',
     'shell.defaultTitle': 'Finance Tracker',
     'shell.defaultDescription':

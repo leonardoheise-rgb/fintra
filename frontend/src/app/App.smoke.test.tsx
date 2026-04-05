@@ -42,7 +42,7 @@ describe('Fintra smoke flows', () => {
     expect(
       await screen.findByRole('heading', { name: /^dashboard$/i, level: 1 }, { timeout: 8000 }),
     ).toBeInTheDocument();
-    expect(screen.getByText('user@fintra.dev')).toBeInTheDocument();
+    expect(screen.getAllByText('user@fintra.dev').length).toBeGreaterThan(0);
 
     await user.click(screen.getByRole('button', { name: /sign out/i }));
 

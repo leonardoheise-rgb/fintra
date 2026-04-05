@@ -72,7 +72,6 @@ export function DashboardPage() {
         <section className="finance-panel finance-panel--alert">
           <div className="finance-panel__heading">
             <div>
-              <p className="finance-panel__eyebrow">{translateAppText('notifications.attentionEyebrow')}</p>
               <h2>{translateAppText('notifications.attentionHeading')}</h2>
             </div>
             <Link className="secondary-button" to="/notifications">

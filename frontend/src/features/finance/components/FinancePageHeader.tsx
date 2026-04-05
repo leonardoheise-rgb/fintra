@@ -9,9 +9,10 @@ export function FinancePageHeader({
   eyebrow,
   title,
 }: FinancePageHeaderProps) {
+  void eyebrow;
+
   return (
     <section className="finance-header">
-      <p className="finance-header__eyebrow">{eyebrow}</p>
       <h2>{title}</h2>
       <p className="finance-header__copy">{description}</p>
     </section>
