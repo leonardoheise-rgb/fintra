@@ -6,6 +6,7 @@ import { SetAsideDecisionPrompt } from '../../features/finance/components/SetAsi
 import { getCategoryName, getSubcategoryName } from '../../features/finance/lib/financeSelectors';
 import { getDueSetAsides } from '../../features/finance/lib/setAsides';
 import { useFinanceData } from '../../features/finance/useFinanceData';
+import { useDisplayPreferences } from '../../features/settings/useDisplayPreferences';
 import { translateAppText } from '../../shared/i18n/appText';
 import { formatLocalIsoDate } from '../../shared/lib/date/isoDates';
 import { SidebarNavigation } from './SidebarNavigation';
@@ -27,6 +28,7 @@ function getUserInitials(email: string | undefined) {
 export function AppLayout({ children }: PropsWithChildren) {
   const auth = useAuth();
   const financeData = useFinanceData();
+  const { preferences } = useDisplayPreferences();
   const location = useLocation();
   const [isMobileNavigationOpen, setIsMobileNavigationOpen] = useState(false);
   const [isResolvingSetAside, setIsResolvingSetAside] = useState(false);
@@ -45,21 +47,8 @@ export function AppLayout({ children }: PropsWithChildren) {
               : location.pathname === '/settings'
                 ? translateAppText('page.title.settings')
                 : translateAppText('shell.defaultTitle');
-  const pageDescription =
-    location.pathname === '/'
-      ? translateAppText('page.desc.dashboard')
-      : location.pathname === '/transactions'
-        ? translateAppText('page.desc.transactions')
-        : location.pathname === '/categories'
-          ? translateAppText('page.desc.categories')
-          : location.pathname === '/budgets'
-            ? translateAppText('page.desc.budgets')
-            : location.pathname === '/analytics'
-              ? translateAppText('page.desc.analytics')
-              : location.pathname === '/settings'
-                ? translateAppText('page.desc.settings')
-                : translateAppText('shell.defaultDescription');
 
+  void preferences;
   useEffect(() => {
     setIsMobileNavigationOpen(false);
   }, [location.pathname]);
@@ -115,55 +104,53 @@ export function AppLayout({ children }: PropsWithChildren) {
 
   return (
     <div className="app-shell">
-      <aside className="sidebar" aria-label="Primary">
-        <div className="sidebar__mobile-bar">
-          <span className="sidebar__brand">{translateAppText('shell.brand')}</span>
-          <button
-            aria-controls="mobile-navigation-panel"
-            aria-expanded={isMobileNavigationOpen}
-            aria-label={
-              isMobileNavigationOpen
-                ? translateAppText('shell.closeNavigation')
-                : translateAppText('shell.openNavigation')
-            }
-            className="sidebar__menu-button"
-            onClick={() => setIsMobileNavigationOpen((currentValue) => !currentValue)}
-            type="button"
+      {isMobileNavigationOpen ? (
+        <button
+          aria-label={translateAppText('shell.closeNavigation')}
+          className="sidebar__scrim"
+          onClick={() => setIsMobileNavigationOpen(false)}
+          type="button"
+        />
+      ) : null}
+
+      <aside
+        aria-label="Primary"
+        className={`sidebar${isMobileNavigationOpen ? ' sidebar--open' : ''}`}
+        id="mobile-navigation-panel"
+      >
+        <div className="sidebar__section">
+          <div className="sidebar__brand-row">
+            <div className="sidebar__brand-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M4 9.5L12 5l8 4.5" />
+                <path d="M6.5 9.5V18M11 9.5V18M15.5 9.5V18M4 18h16" />
+              </svg>
+            </div>
+
+            <div>
+              <h2 className="sidebar__brand">{translateAppText('shell.brand')}</h2>
+              <p className="sidebar__copy">{translateAppText('page.desc.dashboard')}</p>
+            </div>
+          </div>
+
+          <NavLink
+            className="primary-button sidebar__cta"
+            onClick={() => setIsMobileNavigationOpen(false)}
+            to="/transactions"
           >
-            <span className="sidebar__menu-icon" aria-hidden="true">
-              <span />
-              <span />
-              <span />
-            </span>
-            <span className="sidebar__menu-label">{translateAppText('shell.menu')}</span>
-          </button>
-        </div>
-
-        {isMobileNavigationOpen ? (
-          <div className="sidebar__mobile-panel" id="mobile-navigation-panel">
-            <NavLink
-              className="primary-button sidebar__cta"
-              onClick={() => setIsMobileNavigationOpen(false)}
-              to="/transactions"
-            >
-              {translateAppText('shell.addTransaction')}
-            </NavLink>
-            <SidebarNavigation onNavigate={() => setIsMobileNavigationOpen(false)} />
-          </div>
-        ) : null}
-
-        <div className="sidebar__section sidebar__section--desktop">
-          <div>
-            <h1 className="sidebar__brand">{translateAppText('shell.brand')}</h1>
-            <p className="sidebar__copy">{translateAppText('shell.copy')}</p>
-          </div>
-
-          <NavLink className="primary-button sidebar__cta" to="/transactions">
             {translateAppText('shell.addTransaction')}
           </NavLink>
 
-          <SidebarNavigation />
+          <SidebarNavigation onNavigate={() => setIsMobileNavigationOpen(false)} variant="drawer" />
         </div>
+
+        <button
+          className="secondary-button sidebar__signout"
+          onClick={() => void auth.signOut()}
+          type="button"
+        >
+          {translateAppText('shell.signOut')}
+        </button>
       </aside>
 
       <div className="main-panel">
@@ -179,31 +166,40 @@ export function AppLayout({ children }: PropsWithChildren) {
         ) : null}
 
         <header className="topbar">
+          <button
+            aria-controls="mobile-navigation-panel"
+            aria-expanded={isMobileNavigationOpen}
+            aria-label={
+              isMobileNavigationOpen
+                ? translateAppText('shell.closeNavigation')
+                : translateAppText('shell.openNavigation')
+            }
+            className="topbar__menu-button"
+            onClick={() => setIsMobileNavigationOpen((currentValue) => !currentValue)}
+            type="button"
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+          </button>
+
           <div className="topbar__intro">
-            <h2 className="topbar__title">{pageTitle}</h2>
-            <p className="topbar__copy">{pageDescription}</p>
+            <h1 className="topbar__title">{pageTitle}</h1>
+            <p className="topbar__email">{auth.user?.email}</p>
           </div>
 
           <div className="topbar__meta">
-            <div className="topbar__controls">
-              <div className="topbar__account">
-                <p className="topbar__email">{auth.user?.email}</p>
-              </div>
-              <div aria-hidden="true" className="avatar-chip">
-                {getUserInitials(auth.user?.email)}
-              </div>
-              <button
-                className="secondary-button topbar__signout"
-                onClick={() => void auth.signOut()}
-                type="button"
-              >
-                {translateAppText('shell.signOut')}
-              </button>
+            <div aria-hidden="true" className="avatar-chip">
+              {getUserInitials(auth.user?.email)}
             </div>
           </div>
         </header>
 
         <main className="content">{children}</main>
+
+        <div className="bottom-nav-shell">
+          <SidebarNavigation onNavigate={() => setIsMobileNavigationOpen(false)} variant="bottom" />
+        </div>
       </div>
     </div>
   );

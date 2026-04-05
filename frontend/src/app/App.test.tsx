@@ -33,7 +33,7 @@ describe('App authentication routing', () => {
     await renderAppAtPath('/', authService.service);
 
     expect(
-      await screen.findByRole('heading', { name: /available by category/i }, { timeout: 3000 }),
+      await screen.findByRole('heading', { name: /^dashboard$/i, level: 1 }, { timeout: 3000 }),
     ).toBeInTheDocument();
     expect(screen.getByText('owner@fintra.dev')).toBeInTheDocument();
   });
@@ -51,7 +51,7 @@ describe('App authentication routing', () => {
     await renderAppAtPath('/sign-in', authService.service);
 
     expect(
-      await screen.findByRole('heading', { name: /available by category/i }, { timeout: 3000 }),
+      await screen.findByRole('heading', { name: /^dashboard$/i, level: 1 }, { timeout: 3000 }),
     ).toBeInTheDocument();
   });
 

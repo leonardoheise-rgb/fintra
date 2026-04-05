@@ -12,44 +12,32 @@ export function AvailableBalancePanel({ snapshot }: AvailableBalancePanelProps) 
       <div className="available-balance-panel__header">
         <div>
           <p className="hero-panel__eyebrow">{translateAppText('dashboard.totalNetPosition')}</p>
+          <h2 id="available-balance-title">{translateAppText('dashboard.financialOverview')}</h2>
           <p className="metric-value">{formatCurrency(snapshot.totalAvailable)}</p>
         </div>
       </div>
 
       <div className="available-balance-panel__section">
-        <h3 id="available-balance-title">{translateAppText('dashboard.availableByCategory')}</h3>
-
-        {snapshot.categoryAvailability.length === 0 ? (
-          <p className="insight-panel__copy">{translateAppText('dashboard.noBudgets')}</p>
-        ) : (
-          <div className="available-balance-list">
-            {snapshot.categoryAvailability.map((category) => (
-              <div className="available-balance-list__item" key={category.id}>
-                <div>
-                  <span>{category.name}</span>
-                  {category.reserved > 0 ? (
-                    <p className="available-balance-list__note">
-                      {translateAppText('dashboard.setAsideBalanceNote', {
-                        reserved: formatCurrency(category.reserved),
-                      })}
-                    </p>
-                  ) : null}
-                </div>
-                <div>
-                  <strong
-                    className={
-                      category.available < 0
-                        ? 'available-balance-list__amount available-balance-list__amount--negative'
-                        : 'available-balance-list__amount'
-                    }
-                  >
-                    {formatCurrency(category.available)}
-                  </strong>
-                </div>
-              </div>
-            ))}
+        <div className="available-balance-list">
+          <div className="available-balance-list__item">
+            <span>{translateAppText('dashboard.defaultBudget')}</span>
+            <strong className="available-balance-list__amount">
+              {formatCurrency(snapshot.totalBudget)}
+            </strong>
           </div>
-        )}
+          <div className="available-balance-list__item">
+            <span>{translateAppText('dashboard.expenses')}</span>
+            <strong className="available-balance-list__amount">
+              {formatCurrency(snapshot.totalExpenses)}
+            </strong>
+          </div>
+          <div className="available-balance-list__item">
+            <span>{translateAppText('setAsides.listEyebrow')}</span>
+            <strong className="available-balance-list__amount">
+              {formatCurrency(snapshot.totalReserved)}
+            </strong>
+          </div>
+        </div>
       </div>
     </section>
   );

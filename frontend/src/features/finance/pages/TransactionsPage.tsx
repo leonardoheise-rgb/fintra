@@ -39,6 +39,7 @@ export function TransactionsPage() {
   const [selectedDonorCategoryId, setSelectedDonorCategoryId] = useState('');
   const [isReallocatingBudget, setIsReallocatingBudget] = useState(false);
   const [reallocationErrorMessage, setReallocationErrorMessage] = useState<string | null>(null);
+  const [activeOperation, setActiveOperation] = useState<'log' | 'reserve'>('log');
   const sortedTransactions = sortTransactionsByDateDesc(financeData.transactions);
 
   const donorCategoryOptions = useMemo(() => {
@@ -283,24 +284,42 @@ export function TransactionsPage() {
           <p className="finance-empty-state">{translateAppText('transactions.loading')}</p>
         </section>
       ) : (
-        <div className="finance-grid finance-grid--ledger">
-          <div className="finance-grid--stacked">
-            <TransactionsList
-              categories={financeData.categories}
-              onDelete={financeData.deleteTransaction}
-              onEdit={setTransactionToEdit}
-              onExportCsv={handleExportCsv}
-              subcategories={financeData.subcategories}
-              transactions={sortedTransactions}
-            />
-            <SetAsidesList
-              categories={financeData.categories}
-              onDiscard={financeData.discardSetAside}
-              setAsides={financeData.setAsides}
-              subcategories={financeData.subcategories}
-            />
-          </div>
-          <div className="finance-grid--stacked">
+        <div className="finance-grid finance-grid--stacked">
+          <section className="finance-panel finance-panel--segment">
+            <div className="finance-panel__heading">
+              <div>
+                <p className="finance-panel__eyebrow">Operation center</p>
+                <h2>{translateAppText('transactions.title')}</h2>
+              </div>
+            </div>
+
+            <div className="analytics-tabbar" role="tablist" aria-label="Transaction operation modes">
+              <button
+                aria-selected={activeOperation === 'log'}
+                className={`analytics-tabbar__button${
+                  activeOperation === 'log' ? ' analytics-tabbar__button--active' : ''
+                }`}
+                onClick={() => setActiveOperation('log')}
+                role="tab"
+                type="button"
+              >
+                Log
+              </button>
+              <button
+                aria-selected={activeOperation === 'reserve'}
+                className={`analytics-tabbar__button${
+                  activeOperation === 'reserve' ? ' analytics-tabbar__button--active' : ''
+                }`}
+                onClick={() => setActiveOperation('reserve')}
+                role="tab"
+                type="button"
+              >
+                Reserve
+              </button>
+            </div>
+          </section>
+
+          {activeOperation === 'log' ? (
             <TransactionForm
               categories={financeData.categories}
               onCancelEdit={() => setTransactionToEdit(null)}
@@ -308,12 +327,29 @@ export function TransactionsPage() {
               subcategories={financeData.subcategories}
               transactionToEdit={transactionToEdit}
             />
+          ) : (
             <SetAsideForm
               categories={financeData.categories}
               onSubmit={financeData.createSetAside}
               subcategories={financeData.subcategories}
             />
-          </div>
+          )}
+
+          <SetAsidesList
+            categories={financeData.categories}
+            onDiscard={financeData.discardSetAside}
+            setAsides={financeData.setAsides}
+            subcategories={financeData.subcategories}
+          />
+
+          <TransactionsList
+            categories={financeData.categories}
+            onDelete={financeData.deleteTransaction}
+            onEdit={setTransactionToEdit}
+            onExportCsv={handleExportCsv}
+            subcategories={financeData.subcategories}
+            transactions={sortedTransactions}
+          />
         </div>
       )}
     </div>

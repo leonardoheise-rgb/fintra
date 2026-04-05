@@ -27,7 +27,7 @@ describe('SignInPage', () => {
     await user.click(screen.getByRole('button', { name: /^sign in$/i }));
 
     expect(
-      await screen.findByRole('heading', { name: /available by category/i }, { timeout: 5000 }),
+      await screen.findByRole('heading', { name: /^dashboard$/i, level: 1 }, { timeout: 5000 }),
     ).toBeInTheDocument();
   });
 

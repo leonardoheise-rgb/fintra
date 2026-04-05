@@ -40,7 +40,9 @@ describe('SettingsPage', () => {
 
     expect(await screen.findByText(/preferências salvas/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /salvar preferências/i })).toBeDisabled();
-    expect(screen.getByRole('heading', { name: /configurações/i, level: 1 })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: /configurações/i, level: 1 }),
+    ).toBeInTheDocument();
     expect(screen.getByText(/detalhes de suporte/i)).toBeInTheDocument();
     expect(screen.getAllByText(/^15$/i).length).toBeGreaterThan(0);
 

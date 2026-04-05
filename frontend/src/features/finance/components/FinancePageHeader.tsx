@@ -12,7 +12,7 @@ export function FinancePageHeader({
   return (
     <section className="finance-header">
       <p className="finance-header__eyebrow">{eyebrow}</p>
-      <h1>{title}</h1>
+      <h2>{title}</h2>
       <p className="finance-header__copy">{description}</p>
     </section>
   );

@@ -1,36 +1,37 @@
 :root {
-  --color-primary: #00193c;
-  --color-primary-container: #002d62;
-  --color-primary-fixed: #d7e2ff;
-  --color-primary-fixed-dim: #abc7ff;
-  --color-secondary: #006c48;
-  --color-secondary-container: #8bf8c2;
-  --color-secondary-fixed: #8bf8c2;
-  --color-surface: #f8f9fa;
-  --color-surface-container: #edeeef;
-  --color-surface-container-low: #f3f4f5;
+  --color-primary: #3f51c9;
+  --color-primary-container: #3146ba;
+  --color-primary-fixed: #e4e7ff;
+  --color-primary-fixed-dim: #c9d0ff;
+  --color-secondary: #0d8a53;
+  --color-secondary-container: #dff8e9;
+  --color-secondary-fixed: #82f0ae;
+  --color-surface: #f7f3ef;
+  --color-surface-container: #f1ece8;
+  --color-surface-container-low: #f7f4f1;
   --color-surface-container-lowest: #ffffff;
-  --color-surface-container-highest: #e1e3e4;
+  --color-surface-container-highest: #e3ddd8;
   --color-on-primary: #ffffff;
-  --color-on-surface: #191c1d;
-  --color-on-surface-variant: #43474f;
-  --color-error: #ba1a1a;
-  --color-tertiary-fixed: #ffdad7;
-  --color-outline-soft: rgba(196, 198, 209, 0.44);
-  --color-primary-wash: rgba(215, 226, 255, 0.72);
-  --color-secondary-wash: rgba(139, 248, 194, 0.26);
-  --color-shadow: rgba(0, 25, 60, 0.08);
-  --gradient-primary: linear-gradient(135deg, var(--color-primary), var(--color-primary-container));
-  --gradient-surface:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(243, 244, 245, 0.88));
+  --color-on-surface: #1f2230;
+  --color-on-surface-variant: #6d7183;
+  --color-error: #d72d34;
+  --color-tertiary-fixed: #ffe0df;
+  --color-warning: #c78a00;
+  --color-warning-soft: #fff1cc;
+  --color-outline-soft: rgba(78, 88, 126, 0.12);
+  --color-primary-wash: rgba(63, 81, 201, 0.14);
+  --color-secondary-wash: rgba(13, 138, 83, 0.12);
+  --color-shadow: rgba(31, 34, 48, 0.12);
+  --gradient-primary: linear-gradient(135deg, #3245bd 0%, #5568d7 100%);
+  --gradient-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 245, 242, 0.98));
   --shadow-soft:
-    0 24px 48px rgba(0, 25, 60, 0.05),
-    0 8px 18px rgba(0, 25, 60, 0.03);
+    0 24px 48px rgba(27, 31, 53, 0.08),
+    0 8px 24px rgba(27, 31, 53, 0.04);
   --shadow-floating:
-    0 28px 64px rgba(0, 25, 60, 0.07),
-    0 10px 24px rgba(0, 25, 60, 0.04);
-  --radius-panel: 1.6rem;
-  --radius-card: 1.2rem;
-  --font-headline: 'Manrope', sans-serif;
-  --font-body: 'Inter', sans-serif;
+    0 28px 72px rgba(27, 31, 53, 0.12),
+    0 12px 30px rgba(27, 31, 53, 0.08);
+  --radius-panel: 1.75rem;
+  --radius-card: 1.3rem;
+  --font-headline: 'Sora', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
 }

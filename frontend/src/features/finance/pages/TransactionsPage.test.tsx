@@ -32,7 +32,7 @@ describe('TransactionsPage', () => {
     await waitForTransactionsToLoad();
 
     expect(
-      await screen.findByRole('heading', { name: /^transactions$/i }, { timeout: 8000 }),
+      await screen.findByRole('heading', { name: /^transactions$/i, level: 1 }, { timeout: 8000 }),
     ).toBeInTheDocument();
     expect(
       await screen.findByRole('heading', { name: /recent entries/i }, { timeout: 8000 }),
@@ -153,6 +153,7 @@ describe('TransactionsPage', () => {
     const { container } = await renderAppAtPath('/transactions', authService.service);
 
     await waitForTransactionsToLoad();
+    await user.click(screen.getByRole('tab', { name: /reserve/i }));
 
     const amountInput = container.querySelector<HTMLInputElement>('input[name="setAsideAmount"]');
     const categorySelect = container.querySelector<HTMLSelectElement>('select[name="setAsideCategoryId"]');

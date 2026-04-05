@@ -66,6 +66,7 @@ export function SignInPage() {
       footerActionHref="/sign-up"
       footerActionLabel={translateAppText('auth.createAnAccount')}
       footerPrompt={translateAppText('auth.needAccount')}
+      mode="sign-in"
       title={translateAppText('auth.signIn')}
     >
       <form className="auth-form" onSubmit={handleSubmit}>

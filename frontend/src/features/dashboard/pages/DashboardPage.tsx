@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { translateAppText } from '../../../shared/i18n/appText';
 import { getCurrentMonthKey } from '../../../shared/lib/date/months';
+import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { useDisplayPreferences } from '../../settings/useDisplayPreferences';
 import { sortTransactionsByDateDesc } from '../../finance/lib/financeSelectors';
 import { useFinanceData } from '../../finance/useFinanceData';
@@ -43,13 +44,12 @@ export function DashboardPage() {
     monthStartDay,
   );
   const recentTransactions = sortTransactionsByDateDesc(financeData.transactions);
+  const overdrawnCategory =
+    snapshot.categoryAvailability.find((category) => category.available < 0) ?? null;
 
   return (
     <div className="dashboard-page">
-      <section className="finance-panel dashboard-toolbar">
-        <div>
-          <h2>{translateAppText('dashboard.financialOverview')}</h2>
-        </div>
+      <section className="finance-panel dashboard-toolbar dashboard-toolbar--compact">
         <label className="finance-field dashboard-toolbar__field">
           <span>{translateAppText('dashboard.selectedMonth')}</span>
           <input
@@ -69,17 +69,28 @@ export function DashboardPage() {
         </section>
       ) : null}
 
-      <AvailableBalancePanel snapshot={snapshot} />
+      {overdrawnCategory ? (
+        <section className="finance-panel finance-panel--alert">
+          <div className="finance-panel__heading">
+            <div>
+              <p className="finance-panel__eyebrow">{translateAppText('dashboard.needsAttention')}</p>
+              <h2>{overdrawnCategory.name}</h2>
+            </div>
+          </div>
+          <p className="finance-header__copy">
+            {overdrawnCategory.name} is over budget by {formatCurrency(Math.abs(overdrawnCategory.available))}.
+          </p>
+        </section>
+      ) : null}
 
-      <section className="dashboard-main-grid">
-        <BudgetHighlights cards={snapshot.cards} month={selectedMonth} />
-        <RecentTransactionsPanel
-          categories={financeData.categories}
-          subcategories={financeData.subcategories}
-          transactions={recentTransactions}
-        />
-      </section>
+      <AvailableBalancePanel snapshot={snapshot} />
       <InsightsPanel insight={snapshot.insight} />
+      <BudgetHighlights cards={snapshot.cards} month={selectedMonth} />
+      <RecentTransactionsPanel
+        categories={financeData.categories}
+        subcategories={financeData.subcategories}
+        transactions={recentTransactions}
+      />
     </div>
   );
 }
