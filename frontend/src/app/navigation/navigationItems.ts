@@ -30,6 +30,12 @@ export const navigationItems = [
     isEnabled: true,
   },
   {
+    id: 'notifications',
+    shortLabel: 'NT',
+    href: '/notifications',
+    isEnabled: true,
+  },
+  {
     id: 'settings',
     shortLabel: 'ST',
     href: '/settings',

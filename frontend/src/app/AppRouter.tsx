@@ -9,6 +9,7 @@ import { SignInPage } from '../features/auth/pages/SignInPage';
 import { SignUpPage } from '../features/auth/pages/SignUpPage';
 import { DashboardPage } from '../features/dashboard/pages/DashboardPage';
 import { FinanceDataProvider } from '../features/finance/FinanceDataContext';
+import { NotificationsPage } from '../features/notifications/pages/NotificationsPage';
 import type { FinanceService } from '../features/finance/services/financeService';
 import { CategoriesPage } from '../features/finance/pages/CategoriesPage';
 import { TransactionsPage } from '../features/finance/pages/TransactionsPage';
@@ -43,6 +44,7 @@ export function AppRouter({ financeService }: AppRouterProps) {
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/budgets" element={<BudgetsPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Route>

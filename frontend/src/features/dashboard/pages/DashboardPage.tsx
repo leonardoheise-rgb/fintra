@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { translateAppText } from '../../../shared/i18n/appText';
 import { getCurrentMonthKey } from '../../../shared/lib/date/months';
-import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { useDisplayPreferences } from '../../settings/useDisplayPreferences';
 import { sortTransactionsByDateDesc } from '../../finance/lib/financeSelectors';
 import { useFinanceData } from '../../finance/useFinanceData';
+import { useNotifications } from '../../notifications/useNotifications';
 import { AvailableBalancePanel } from '../components/AvailableBalancePanel';
 import { BudgetHighlights } from '../components/BudgetHighlights';
 import { InsightsPanel } from '../components/InsightsPanel';
@@ -17,6 +18,7 @@ export function DashboardPage() {
   const {
     preferences: { monthStartDay },
   } = useDisplayPreferences();
+  const { unreadCount, unreadNotifications } = useNotifications();
   const currentMonth = useMemo(() => getCurrentMonthKey(new Date(), monthStartDay), [monthStartDay]);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
 
@@ -44,9 +46,6 @@ export function DashboardPage() {
     monthStartDay,
   );
   const recentTransactions = sortTransactionsByDateDesc(financeData.transactions);
-  const overdrawnCategory =
-    snapshot.categoryAvailability.find((category) => category.available < 0) ?? null;
-
   return (
     <div className="dashboard-page">
       <section className="finance-panel dashboard-toolbar dashboard-toolbar--compact">
@@ -69,17 +68,30 @@ export function DashboardPage() {
         </section>
       ) : null}
 
-      {overdrawnCategory ? (
+      {unreadNotifications.length > 0 ? (
         <section className="finance-panel finance-panel--alert">
           <div className="finance-panel__heading">
             <div>
-              <p className="finance-panel__eyebrow">{translateAppText('dashboard.needsAttention')}</p>
-              <h2>{overdrawnCategory.name}</h2>
+              <p className="finance-panel__eyebrow">{translateAppText('notifications.attentionEyebrow')}</p>
+              <h2>{translateAppText('notifications.attentionHeading')}</h2>
             </div>
+            <Link className="secondary-button" to="/notifications">
+              {translateAppText('notifications.openPage')}
+            </Link>
           </div>
           <p className="finance-header__copy">
-            {overdrawnCategory.name} is over budget by {formatCurrency(Math.abs(overdrawnCategory.available))}.
+            {translateAppText('notifications.attentionSummary', {
+              count: unreadCount,
+            })}
           </p>
+          <div className="finance-list notifications-preview-list">
+            {unreadNotifications.slice(0, 2).map((notification) => (
+              <article className="notification-preview-card" key={notification.id}>
+                <strong>{notification.title}</strong>
+                <p>{notification.description}</p>
+              </article>
+            ))}
+          </div>
         </section>
       ) : null}
 

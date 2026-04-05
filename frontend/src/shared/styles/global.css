@@ -176,6 +176,7 @@ p {
   gap: 0.9rem;
   min-height: 3.5rem;
   border-radius: 1.2rem;
+  position: relative;
   transition:
     transform 150ms ease,
     background-color 150ms ease,
@@ -217,6 +218,30 @@ p {
 
 .sidebar__item--disabled {
   opacity: 0.55;
+}
+
+.sidebar__item-count,
+.topbar__notifications {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.7rem;
+  min-height: 1.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background: #d72d34;
+  color: #ffffff;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.sidebar__item-count {
+  margin-left: auto;
+}
+
+.topbar__notifications {
+  text-decoration: none;
+  box-shadow: 0 10px 20px rgba(215, 45, 52, 0.16);
 }
 
 .sidebar__signout {
@@ -270,6 +295,12 @@ p {
   overflow-wrap: anywhere;
 }
 
+.topbar__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
 .avatar-chip {
   display: inline-flex;
   align-items: center;
@@ -307,7 +338,7 @@ p {
 }
 
 .sidebar__nav--bottom {
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
   gap: 0.35rem;
 }
 

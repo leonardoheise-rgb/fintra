@@ -914,6 +914,92 @@ Object.assign(translations['pt-BR'], {
   'errors.selectedSetAsideMissing': 'A reserva selecionada não existe.',
 });
 
+Object.assign(translations['en-US'], {
+  'nav.notifications': 'Notifications',
+  'page.title.notifications': 'Notifications',
+  'page.desc.notifications': 'Review budget, reserve, and installment alerts in one feed.',
+  'notifications.title': 'Notifications',
+  'notifications.eyebrow': 'Attention center',
+  'notifications.description':
+    'Keep budget overruns, monthly reallocations, set-aside follow-ups, and installment completions together in one inbox.',
+  'notifications.summary': 'Notifications summary',
+  'notifications.unreadCount': 'Unread',
+  'notifications.totalCount': 'Total notifications',
+  'notifications.requiresAction': 'Needs action',
+  'notifications.inboxEyebrow': 'Notification inbox',
+  'notifications.inboxHeading': 'Latest notifications',
+  'notifications.empty': 'There are no active notifications right now.',
+  'notifications.markAllRead': 'Mark all as read',
+  'notifications.markRead': 'Mark as read',
+  'notifications.read': 'Read',
+  'notifications.severityCritical': 'Critical',
+  'notifications.severityWarning': 'Warning',
+  'notifications.severityInfo': 'Update',
+  'notifications.openPage': 'Open notifications',
+  'notifications.openBudgets': 'Open budgets',
+  'notifications.openTransactions': 'Open transactions',
+  'notifications.unreadBadge': '{count}',
+  'notifications.attentionEyebrow': 'Attention center',
+  'notifications.attentionHeading': 'Open items',
+  'notifications.attentionSummary':
+    'You have {count} unread notifications that may need action this month.',
+  'notifications.overBudgetTitle': '{category} is over budget',
+  'notifications.overBudgetBody': 'This category is over plan by {amount} in {month}.',
+  'notifications.reallocationTitle': 'Move budget into {category}',
+  'notifications.reallocationBody':
+    'Move {amount} into this category for {month} to keep the monthly plan balanced.',
+  'notifications.setAsideTitle': 'Reserved money needs a decision for {title}',
+  'notifications.setAsideBody':
+    '{amount} was reserved for {date}. Confirm whether it was spent or discard it.',
+  'notifications.installmentCompleteTitle': '{title} installment plan is finished',
+  'notifications.installmentCompleteBody':
+    'The final installment landed on {date} after {installmentCount} monthly payments.',
+});
+
+Object.assign(translations['pt-BR'], {
+  'nav.notifications': 'NotificaÃ§Ãµes',
+  'page.title.notifications': 'NotificaÃ§Ãµes',
+  'page.desc.notifications':
+    'Veja alertas de orÃ§amento, reservas e parcelamentos em um sÃ³ lugar.',
+  'notifications.title': 'NotificaÃ§Ãµes',
+  'notifications.eyebrow': 'Central de atenÃ§Ã£o',
+  'notifications.description':
+    'ReÃºna excessos de orÃ§amento, remanejamentos do mÃªs, reservas pendentes e fim de parcelamentos em uma sÃ³ lista.',
+  'notifications.summary': 'Resumo das notificaÃ§Ãµes',
+  'notifications.unreadCount': 'NÃ£o lidas',
+  'notifications.totalCount': 'Total de notificaÃ§Ãµes',
+  'notifications.requiresAction': 'Precisam de aÃ§Ã£o',
+  'notifications.inboxEyebrow': 'Caixa de entrada',
+  'notifications.inboxHeading': 'NotificaÃ§Ãµes recentes',
+  'notifications.empty': 'NÃ£o hÃ¡ notificaÃ§Ãµes ativas agora.',
+  'notifications.markAllRead': 'Marcar tudo como lido',
+  'notifications.markRead': 'Marcar como lida',
+  'notifications.read': 'Lida',
+  'notifications.severityCritical': 'CrÃ­tica',
+  'notifications.severityWarning': 'AtenÃ§Ã£o',
+  'notifications.severityInfo': 'AtualizaÃ§Ã£o',
+  'notifications.openPage': 'Abrir notificaÃ§Ãµes',
+  'notifications.openBudgets': 'Abrir orÃ§amentos',
+  'notifications.openTransactions': 'Abrir transaÃ§Ãµes',
+  'notifications.unreadBadge': '{count}',
+  'notifications.attentionEyebrow': 'Central de atenÃ§Ã£o',
+  'notifications.attentionHeading': 'Itens em aberto',
+  'notifications.attentionSummary':
+    'VocÃª tem {count} notificaÃ§Ãµes nÃ£o lidas que podem precisar de aÃ§Ã£o neste mÃªs.',
+  'notifications.overBudgetTitle': '{category} estourou o orÃ§amento',
+  'notifications.overBudgetBody':
+    'Essa categoria passou {amount} do planejado em {month}.',
+  'notifications.reallocationTitle': 'Remanejar orÃ§amento para {category}',
+  'notifications.reallocationBody':
+    'Mova {amount} para esta categoria em {month} para equilibrar o plano do mÃªs.',
+  'notifications.setAsideTitle': '{title} precisa de uma decisÃ£o',
+  'notifications.setAsideBody':
+    '{amount} foi reservado para {date}. Confirme se foi gasto ou descarte a reserva.',
+  'notifications.installmentCompleteTitle': 'O parcelamento de {title} terminou',
+  'notifications.installmentCompleteBody':
+    'A Ãºltima parcela caiu em {date} depois de {installmentCount} pagamentos mensais.',
+});
+
 function getSupportedLocale(locale: string): SupportedLocale {
   if (locale.startsWith('pt')) {
     return 'pt-BR';

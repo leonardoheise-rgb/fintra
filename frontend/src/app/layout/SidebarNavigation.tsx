@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 
+import { useNotifications } from '../../features/notifications/useNotifications';
 import { navigationItems } from '../navigation/navigationItems';
 import { translateAppText } from '../../shared/i18n/appText';
 
@@ -51,6 +52,13 @@ function renderNavigationGlyph(id: string) {
           <path d="M8 15v-4M12 15V8M16 15v-6" />
         </svg>
       );
+    case 'notifications':
+      return (
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M12 4.5a4.5 4.5 0 0 1 4.5 4.5v2.4c0 .7.2 1.4.6 2l1.1 1.8H5.8l1.1-1.8c.4-.6.6-1.3.6-2V9A4.5 4.5 0 0 1 12 4.5Z" />
+          <path d="M10 18a2 2 0 0 0 4 0" />
+        </svg>
+      );
     case 'settings':
       return (
         <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -67,6 +75,8 @@ export function SidebarNavigation({
   onNavigate,
   variant = 'drawer',
 }: SidebarNavigationProps) {
+  const { unreadCount } = useNotifications();
+
   return (
     <nav className={`sidebar__nav sidebar__nav--${variant}`}>
       {navigationItems.map((item) =>
@@ -87,6 +97,9 @@ export function SidebarNavigation({
             <div>
               <p>{translateAppText(`nav.${item.id}`)}</p>
             </div>
+            {item.id === 'notifications' && unreadCount > 0 ? (
+              <span className="sidebar__item-count">{unreadCount}</span>
+            ) : null}
           </NavLink>
         ) : (
           <div

@@ -6,6 +6,7 @@ import { SetAsideDecisionPrompt } from '../../features/finance/components/SetAsi
 import { getCategoryName, getSubcategoryName } from '../../features/finance/lib/financeSelectors';
 import { getDueSetAsides } from '../../features/finance/lib/setAsides';
 import { useFinanceData } from '../../features/finance/useFinanceData';
+import { useNotifications } from '../../features/notifications/useNotifications';
 import { useDisplayPreferences } from '../../features/settings/useDisplayPreferences';
 import { translateAppText } from '../../shared/i18n/appText';
 import { formatLocalIsoDate } from '../../shared/lib/date/isoDates';
@@ -28,11 +29,13 @@ function getUserInitials(email: string | undefined) {
 export function AppLayout({ children }: PropsWithChildren) {
   const auth = useAuth();
   const financeData = useFinanceData();
+  const { unreadCount } = useNotifications();
   const { preferences } = useDisplayPreferences();
   const location = useLocation();
   const [isMobileNavigationOpen, setIsMobileNavigationOpen] = useState(false);
   const [isResolvingSetAside, setIsResolvingSetAside] = useState(false);
   const [setAsidePromptError, setSetAsidePromptError] = useState<string | null>(null);
+  const [dismissedSetAsideId, setDismissedSetAsideId] = useState<string | null>(null);
   const pageTitle =
     location.pathname === '/'
       ? translateAppText('page.title.dashboard')
@@ -44,6 +47,8 @@ export function AppLayout({ children }: PropsWithChildren) {
             ? translateAppText('page.title.budgets')
             : location.pathname === '/analytics'
               ? translateAppText('page.title.analytics')
+              : location.pathname === '/notifications'
+                ? translateAppText('page.title.notifications')
               : location.pathname === '/settings'
                 ? translateAppText('page.title.settings')
                 : translateAppText('shell.defaultTitle');
@@ -53,9 +58,20 @@ export function AppLayout({ children }: PropsWithChildren) {
     setIsMobileNavigationOpen(false);
   }, [location.pathname]);
 
+  useEffect(() => {
+    if (
+      dismissedSetAsideId &&
+      !financeData.setAsides.some((setAside) => setAside.id === dismissedSetAsideId)
+    ) {
+      setDismissedSetAsideId(null);
+    }
+  }, [dismissedSetAsideId, financeData.setAsides]);
+
   const dueSetAside =
     financeData.status === 'ready'
-      ? getDueSetAsides(financeData.setAsides, formatLocalIsoDate())[0] ?? null
+      ? getDueSetAsides(financeData.setAsides, formatLocalIsoDate()).find(
+          (setAside) => setAside.id !== dismissedSetAsideId,
+        ) ?? null
       : null;
   const dueSetAsideTitle = dueSetAside
     ? `${getCategoryName(financeData.categories, dueSetAside.categoryId)} / ${getSubcategoryName(
@@ -74,6 +90,7 @@ export function AppLayout({ children }: PropsWithChildren) {
 
     try {
       await financeData.convertSetAsideToTransaction(dueSetAside.id);
+      setDismissedSetAsideId(dueSetAside.id);
     } catch (error) {
       setSetAsidePromptError(
         error instanceof Error ? error.message : translateAppText('setAsides.promptError'),
@@ -93,6 +110,7 @@ export function AppLayout({ children }: PropsWithChildren) {
 
     try {
       await financeData.discardSetAside(dueSetAside.id);
+      setDismissedSetAsideId(dueSetAside.id);
     } catch (error) {
       setSetAsidePromptError(
         error instanceof Error ? error.message : translateAppText('setAsides.promptError'),
@@ -189,6 +207,11 @@ export function AppLayout({ children }: PropsWithChildren) {
           </div>
 
           <div className="topbar__meta">
+            {unreadCount > 0 ? (
+              <NavLink className="topbar__notifications" to="/notifications">
+                {translateAppText('notifications.unreadBadge', { count: unreadCount })}
+              </NavLink>
+            ) : null}
             <div aria-hidden="true" className="avatar-chip">
               {getUserInitials(auth.user?.email)}
             </div>
