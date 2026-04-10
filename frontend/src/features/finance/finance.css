@@ -37,19 +37,19 @@
 .finance-panel,
 .finance-summary-card {
   padding: 1.15rem;
-  border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-panel);
   background: var(--color-surface-container-lowest);
   box-shadow: var(--shadow-soft);
 }
 
 .finance-panel--spotlight {
-  background: #f1f4fb;
+  background:
+    linear-gradient(135deg, rgba(0, 25, 60, 0.05), rgba(0, 45, 98, 0.08)),
+    var(--color-surface-container-lowest);
 }
 
 .finance-panel--alert {
-  background: #fbefee;
-  border-color: rgba(184, 58, 48, 0.18);
+  background: linear-gradient(135deg, rgba(255, 218, 215, 0.72), rgba(255, 255, 255, 0.92));
 }
 
 .finance-panel--segment {
@@ -110,6 +110,7 @@
   gap: 0.45rem;
   min-height: 7.25rem;
   align-content: start;
+  background: var(--color-surface-container);
 }
 
 .finance-summary-card strong {
@@ -172,18 +173,19 @@
 .finance-field textarea {
   min-height: 3.15rem;
   width: 100%;
-  padding: 0.85rem 0.95rem;
-  border: 1px solid var(--color-outline-soft);
-  border-radius: 0.5rem;
-  background: var(--color-surface-container-lowest);
+  padding: 0.85rem 0 0.7rem;
+  border: 0;
+  border-bottom: 1px solid rgba(196, 198, 209, 0.4);
+  border-radius: 0;
+  background: transparent;
   color: var(--color-on-surface);
 }
 
 .finance-field input:focus,
 .finance-field select:focus,
 .finance-field textarea:focus {
-  border-color: rgba(47, 62, 119, 0.28);
-  box-shadow: inset 0 0 0 1px rgba(47, 62, 119, 0.12);
+  border-color: var(--color-primary);
+  box-shadow: inset 0 -1px 0 var(--color-primary);
 }
 
 .finance-field select:disabled {
@@ -229,7 +231,6 @@
   display: grid;
   gap: 0.75rem;
   padding: 1rem;
-  border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-card);
   background: var(--color-surface-container-lowest);
   box-shadow: var(--shadow-soft);
@@ -298,8 +299,9 @@
 }
 
 .budget-plan-card--override {
-  border-style: dashed;
-  background: #faf9f6;
+  background:
+    linear-gradient(135deg, rgba(0, 108, 72, 0.05), rgba(255, 255, 255, 0.96)),
+    var(--color-surface-container-lowest);
 }
 
 .ledger-panel {
@@ -314,9 +316,8 @@
   display: grid;
   gap: 0.8rem;
   padding: 1rem;
-  border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-card);
-  background: var(--color-surface-container-lowest);
+  background: var(--color-surface-container-low);
   box-shadow: var(--shadow-soft);
 }
 
@@ -337,7 +338,7 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 0.625rem;
-  background: var(--color-primary-fixed);
+  background: linear-gradient(135deg, rgba(0, 25, 60, 0.08), rgba(0, 45, 98, 0.14));
   color: var(--color-primary-container);
   font-weight: 700;
 }
@@ -346,10 +347,10 @@
   display: inline-flex;
   width: fit-content;
   padding: 0.2rem 0.45rem;
-  border: 1px solid var(--color-outline-soft);
   border-radius: 0.375rem;
-  background: var(--color-surface-container-low);
+  background: var(--color-surface-container);
   color: var(--color-on-surface-variant);
+  box-shadow: inset 0 0 0 1px var(--color-outline-soft);
 }
 
 .ledger-row__amounts,
@@ -411,23 +412,37 @@
 }
 
 .notification-card {
-  border-left-width: 3px;
+  box-shadow:
+    var(--shadow-soft),
+    inset 0.22rem 0 0 currentColor;
 }
 
 .notification-card--critical {
-  border-left-color: var(--color-error);
+  color: var(--color-error);
 }
 
 .notification-card--warning {
-  border-left-color: var(--color-warning);
+  color: var(--color-warning);
 }
 
 .notification-card--info {
-  border-left-color: var(--color-primary-container);
+  color: var(--color-primary-container);
 }
 
 .notification-card--read {
   opacity: 0.72;
+}
+
+.notification-card--critical h3,
+.notification-card--warning h3,
+.notification-card--info h3,
+.notification-card--critical p,
+.notification-card--warning p,
+.notification-card--info p,
+.notification-card--critical span,
+.notification-card--warning span,
+.notification-card--info span {
+  color: inherit;
 }
 
 .notification-card__header {
@@ -460,7 +475,6 @@
   display: grid;
   gap: 0.85rem;
   padding: 1rem;
-  border: 1px solid var(--color-outline-soft);
   border-radius: 0.625rem;
 }
 
@@ -482,10 +496,11 @@
 .subcategory-chip__edit-form input,
 .subcategory-chip__edit-form select {
   min-height: 3rem;
-  padding: 0.8rem 0.95rem;
-  border: 1px solid var(--color-outline-soft);
-  border-radius: 0.5rem;
-  background: var(--color-surface-container-lowest);
+  padding: 0.8rem 0 0.65rem;
+  border: 0;
+  border-bottom: 1px solid rgba(196, 198, 209, 0.4);
+  border-radius: 0;
+  background: transparent;
 }
 
 .subcategory-chip__button {
@@ -500,9 +515,8 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.25rem;
   padding: 0.25rem;
-  border: 1px solid var(--color-outline-soft);
   border-radius: 0.625rem;
-  background: var(--color-surface-container-low);
+  background: var(--color-surface-container);
 }
 
 .analytics-tabbar__button {
@@ -517,7 +531,7 @@
 .analytics-tabbar__button--active {
   background: var(--color-surface-container-lowest);
   color: var(--color-primary-container);
-  border: 1px solid var(--color-outline-soft);
+  box-shadow: var(--shadow-soft);
 }
 
 .analytics-chart,
@@ -541,9 +555,8 @@
   align-items: end;
   min-height: 11rem;
   padding: 0.7rem;
-  border: 1px solid var(--color-outline-soft);
   border-radius: 0.625rem;
-  background: var(--color-surface-container-low);
+  background: var(--color-surface-container);
 }
 
 .analytics-chart__bar,
@@ -553,11 +566,11 @@
 }
 
 .analytics-chart__bar--income {
-  background: rgba(33, 103, 71, 0.45);
+  background: rgba(0, 108, 72, 0.45);
 }
 
 .analytics-chart__bar--expense {
-  background: rgba(47, 62, 119, 0.78);
+  background: rgba(100, 0, 13, 0.72);
 }
 
 .analytics-chart__labels {
@@ -570,9 +583,8 @@
   align-items: end;
   min-height: 9rem;
   padding: 0.7rem;
-  border: 1px solid var(--color-outline-soft);
   border-radius: 0.625rem;
-  background: var(--color-surface-container-low);
+  background: var(--color-surface-container);
 }
 
 .analytics-rate-chart__fill {
@@ -607,7 +619,9 @@
 }
 
 .analytics-panel--feature {
-  background: #eef1f9;
+  background:
+    linear-gradient(135deg, rgba(0, 25, 60, 0.06), rgba(0, 45, 98, 0.1)),
+    var(--color-surface-container-lowest);
 }
 
 .analytics-category-card__bar {
