@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { resolveAppErrorMessage } from '../../../shared/i18n/appErrors';
 import { translateAppText } from '../../../shared/i18n/appText';
@@ -23,13 +23,10 @@ function validateSignInForm(email: string, password: string) {
 export function SignInPage() {
   const auth = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const redirectTarget = location.state?.from?.pathname ?? '/';
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -51,7 +48,7 @@ export function SignInPage() {
         password,
       });
 
-      navigate(redirectTarget, { replace: true });
+      navigate('/', { replace: true });
     } catch (error) {
       setFormError(resolveAppErrorMessage(error, 'auth.errorUnableToSignIn'));
     } finally {

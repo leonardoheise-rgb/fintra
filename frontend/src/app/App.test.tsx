@@ -112,6 +112,24 @@ describe('App authentication routing', () => {
     });
   });
 
+  it('opens the dashboard after signing in from another protected route', async () => {
+    const user = userEvent.setup();
+    const authService = createAuthServiceStub();
+
+    await renderAppAtPath('/transactions', authService.service);
+
+    await user.type(await screen.findByLabelText(/email/i), 'user@fintra.dev');
+    await user.type(screen.getByLabelText(/password/i), 'password123');
+    await user.click(screen.getByRole('button', { name: /^sign in$/i }));
+
+    expect(
+      await screen.findByRole('heading', { name: /^dashboard$/i, level: 1 }, { timeout: 5000 }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: /^transactions$/i, level: 1 }),
+    ).not.toBeInTheDocument();
+  });
+
   it('prompts for overdue set-asides and converts them into transactions', async () => {
     const user = userEvent.setup();
     const authService = createAuthServiceStub({

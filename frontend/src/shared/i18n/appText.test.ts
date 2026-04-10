@@ -7,5 +7,6 @@ describe('translateAppText', () => {
     expect(translateAppText('dashboard.totalNetPosition', undefined, 'pt-BR')).toBe(
       'Disponível no mês',
     );
+    expect(translateAppText('nav.notifications', undefined, 'pt-BR')).toBe('Notificações');
   });
 });

@@ -58,6 +58,7 @@ describe('localPreviewFinanceService', () => {
     });
 
     expect(createdTransaction.description).toBe('Lunch');
+    expect(createdTransaction.recordedAt).toBeTruthy();
 
     const updatedTransaction = await service.updateTransaction(createdTransaction.id, {
       amount: 60,
@@ -70,6 +71,7 @@ describe('localPreviewFinanceService', () => {
     });
 
     expect(updatedTransaction.description).toBe('Team lunch');
+    expect(updatedTransaction.recordedAt).toBe(createdTransaction.recordedAt);
 
     await service.deleteTransaction(createdTransaction.id);
 

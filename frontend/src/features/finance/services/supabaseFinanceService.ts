@@ -43,6 +43,7 @@ function mapTransaction(record: {
   category_id: string;
   subcategory_id: string | null;
   date: string;
+  created_at: string;
   description: string | null;
   installment_group_id: string | null;
   installment_index: number | null;
@@ -55,6 +56,7 @@ function mapTransaction(record: {
     categoryId: record.category_id,
     subcategoryId: record.subcategory_id,
     date: record.date,
+    recordedAt: record.created_at,
     description: record.description ?? '',
     installmentGroupId: record.installment_group_id,
     installmentIndex: record.installment_index,
@@ -168,10 +170,11 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
           client
             .from('transactions')
             .select(
-              'id, amount, type, category_id, subcategory_id, date, description, installment_group_id, installment_index, installment_count',
+              'id, amount, type, category_id, subcategory_id, date, created_at, description, installment_group_id, installment_index, installment_count',
             )
             .eq('user_id', userId)
-            .order('date', { ascending: false }),
+            .order('date', { ascending: false })
+            .order('created_at', { ascending: false }),
           client
             .from('set_asides')
             .select('id, amount, category_id, subcategory_id, date, description')
@@ -326,7 +329,7 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
           })),
         )
         .select(
-          'id, amount, type, category_id, subcategory_id, date, description, installment_group_id, installment_index, installment_count',
+          'id, amount, type, category_id, subcategory_id, date, created_at, description, installment_group_id, installment_index, installment_count',
         );
 
       if (error) {
@@ -349,7 +352,7 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
         .eq('id', transactionId)
         .eq('user_id', userId)
         .select(
-          'id, amount, type, category_id, subcategory_id, date, description, installment_group_id, installment_index, installment_count',
+          'id, amount, type, category_id, subcategory_id, date, created_at, description, installment_group_id, installment_index, installment_count',
         )
         .single();
 
@@ -428,7 +431,7 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
           installment_count: null,
         })
         .select(
-          'id, amount, type, category_id, subcategory_id, date, description, installment_group_id, installment_index, installment_count',
+          'id, amount, type, category_id, subcategory_id, date, created_at, description, installment_group_id, installment_index, installment_count',
         )
         .single();
 

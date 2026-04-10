@@ -24,6 +24,39 @@ import type { FinanceService } from './financeService';
 
 type PreviewFinanceStore = FinanceWorkspace;
 
+function createRecordedAtTimestamp() {
+  return new Date().toISOString();
+}
+
+function buildFallbackRecordedAt(date: string, index: number) {
+  const fallbackDate = new Date(`${date}T12:00:00.000Z`);
+  fallbackDate.setUTCSeconds(Math.max(0, 59 - index));
+
+  return fallbackDate.toISOString();
+}
+
+function normalizeStoredTransactionRecord(
+  transaction: Partial<TransactionRecord>,
+  index: number,
+): TransactionRecord {
+  return {
+    id: transaction.id ?? createLocalId('transaction'),
+    amount: transaction.amount ?? 0,
+    type: transaction.type === 'income' ? 'income' : 'expense',
+    categoryId: transaction.categoryId ?? '',
+    subcategoryId: transaction.subcategoryId ?? null,
+    date: transaction.date ?? '',
+    recordedAt:
+      typeof transaction.recordedAt === 'string'
+        ? transaction.recordedAt
+        : buildFallbackRecordedAt(transaction.date ?? '1970-01-01', index),
+    description: transaction.description ?? '',
+    installmentGroupId: transaction.installmentGroupId ?? null,
+    installmentIndex: transaction.installmentIndex ?? null,
+    installmentCount: transaction.installmentCount ?? null,
+  };
+}
+
 function getStorageKey(userId: string) {
   return `fintra.preview.workspace.${userId}`;
 }
@@ -115,12 +148,7 @@ function readWorkspace(userId: string): PreviewFinanceStore {
     return {
       categories: parsedValue.categories ?? [],
       subcategories: parsedValue.subcategories ?? [],
-      transactions: (parsedValue.transactions ?? []).map((transaction) => ({
-        ...transaction,
-        installmentGroupId: transaction.installmentGroupId ?? null,
-        installmentIndex: transaction.installmentIndex ?? null,
-        installmentCount: transaction.installmentCount ?? null,
-      })),
+      transactions: (parsedValue.transactions ?? []).map(normalizeStoredTransactionRecord),
       setAsides: parsedValue.setAsides ?? [],
       budgets: parsedValue.budgets ?? [],
       budgetOverrides: parsedValue.budgetOverrides ?? [],
@@ -394,6 +422,7 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
       const installmentDates = buildInstallmentDates(input.date, input.installmentCount);
       const installmentGroupId =
         input.installmentCount > 1 ? createLocalId('transaction-group') : null;
+      const recordedAt = createRecordedAtTimestamp();
       const transactions = installmentAmounts.map((amount, index) => ({
         id: createLocalId('transaction'),
         amount,
@@ -401,6 +430,7 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
         categoryId: input.categoryId,
         subcategoryId: input.subcategoryId,
         date: installmentDates[index],
+        recordedAt,
         description: input.description.trim(),
         installmentGroupId,
         installmentIndex: input.installmentCount > 1 ? index + 1 : null,
@@ -514,6 +544,7 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
         categoryId: setAside.categoryId,
         subcategoryId: setAside.subcategoryId,
         date: setAside.date,
+        recordedAt: createRecordedAtTimestamp(),
         description: setAside.description,
         installmentGroupId: null,
         installmentIndex: null,

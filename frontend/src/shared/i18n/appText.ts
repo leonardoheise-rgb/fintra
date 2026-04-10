@@ -1004,6 +1004,8 @@ Object.assign(translations['pt-BR'], {
     'A Ãºltima parcela caiu em {date} depois de {installmentCount} pagamentos mensais.',
 });
 
+translations['pt-BR'] = normalizeTranslations(translations['pt-BR']);
+
 function getSupportedLocale(locale: string): SupportedLocale {
   if (locale.startsWith('pt')) {
     return 'pt-BR';

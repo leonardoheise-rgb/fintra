@@ -33,5 +33,19 @@ export function getSubcategoryName(
 }
 
 export function sortTransactionsByDateDesc(transactions: TransactionRecord[]) {
-  return [...transactions].sort((left, right) => right.date.localeCompare(left.date));
+  return [...transactions].sort((left, right) => {
+    const dateComparison = right.date.localeCompare(left.date);
+
+    if (dateComparison !== 0) {
+      return dateComparison;
+    }
+
+    const recordedAtComparison = (right.recordedAt ?? '').localeCompare(left.recordedAt ?? '');
+
+    if (recordedAtComparison !== 0) {
+      return recordedAtComparison;
+    }
+
+    return right.id.localeCompare(left.id);
+  });
 }

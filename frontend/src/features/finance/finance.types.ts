@@ -18,6 +18,7 @@ export type TransactionRecord = {
   categoryId: string;
   subcategoryId: string | null;
   date: string;
+  recordedAt?: string;
   description: string;
   installmentGroupId: string | null;
   installmentIndex: number | null;
