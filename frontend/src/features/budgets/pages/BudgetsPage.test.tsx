@@ -1,4 +1,4 @@
-import { screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
+import { screen, waitFor, waitForElementToBeRemoved, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { createAuthServiceStub } from '../../../test/createAuthServiceStub';
@@ -112,5 +112,42 @@ describe('BudgetsPage', () => {
         ),
       ).toBe(true);
     });
+  });
+
+  it('edits an existing budget inline from the budget card amount area', async () => {
+    const user = userEvent.setup();
+    const authService = createAuthServiceStub({
+      initialSession: {
+        user: {
+          id: 'user-1',
+          email: 'owner@fintra.dev',
+        },
+      },
+    });
+
+    await renderAppAtPath('/budgets', authService.service);
+
+    await waitForBudgetsToLoad();
+
+    await user.click(screen.getByRole('button', { name: /edit budget housing/i }));
+
+    const housingBudgetCard = screen.getByLabelText(/housing budget/i);
+    const inlineAmountInput = within(housingBudgetCard).getByRole('spinbutton', { name: /^amount$/i });
+    await user.clear(inlineAmountInput);
+    await user.type(inlineAmountInput, '2750');
+    await user.click(within(housingBudgetCard).getByRole('button', { name: /update default budget/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/\$2,750\.00/i)).toBeInTheDocument();
+    });
+
+    const persistedWorkspace = JSON.parse(
+      window.localStorage.getItem('fintra.preview.workspace.test-finance-user') ?? '{}',
+    );
+
+    expect(
+      persistedWorkspace.budgets.find((budget: { categoryId: string; amount: number }) => budget.categoryId === 'category-housing')
+        ?.amount,
+    ).toBe(2750);
   });
 });

@@ -1,5 +1,9 @@
+import { useState } from 'react';
+
+import { resolveAppErrorMessage } from '../../../shared/i18n/appErrors';
 import type {
   BudgetOverrideRecord,
+  BudgetInput,
   BudgetRecord,
   CategoryRecord,
   SubcategoryRecord,
@@ -20,7 +24,7 @@ type BudgetsListProps = {
   categories: CategoryRecord[];
   month: string;
   onDelete(budgetId: string): Promise<void>;
-  onEdit(budget: BudgetRecord): void;
+  onUpdate(budgetId: string, input: BudgetInput): Promise<void>;
   subcategories: SubcategoryRecord[];
 };
 
@@ -30,15 +34,56 @@ export function BudgetsList({
   categories,
   month,
   onDelete,
-  onEdit,
+  onUpdate,
   subcategories,
 }: BudgetsListProps) {
+  const [editingBudgetId, setEditingBudgetId] = useState<string | null>(null);
+  const [editingAmount, setEditingAmount] = useState('');
+  const [editingError, setEditingError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const sortedBudgets = sortBudgetsByScope(budgets, categories, subcategories);
   const overrideScopeKeys = new Set(
     budgetOverrides
       .filter((item) => item.month === month)
       .map((item) => getBudgetScopeKey(item.categoryId, item.subcategoryId)),
   );
+
+  function handleStartEdit(budget: BudgetRecord) {
+    setEditingBudgetId(budget.id);
+    setEditingAmount(String(budget.amount));
+    setEditingError(null);
+  }
+
+  function handleCancelEdit() {
+    setEditingBudgetId(null);
+    setEditingAmount('');
+    setEditingError(null);
+  }
+
+  async function handleSave(budget: BudgetRecord) {
+    const parsedAmount = Number(editingAmount);
+
+    if (Number.isNaN(parsedAmount) || parsedAmount <= 0) {
+      setEditingError(translateAppText('budgets.errorAmount'));
+      return;
+    }
+
+    setEditingError(null);
+    setIsSubmitting(true);
+
+    try {
+      await onUpdate(budget.id, {
+        categoryId: budget.categoryId,
+        subcategoryId: budget.subcategoryId,
+        amount: parsedAmount,
+      });
+      handleCancelEdit();
+    } catch (error) {
+      setEditingError(resolveAppErrorMessage(error, 'budgets.errorSave'));
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
     <section className="finance-panel">
@@ -71,9 +116,24 @@ export function BudgetsList({
                   <p className="budget-plan-card__eyebrow">{getBudgetScopeTypeLabel(budget)}</p>
                   <h3>{getBudgetScopeLabel(categories, subcategories, budget)}</h3>
                 </div>
-                <strong className="budget-plan-card__amount">
-                  {formatBudgetAmount(budget.amount)}
-                </strong>
+                {editingBudgetId === budget.id ? (
+                  <label className="finance-field budget-plan-card__amount-editor">
+                    <span>{translateAppText('transactions.amount')}</span>
+                    <input
+                      autoFocus
+                      className="budget-plan-card__amount-input"
+                      inputMode="decimal"
+                      name={`budget-inline-amount-${budget.id}`}
+                      onChange={(event) => setEditingAmount(event.target.value)}
+                      type="number"
+                      value={editingAmount}
+                    />
+                  </label>
+                ) : (
+                  <strong className="budget-plan-card__amount">
+                    {formatBudgetAmount(budget.amount)}
+                  </strong>
+                )}
               </div>
 
               {overrideScopeKeys.has(
@@ -84,27 +144,56 @@ export function BudgetsList({
                 </p>
               ) : null}
 
+              {editingBudgetId === budget.id && editingError ? (
+                <p className="finance-message finance-message--error">{editingError}</p>
+              ) : null}
+
               <div className="transaction-card__actions">
-                <button
-                  aria-label={translateAppText('budgets.editBudget', {
-                    name: getBudgetScopeLabel(categories, subcategories, budget),
-                  })}
-                  className="secondary-button"
-                  onClick={() => onEdit(budget)}
-                  type="button"
-                >
-                  {translateAppText('transactions.edit')}
-                </button>
-                <button
-                  aria-label={translateAppText('budgets.deleteBudget', {
-                    name: getBudgetScopeLabel(categories, subcategories, budget),
-                  })}
-                  className="secondary-button secondary-button--danger"
-                  onClick={() => void onDelete(budget.id)}
-                  type="button"
-                >
-                  {translateAppText('transactions.delete')}
-                </button>
+                {editingBudgetId === budget.id ? (
+                  <>
+                    <button
+                      className="primary-button"
+                      disabled={isSubmitting}
+                      onClick={() => void handleSave(budget)}
+                      type="button"
+                    >
+                      {isSubmitting
+                        ? translateAppText('transactions.saving')
+                        : translateAppText('budgets.updateDefault')}
+                    </button>
+                    <button
+                      className="secondary-button"
+                      disabled={isSubmitting}
+                      onClick={handleCancelEdit}
+                      type="button"
+                    >
+                      {translateAppText('transactions.cancelEdit')}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      aria-label={translateAppText('budgets.editBudget', {
+                        name: getBudgetScopeLabel(categories, subcategories, budget),
+                      })}
+                      className="secondary-button"
+                      onClick={() => handleStartEdit(budget)}
+                      type="button"
+                    >
+                      {translateAppText('transactions.edit')}
+                    </button>
+                    <button
+                      aria-label={translateAppText('budgets.deleteBudget', {
+                        name: getBudgetScopeLabel(categories, subcategories, budget),
+                      })}
+                      className="secondary-button secondary-button--danger"
+                      onClick={() => void onDelete(budget.id)}
+                      type="button"
+                    >
+                      {translateAppText('transactions.delete')}
+                    </button>
+                  </>
+                )}
               </div>
             </article>
           ))}

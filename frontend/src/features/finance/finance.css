@@ -250,6 +250,16 @@
   letter-spacing: -0.02em;
 }
 
+.budget-plan-card__amount-editor {
+  min-width: 11rem;
+  justify-items: end;
+}
+
+.budget-plan-card__amount-input {
+  text-align: right;
+  font: inherit;
+}
+
 .settings-preview-grid {
   grid-template-columns: 1fr;
 }

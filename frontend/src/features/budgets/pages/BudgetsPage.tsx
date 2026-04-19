@@ -31,7 +31,6 @@ export function BudgetsPage() {
   } = useDisplayPreferences();
   const currentMonth = useMemo(() => getCurrentMonthKey(new Date(), monthStartDay), [monthStartDay]);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
-  const [budgetToEdit, setBudgetToEdit] = useState<BudgetRecord | null>(null);
   const [budgetOverrideToEdit, setBudgetOverrideToEdit] = useState<BudgetOverrideRecord | null>(
     null,
   );
@@ -64,12 +63,6 @@ export function BudgetsPage() {
   );
 
   async function handleSubmit(input: BudgetInput) {
-    if (budgetToEdit) {
-      await financeData.updateBudget(budgetToEdit.id, input);
-      setBudgetToEdit(null);
-      return;
-    }
-
     await financeData.createBudget(input);
   }
 
@@ -128,9 +121,9 @@ export function BudgetsPage() {
         <>
           <div className="finance-grid">
             <BudgetForm
-              budgetToEdit={budgetToEdit}
+              budgetToEdit={null}
               categories={financeData.categories}
-              onCancelEdit={() => setBudgetToEdit(null)}
+              onCancelEdit={() => {}}
               onSubmit={handleSubmit}
               subcategories={financeData.subcategories}
             />
@@ -140,7 +133,7 @@ export function BudgetsPage() {
               categories={financeData.categories}
               month={selectedMonth}
               onDelete={financeData.deleteBudget}
-              onEdit={setBudgetToEdit}
+              onUpdate={financeData.updateBudget}
               subcategories={financeData.subcategories}
             />
           </div>
