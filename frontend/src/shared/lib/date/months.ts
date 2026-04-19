@@ -1,3 +1,5 @@
+import { formatLocalIsoDate } from './isoDates';
+
 const monthKeyPattern = /^\d{4}-(0[1-9]|1[0-2])$/;
 const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -79,7 +81,7 @@ export function getMonthKey(date: string, monthStartDay = 1) {
 }
 
 export function getCurrentMonthKey(now = new Date(), monthStartDay = 1) {
-  const isoDate = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}-${String(now.getUTCDate()).padStart(2, '0')}`;
+  const isoDate = formatLocalIsoDate(now);
 
   return getMonthKey(isoDate, monthStartDay);
 }
