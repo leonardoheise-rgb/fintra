@@ -41,6 +41,7 @@ export function DashboardPage() {
       budgetOverrides: financeData.budgetOverrides,
       transactions: financeData.transactions,
       setAsides: financeData.setAsides,
+      monthReviews: financeData.monthReviews,
     },
     selectedMonth,
     monthStartDay,

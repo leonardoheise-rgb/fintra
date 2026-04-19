@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { translateAppText } from '../../../shared/i18n/appText';
 import { FinancePageHeader } from '../../finance/components/FinancePageHeader';
@@ -27,6 +28,8 @@ function areDisplayPreferencesEqual(
 
 export function SettingsPage() {
   const auth = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { currencyOptions, localeOptions, preferences, resetPreferences, updatePreferences } =
     useDisplayPreferences();
   const [draftPreferences, setDraftPreferences] = useState(preferences);
@@ -69,6 +72,18 @@ export function SettingsPage() {
       setSaveState('idle');
       setSaveErrorMessage(error instanceof Error ? error.message : translateAppText('errors.genericFinance'));
     }
+  }
+
+  function handleOpenMonthReview() {
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set('month-review', 'open');
+    navigate(
+      {
+        pathname: location.pathname,
+        search: `?${searchParams.toString()}`,
+      },
+      { replace: false },
+    );
   }
 
   return (
@@ -182,6 +197,13 @@ export function SettingsPage() {
               type="button"
             >
               {translateAppText('settings.reset')}
+            </button>
+            <button
+              className="secondary-button finance-form__submit"
+              onClick={handleOpenMonthReview}
+              type="button"
+            >
+              {translateAppText('settings.reviewCurrentMonth')}
             </button>
           </form>
 

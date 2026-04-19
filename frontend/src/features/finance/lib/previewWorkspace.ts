@@ -232,5 +232,6 @@ export function createPreviewWorkspace(): FinanceWorkspace {
         amount: 320,
       },
     ],
+    monthReviews: [],
   };
 }

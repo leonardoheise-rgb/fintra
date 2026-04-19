@@ -5,6 +5,7 @@ import type {
   BudgetOverrideInput,
   CategoryInput,
   FinanceWorkspace,
+  MonthReviewInput,
   SetAsideInput,
   SubcategoryInput,
   TransactionInput,
@@ -35,6 +36,7 @@ export type FinanceDataContextValue = FinanceWorkspace & {
   createBudgetOverride(input: BudgetOverrideInput): Promise<void>;
   updateBudgetOverride(budgetOverrideId: string, input: BudgetOverrideInput): Promise<void>;
   deleteBudgetOverride(budgetOverrideId: string): Promise<void>;
+  saveMonthReview(input: MonthReviewInput): Promise<void>;
 };
 
 export const FinanceDataContext = createContext<FinanceDataContextValue | undefined>(undefined);

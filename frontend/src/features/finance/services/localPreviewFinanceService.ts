@@ -9,6 +9,8 @@ import type {
   CategoryInput,
   CategoryRecord,
   FinanceWorkspace,
+  MonthReviewInput,
+  MonthReviewRecord,
   SetAsideInput,
   SetAsideRecord,
   SubcategoryInput,
@@ -59,6 +61,16 @@ function normalizeStoredTransactionRecord(
 
 function getStorageKey(userId: string) {
   return `fintra.preview.workspace.${userId}`;
+}
+
+function normalizeStoredMonthReviewRecord(review: Partial<MonthReviewRecord>): MonthReviewRecord {
+  return {
+    month: review.month ?? '',
+    plannedIncomeAmount: Number(review.plannedIncomeAmount ?? 0),
+    plannedIncomeDescription: review.plannedIncomeDescription ?? '',
+    carryOverAmount: Number(review.carryOverAmount ?? 0),
+    reviewedAt: review.reviewedAt ?? new Date().toISOString(),
+  };
 }
 
 function normalizeName(value: string) {
@@ -133,6 +145,20 @@ function ensureValidBudgetOverride(input: BudgetOverrideInput) {
   }
 }
 
+function ensureValidMonthReview(input: MonthReviewInput) {
+  if (!isValidBudgetMonth(input.month)) {
+    throw new Error('Month review must use the YYYY-MM format.');
+  }
+
+  if (Number.isNaN(input.plannedIncomeAmount) || input.plannedIncomeAmount < 0) {
+    throw new Error('Planned income must be zero or greater.');
+  }
+
+  if (Number.isNaN(input.carryOverAmount)) {
+    throw new Error('Carry-over amount must be a valid number.');
+  }
+}
+
 function readWorkspace(userId: string): PreviewFinanceStore {
   const rawValue = window.localStorage.getItem(getStorageKey(userId));
 
@@ -152,6 +178,7 @@ function readWorkspace(userId: string): PreviewFinanceStore {
       setAsides: parsedValue.setAsides ?? [],
       budgets: parsedValue.budgets ?? [],
       budgetOverrides: parsedValue.budgetOverrides ?? [],
+      monthReviews: (parsedValue.monthReviews ?? []).map(normalizeStoredMonthReviewRecord),
     };
   } catch {
     const seededWorkspace = createPreviewWorkspace();
@@ -728,6 +755,28 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
         ...workspace,
         budgetOverrides: workspace.budgetOverrides.filter((item) => item.id !== budgetOverrideId),
       });
+    },
+    async saveMonthReview(input: MonthReviewInput): Promise<MonthReviewRecord> {
+      ensureValidMonthReview(input);
+
+      const workspace = readWorkspace(userId);
+      const monthReview: MonthReviewRecord = {
+        month: input.month,
+        plannedIncomeAmount: input.plannedIncomeAmount,
+        plannedIncomeDescription: input.plannedIncomeDescription.trim(),
+        carryOverAmount: input.carryOverAmount,
+        reviewedAt: new Date().toISOString(),
+      };
+
+      writeWorkspace(userId, {
+        ...workspace,
+        monthReviews: [
+          monthReview,
+          ...workspace.monthReviews.filter((item) => item.month !== input.month),
+        ].sort((left, right) => right.month.localeCompare(left.month)),
+      });
+
+      return monthReview;
     },
   };
 }

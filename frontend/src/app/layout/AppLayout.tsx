@@ -1,17 +1,24 @@
 import { useEffect, useMemo, useState, type PropsWithChildren } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../features/auth/useAuth';
 import { buildDashboardSnapshot } from '../../features/dashboard/lib/buildDashboardSnapshot';
+import { filterTransactionsByMonth } from '../../features/dashboard/lib/buildDashboardSnapshot';
+import { MonthReviewPrompt } from '../../features/finance/components/MonthReviewPrompt';
 import { SetAsideDecisionPrompt } from '../../features/finance/components/SetAsideDecisionPrompt';
 import { getCategoryName, getSubcategoryName } from '../../features/finance/lib/financeSelectors';
-import { getDueSetAsides } from '../../features/finance/lib/setAsides';
+import {
+  buildPlannedExpenseItems,
+  findMonthReview,
+  sumPlannedExpenseItems,
+} from '../../features/finance/lib/monthReviews';
+import { filterSetAsidesByMonth, getDueSetAsides } from '../../features/finance/lib/setAsides';
 import { useFinanceData } from '../../features/finance/useFinanceData';
 import { useNotifications } from '../../features/notifications/useNotifications';
 import { useDisplayPreferences } from '../../features/settings/useDisplayPreferences';
 import { translateAppText } from '../../shared/i18n/appText';
 import { formatLocalIsoDate } from '../../shared/lib/date/isoDates';
-import { getCurrentMonthKey } from '../../shared/lib/date/months';
+import { getCurrentMonthKey, shiftMonthKey } from '../../shared/lib/date/months';
 import { formatCurrency } from '../../shared/lib/formatters/currency';
 import { SidebarNavigation } from './SidebarNavigation';
 
@@ -46,14 +53,23 @@ export function AppLayout({ children }: PropsWithChildren) {
   const {
     preferences: { monthStartDay },
   } = useDisplayPreferences();
+  const navigate = useNavigate();
   const location = useLocation();
   const [isMobileNavigationOpen, setIsMobileNavigationOpen] = useState(false);
   const [isResolvingSetAside, setIsResolvingSetAside] = useState(false);
   const [setAsidePromptError, setSetAsidePromptError] = useState<string | null>(null);
   const [dismissedSetAsideId, setDismissedSetAsideId] = useState<string | null>(null);
+  const [dismissedMonthReview, setDismissedMonthReview] = useState<string | null>(null);
+  const [monthReviewError, setMonthReviewError] = useState<string | null>(null);
+  const [isSavingMonthReview, setIsSavingMonthReview] = useState(false);
   const pageTitle = translateAppText(
     pageTitleByPath[location.pathname] ?? 'shell.defaultTitle',
   );
+  const currentMonth = useMemo(() => getCurrentMonthKey(new Date(), monthStartDay), [monthStartDay]);
+  const shouldOpenMonthReviewFromSettings = useMemo(() => {
+    const searchParams = new URLSearchParams(location.search);
+    return searchParams.get('month-review') === 'open';
+  }, [location.search]);
 
   useEffect(() => {
     setIsMobileNavigationOpen(false);
@@ -67,6 +83,10 @@ export function AppLayout({ children }: PropsWithChildren) {
       setDismissedSetAsideId(null);
     }
   }, [dismissedSetAsideId, financeData.setAsides]);
+
+  useEffect(() => {
+    setDismissedMonthReview(null);
+  }, [currentMonth]);
 
   const dueSetAside =
     financeData.status === 'ready'
@@ -85,7 +105,6 @@ export function AppLayout({ children }: PropsWithChildren) {
       return null;
     }
 
-    const currentMonth = getCurrentMonthKey(new Date(), monthStartDay);
     const snapshot = buildDashboardSnapshot(
       {
         categories: financeData.categories,
@@ -93,13 +112,62 @@ export function AppLayout({ children }: PropsWithChildren) {
         budgetOverrides: financeData.budgetOverrides,
         transactions: financeData.transactions,
         setAsides: financeData.setAsides,
+        monthReviews: financeData.monthReviews,
       },
       currentMonth,
       monthStartDay,
     );
 
     return snapshot.totalAvailable;
-  }, [financeData, monthStartDay]);
+  }, [currentMonth, financeData, monthStartDay]);
+  const currentMonthReview =
+    financeData.status === 'ready' ? findMonthReview(financeData.monthReviews, currentMonth) : null;
+  const plannedExpenseItems = useMemo(() => {
+    if (financeData.status !== 'ready') {
+      return [];
+    }
+
+    return buildPlannedExpenseItems(
+      filterTransactionsByMonth(financeData.transactions, currentMonth, monthStartDay),
+      filterSetAsidesByMonth(financeData.setAsides, currentMonth, monthStartDay),
+    );
+  }, [currentMonth, financeData, monthStartDay]);
+  const plannedExpenseTotal = useMemo(
+    () => sumPlannedExpenseItems(plannedExpenseItems),
+    [plannedExpenseItems],
+  );
+  const suggestedCarryOverAmount = useMemo(() => {
+    if (financeData.status !== 'ready') {
+      return 0;
+    }
+
+    if (currentMonthReview) {
+      return currentMonthReview.carryOverAmount;
+    }
+
+    const previousMonth = shiftMonthKey(currentMonth, -1);
+    const previousSnapshot = buildDashboardSnapshot(
+      {
+        categories: financeData.categories,
+        budgets: financeData.budgets,
+        budgetOverrides: financeData.budgetOverrides,
+        transactions: financeData.transactions,
+        setAsides: financeData.setAsides,
+        monthReviews: financeData.monthReviews,
+      },
+      previousMonth,
+      monthStartDay,
+    );
+
+    return previousSnapshot.totalAvailable;
+  }, [currentMonth, currentMonthReview, financeData, monthStartDay]);
+  const shouldAutoOpenMonthReview = location.pathname === '/';
+  const shouldShowMonthReviewPrompt =
+    financeData.status === 'ready' &&
+    (shouldOpenMonthReviewFromSettings ||
+      (shouldAutoOpenMonthReview &&
+        !currentMonthReview &&
+        dismissedMonthReview !== currentMonth));
 
   async function handleMarkSetAsideSpent() {
     if (!dueSetAside) {
@@ -141,8 +209,72 @@ export function AppLayout({ children }: PropsWithChildren) {
     }
   }
 
+  async function handleSaveMonthReview(input: {
+    month: string;
+    plannedIncomeAmount: number;
+    plannedIncomeDescription: string;
+    carryOverAmount: number;
+  }) {
+    setIsSavingMonthReview(true);
+    setMonthReviewError(null);
+
+    try {
+      await financeData.saveMonthReview(input);
+
+      if (shouldOpenMonthReviewFromSettings) {
+        const searchParams = new URLSearchParams(location.search);
+        searchParams.delete('month-review');
+        const nextSearch = searchParams.toString();
+        navigate(
+          {
+            pathname: location.pathname,
+            search: nextSearch ? `?${nextSearch}` : '',
+          },
+          { replace: true },
+        );
+      }
+    } catch (error) {
+      setMonthReviewError(
+        error instanceof Error ? error.message : translateAppText('monthReview.errorSave'),
+      );
+    } finally {
+      setIsSavingMonthReview(false);
+    }
+  }
+
+  function handleCloseMonthReview() {
+    setMonthReviewError(null);
+    setDismissedMonthReview(currentMonth);
+
+    if (shouldOpenMonthReviewFromSettings) {
+      const searchParams = new URLSearchParams(location.search);
+      searchParams.delete('month-review');
+      const nextSearch = searchParams.toString();
+      navigate(
+        {
+          pathname: location.pathname,
+          search: nextSearch ? `?${nextSearch}` : '',
+        },
+        { replace: true },
+      );
+    }
+  }
+
   return (
     <div className="app-shell">
+      {shouldShowMonthReviewPrompt ? (
+        <MonthReviewPrompt
+          currentMonth={currentMonth}
+          errorMessage={monthReviewError}
+          existingReview={currentMonthReview}
+          isSubmitting={isSavingMonthReview}
+          onClose={handleCloseMonthReview}
+          onSubmit={(input) => void handleSaveMonthReview(input)}
+          plannedExpenseItems={plannedExpenseItems}
+          plannedExpenseTotal={plannedExpenseTotal}
+          suggestedCarryOverAmount={suggestedCarryOverAmount}
+        />
+      ) : null}
       {isMobileNavigationOpen ? (
         <button
           aria-label={translateAppText('shell.closeNavigation')}

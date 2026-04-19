@@ -10,6 +10,7 @@ describe('localPreviewFinanceService', () => {
     expect(workspace.transactions.length).toBeGreaterThan(0);
     expect(workspace.budgets.length).toBeGreaterThan(0);
     expect(workspace.budgetOverrides.length).toBeGreaterThan(0);
+    expect(workspace.monthReviews).toEqual([]);
   });
 
   it('prevents duplicate category names', async () => {
@@ -169,5 +170,39 @@ describe('localPreviewFinanceService', () => {
         amount: 350,
       }),
     ).rejects.toThrow('A monthly override already exists for this scope.');
+  });
+
+  it('saves and updates a month review for the same month', async () => {
+    const service = createLocalPreviewFinanceService('user-1');
+
+    const createdReview = await service.saveMonthReview({
+      month: '2026-04',
+      plannedIncomeAmount: 900,
+      plannedIncomeDescription: 'Freelance invoice',
+      carryOverAmount: -120,
+    });
+
+    expect(createdReview.month).toBe('2026-04');
+    expect(createdReview.plannedIncomeAmount).toBe(900);
+
+    const updatedReview = await service.saveMonthReview({
+      month: '2026-04',
+      plannedIncomeAmount: 1200,
+      plannedIncomeDescription: 'Bonus',
+      carryOverAmount: 80,
+    });
+
+    expect(updatedReview.plannedIncomeAmount).toBe(1200);
+    expect(updatedReview.carryOverAmount).toBe(80);
+
+    const workspace = await service.getWorkspace();
+    expect(workspace.monthReviews).toEqual([
+      expect.objectContaining({
+        month: '2026-04',
+        plannedIncomeAmount: 1200,
+        plannedIncomeDescription: 'Bonus',
+        carryOverAmount: 80,
+      }),
+    ]);
   });
 });

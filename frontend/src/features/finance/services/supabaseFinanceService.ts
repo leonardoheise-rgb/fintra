@@ -8,6 +8,8 @@ import type {
   CategoryInput,
   CategoryRecord,
   FinanceWorkspace,
+  MonthReviewInput,
+  MonthReviewRecord,
   SetAsideInput,
   SetAsideRecord,
   SubcategoryInput,
@@ -112,6 +114,22 @@ function mapSetAside(record: {
   };
 }
 
+function mapMonthReview(record: {
+  month: string;
+  planned_income_amount: number;
+  planned_income_description: string | null;
+  carry_over_amount: number;
+  reviewed_at: string;
+}): MonthReviewRecord {
+  return {
+    month: record.month,
+    plannedIncomeAmount: Number(record.planned_income_amount),
+    plannedIncomeDescription: record.planned_income_description ?? '',
+    carryOverAmount: Number(record.carry_over_amount),
+    reviewedAt: record.reviewed_at,
+  };
+}
+
 async function withTimeout<T>(operation: Promise<T>, timeoutInMilliseconds = 12000): Promise<T> {
   let timer: number | undefined;
 
@@ -159,6 +177,7 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
         { data: setAsides, error: setAsidesError },
         { data: budgets, error: budgetsError },
         { data: budgetOverrides, error: budgetOverridesError },
+        { data: monthReviews, error: monthReviewsError },
       ] = await withTimeout(
         Promise.all([
           client.from('categories').select('id, name').eq('user_id', userId).order('name'),
@@ -190,6 +209,13 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
             .select('id, category_id, subcategory_id, month, amount')
             .eq('user_id', userId)
             .order('month', { ascending: false }),
+          client
+            .from('monthly_reviews')
+            .select(
+              'month, planned_income_amount, planned_income_description, carry_over_amount, reviewed_at',
+            )
+            .eq('user_id', userId)
+            .order('month', { ascending: false }),
         ]),
       );
 
@@ -199,7 +225,8 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
         transactionsError ||
         setAsidesError ||
         budgetsError ||
-        budgetOverridesError
+        budgetOverridesError ||
+        monthReviewsError
       ) {
         throw (
           categoriesError ??
@@ -207,7 +234,8 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
           transactionsError ??
           setAsidesError ??
           budgetsError ??
-          budgetOverridesError
+          budgetOverridesError ??
+          monthReviewsError
         );
       }
 
@@ -218,6 +246,7 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
         setAsides: (setAsides ?? []).map(mapSetAside),
         budgets: (budgets ?? []).map(mapBudget),
         budgetOverrides: (budgetOverrides ?? []).map(mapBudgetOverride),
+        monthReviews: (monthReviews ?? []).map(mapMonthReview),
       };
     },
     async createCategory(input: CategoryInput) {
@@ -707,6 +736,31 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
       if (error) {
         throw error;
       }
+    },
+    async saveMonthReview(input: MonthReviewInput) {
+      const { data, error } = await client
+        .from('monthly_reviews')
+        .upsert(
+          {
+            user_id: userId,
+            month: input.month,
+            planned_income_amount: input.plannedIncomeAmount,
+            planned_income_description: input.plannedIncomeDescription.trim(),
+            carry_over_amount: input.carryOverAmount,
+            reviewed_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id,month' },
+        )
+        .select(
+          'month, planned_income_amount, planned_income_description, carry_over_amount, reviewed_at',
+        )
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      return mapMonthReview(data);
     },
   };
 }

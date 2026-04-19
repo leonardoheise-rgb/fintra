@@ -20,6 +20,7 @@ const emptyWorkspace: FinanceWorkspace = {
   setAsides: [],
   budgets: [],
   budgetOverrides: [],
+  monthReviews: [],
 };
 
 function normalizeServiceError(error: unknown) {
@@ -134,6 +135,7 @@ export function FinanceDataProvider({ children, service }: FinanceDataProviderPr
         async createBudgetOverride() {},
         async updateBudgetOverride() {},
         async deleteBudgetOverride() {},
+        async saveMonthReview() {},
       };
     }
 
@@ -254,6 +256,12 @@ export function FinanceDataProvider({ children, service }: FinanceDataProviderPr
       async deleteBudgetOverride(budgetOverrideId) {
         await runMutation(async () => {
           await financeService.deleteBudgetOverride(budgetOverrideId);
+          await loadWorkspace(financeService);
+        });
+      },
+      async saveMonthReview(input) {
+        await runMutation(async () => {
+          await financeService.saveMonthReview(input);
           await loadWorkspace(financeService);
         });
       },

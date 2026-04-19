@@ -49,6 +49,14 @@ export type BudgetOverrideRecord = {
   amount: number;
 };
 
+export type MonthReviewRecord = {
+  month: string;
+  plannedIncomeAmount: number;
+  plannedIncomeDescription: string;
+  carryOverAmount: number;
+  reviewedAt: string;
+};
+
 export type FinanceWorkspace = {
   categories: CategoryRecord[];
   subcategories: SubcategoryRecord[];
@@ -56,6 +64,7 @@ export type FinanceWorkspace = {
   setAsides: SetAsideRecord[];
   budgets: BudgetRecord[];
   budgetOverrides: BudgetOverrideRecord[];
+  monthReviews: MonthReviewRecord[];
 };
 
 export type CategoryInput = {
@@ -96,4 +105,11 @@ export type BudgetOverrideInput = {
   subcategoryId: string | null;
   month: string;
   amount: number;
+};
+
+export type MonthReviewInput = {
+  month: string;
+  plannedIncomeAmount: number;
+  plannedIncomeDescription: string;
+  carryOverAmount: number;
 };

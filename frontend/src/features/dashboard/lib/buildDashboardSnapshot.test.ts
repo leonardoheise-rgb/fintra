@@ -3,6 +3,7 @@ import type {
   BudgetOverrideRecord,
   BudgetRecord,
   CategoryRecord,
+  MonthReviewRecord,
   SetAsideRecord,
   TransactionRecord,
 } from '../../finance/finance.types';
@@ -100,6 +101,16 @@ const setAsides: SetAsideRecord[] = [
   },
 ];
 
+const monthReviews: MonthReviewRecord[] = [
+  {
+    month: '2026-03',
+    plannedIncomeAmount: 400,
+    plannedIncomeDescription: 'Freelance project',
+    carryOverAmount: -50,
+    reviewedAt: '2026-03-01T12:00:00.000Z',
+  },
+];
+
 describe('buildDashboardSnapshot', () => {
   it('filters transactions by month', () => {
     expect(filterTransactionsByMonth(transactions, '2026-03')).toHaveLength(3);
@@ -119,17 +130,20 @@ describe('buildDashboardSnapshot', () => {
         budgetOverrides,
         transactions,
         setAsides,
+        monthReviews,
       },
       '2026-03',
     );
 
     expect(snapshot.totalBudget).toBe(3250);
     expect(snapshot.totalIncome).toBe(6500);
+    expect(snapshot.plannedIncome).toBe(400);
+    expect(snapshot.carryOverAmount).toBe(-50);
     expect(snapshot.totalExpenses).toBe(2280);
     expect(snapshot.totalReserved).toBe(120);
     expect(snapshot.remainingBudget).toBe(850);
-    expect(snapshot.remainingBalance).toBe(4220);
-    expect(snapshot.totalAvailable).toBe(3250);
+    expect(snapshot.remainingBalance).toBe(4570);
+    expect(snapshot.totalAvailable).toBe(3600);
     expect(snapshot.averageMonthlyExpenses).toBe(1250);
     expect(snapshot.categoryAvailability).toEqual([
       {
@@ -197,11 +211,12 @@ describe('buildDashboardSnapshot', () => {
           },
         ],
         setAsides,
+        monthReviews,
       },
       '2026-03',
     );
 
-    expect(snapshot.totalAvailable).toBe(3120);
+    expect(snapshot.totalAvailable).toBe(3470);
     expect(snapshot.categoryAvailability).toContainEqual({
         id: 'category-food',
         name: 'Food and dining',
@@ -220,6 +235,7 @@ describe('buildDashboardSnapshot', () => {
         budgetOverrides: [],
         transactions,
         setAsides: [],
+        monthReviews: [],
       },
       '2026-03',
     );

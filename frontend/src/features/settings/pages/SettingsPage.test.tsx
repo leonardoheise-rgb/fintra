@@ -107,4 +107,22 @@ describe('SettingsPage', () => {
       expect(formatMonthLabel('2026-03')).toBe('março de 2026');
     });
   });
+  it('opens the month review flow from settings', async () => {
+    const user = userEvent.setup();
+    const authService = createAuthServiceStub({
+      initialSession: {
+        user: {
+          id: 'user-1',
+          email: 'owner@fintra.dev',
+        },
+      },
+    });
+
+    await renderAppAtPath('/settings', authService.service);
+
+    await user.click(await screen.findByRole('button', { name: /review current month/i }));
+
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByText(/step 1 of 3/i)).toBeInTheDocument();
+  });
 });

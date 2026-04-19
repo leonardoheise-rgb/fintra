@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { createPreviewWorkspace } from '../features/finance/lib/previewWorkspace';
 import { createAuthServiceStub } from '../test/createAuthServiceStub';
 import { renderAppAtPath } from '../test/renderAppAtPath';
+import { getCurrentMonthKey } from '../shared/lib/date/months';
 
 describe('App authentication routing', () => {
   beforeEach(() => {
@@ -153,6 +154,15 @@ describe('App authentication routing', () => {
         description: 'Birthday dinner',
       },
     ];
+    workspace.monthReviews = [
+      {
+        month: getCurrentMonthKey(new Date()),
+        plannedIncomeAmount: 0,
+        plannedIncomeDescription: '',
+        carryOverAmount: 0,
+        reviewedAt: new Date().toISOString(),
+      },
+    ];
 
     window.localStorage.setItem(
       'fintra.preview.workspace.test-finance-user',
@@ -183,5 +193,57 @@ describe('App authentication routing', () => {
         (transaction: { description: string }) => transaction.description === 'Birthday dinner',
       ),
     ).toBe(true);
+  });
+
+  it('walks through the month review flow and persists the answers', async () => {
+    const user = userEvent.setup();
+    const authService = createAuthServiceStub({
+      initialSession: {
+        user: {
+          id: 'user-1',
+          email: 'owner@fintra.dev',
+        },
+      },
+    });
+    const workspace = createPreviewWorkspace();
+    workspace.monthReviews = [];
+
+    window.localStorage.setItem(
+      'fintra.preview.workspace.test-finance-user',
+      JSON.stringify(workspace),
+    );
+
+    await renderAppAtPath('/', authService.service);
+
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByText(/step 1 of 3/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /^continue$/i }));
+    await user.click(screen.getByLabelText(/yes, add planned income/i));
+    await user.clear(screen.getByLabelText(/planned income amount/i));
+    await user.type(screen.getByLabelText(/planned income amount/i), '1200');
+    await user.type(screen.getByLabelText(/description/i), 'Freelance invoice');
+    await user.click(screen.getByRole('button', { name: /^continue$/i }));
+    await user.click(screen.getByLabelText(/yes, carry a balance forward/i));
+    await user.clear(screen.getByLabelText(/carry-over amount/i));
+    await user.type(screen.getByLabelText(/carry-over amount/i), '-80');
+    await user.click(screen.getByRole('button', { name: /finish month setup/i }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    const persistedWorkspace = JSON.parse(
+      window.localStorage.getItem('fintra.preview.workspace.test-finance-user') ?? '{}',
+    );
+
+    expect(persistedWorkspace.monthReviews).toEqual([
+      expect.objectContaining({
+        month: getCurrentMonthKey(new Date()),
+        plannedIncomeAmount: 1200,
+        plannedIncomeDescription: 'Freelance invoice',
+        carryOverAmount: -80,
+      }),
+    ]);
   });
 });

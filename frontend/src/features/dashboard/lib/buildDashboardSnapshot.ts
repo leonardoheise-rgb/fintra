@@ -6,10 +6,12 @@ import type {
   BudgetOverrideRecord,
   BudgetRecord,
   CategoryRecord,
+  MonthReviewRecord,
   SetAsideRecord,
   TransactionRecord,
 } from '../../finance/finance.types';
 import { filterSetAsidesByMonth } from '../../finance/lib/setAsides';
+import { findMonthReview } from '../../finance/lib/monthReviews';
 import { resolveEffectiveBudgets } from '../../budgets/lib/effectiveBudgetResolver';
 import type { BudgetCard, CategoryAvailability, DashboardSnapshot } from '../dashboard.types';
 
@@ -19,6 +21,7 @@ type DashboardSource = {
   budgetOverrides: BudgetOverrideRecord[];
   transactions: TransactionRecord[];
   setAsides: SetAsideRecord[];
+  monthReviews: MonthReviewRecord[];
 };
 
 function buildShortLabel(name: string) {
@@ -139,6 +142,8 @@ function calculateTotalAvailable(
   cards: BudgetCard[],
   transactions: TransactionRecord[],
   setAsides: SetAsideRecord[],
+  plannedIncome: number,
+  carryOverAmount: number,
 ): number {
   const budgetedCategoryIds = new Set(cards.map((card) => card.id));
   const forecastedBudgetedSpending = sumValues(
@@ -163,7 +168,14 @@ function calculateTotalAvailable(
       .map((transaction) => transaction.amount),
   );
 
-  return totalIncome - forecastedBudgetedSpending - nonBudgetedExpenses - nonBudgetedSetAsides;
+  return (
+    totalIncome +
+    plannedIncome +
+    carryOverAmount -
+    forecastedBudgetedSpending -
+    nonBudgetedExpenses -
+    nonBudgetedSetAsides
+  );
 }
 
 function buildInsight(cards: BudgetCard[], remainingBudget: number) {
@@ -217,6 +229,9 @@ export function buildDashboardSnapshot(
     month,
   );
   const totalBudget = sumValues(cards.map((card) => card.effectiveBudget));
+  const monthReview = findMonthReview(source.monthReviews, month);
+  const plannedIncome = monthReview?.plannedIncomeAmount ?? 0;
+  const carryOverAmount = monthReview?.carryOverAmount ?? 0;
   const totalIncome = sumValues(
     monthlyTransactions
       .filter((item) => item.type === 'income')
@@ -229,14 +244,22 @@ export function buildDashboardSnapshot(
   );
   const totalReserved = sumValues(monthlySetAsides.map((item) => item.amount));
   const remainingBudget = totalBudget - totalExpenses - totalReserved;
-  const remainingBalance = totalIncome - totalExpenses;
+  const remainingBalance = totalIncome + plannedIncome + carryOverAmount - totalExpenses;
   const categoryAvailability = buildCategoryAvailability(cards);
-  const totalAvailable = calculateTotalAvailable(cards, monthlyTransactions, monthlySetAsides);
+  const totalAvailable = calculateTotalAvailable(
+    cards,
+    monthlyTransactions,
+    monthlySetAsides,
+    plannedIncome,
+    carryOverAmount,
+  );
 
   return {
     month,
     totalBudget,
     totalIncome,
+    plannedIncome,
+    carryOverAmount,
     totalExpenses,
     totalReserved,
     remainingBudget,

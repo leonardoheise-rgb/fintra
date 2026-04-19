@@ -6,6 +6,8 @@ import type {
   CategoryInput,
   CategoryRecord,
   FinanceWorkspace,
+  MonthReviewInput,
+  MonthReviewRecord,
   SetAsideInput,
   SetAsideRecord,
   SubcategoryInput,
@@ -37,4 +39,5 @@ export interface FinanceService {
     input: BudgetOverrideInput,
   ): Promise<BudgetOverrideRecord>;
   deleteBudgetOverride(budgetOverrideId: string): Promise<void>;
+  saveMonthReview(input: MonthReviewInput): Promise<MonthReviewRecord>;
 }

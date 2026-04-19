@@ -849,6 +849,70 @@ const translations: Record<SupportedLocale, Record<string, string>> = {
   },
 };
 
+Object.assign(translations['en-US'], {
+  'dashboard.plannedIncome': 'Planned income',
+  'dashboard.carryOver': 'Carry-over',
+  'settings.reviewCurrentMonth': 'Review current month',
+  'monthReview.eyebrow': 'Month setup',
+  'monthReview.heading': 'Start {month}',
+  'monthReview.stepIndicator': 'Step {current} of {total}',
+  'monthReview.expensesDescription':
+    'These expenses are already expected for this month: {amount}.',
+  'monthReview.noPlannedExpenses': 'No planned expenses are waiting for this month yet.',
+  'monthReview.expenseType.installment': 'Installment',
+  'monthReview.expenseType.expense': 'Planned expense',
+  'monthReview.expenseType.setAside': 'Set-aside',
+  'monthReview.incomeQuestion': 'Do you want to add planned income for this month?',
+  'monthReview.yesAddIncome': 'Yes, add planned income',
+  'monthReview.noIncome': 'No planned income',
+  'monthReview.incomeAmount': 'Planned income amount',
+  'monthReview.incomeDescription': 'Description',
+  'monthReview.incomePlaceholder': 'Optional label for this income',
+  'monthReview.carryOverQuestion':
+    'Do you want to carry over the previous month balance? Suggested amount: {amount}.',
+  'monthReview.yesCarryOver': 'Yes, carry a balance forward',
+  'monthReview.noCarryOver': 'Do not carry anything over',
+  'monthReview.carryOverAmount': 'Carry-over amount',
+  'monthReview.back': 'Back',
+  'monthReview.continue': 'Continue',
+  'monthReview.finish': 'Finish month setup',
+  'monthReview.doLater': 'Do this later',
+  'monthReview.saving': 'Saving...',
+  'monthReview.errorSave': 'Unable to save the month setup.',
+});
+
+Object.assign(translations['pt-BR'], {
+  'dashboard.plannedIncome': 'Receita planejada',
+  'dashboard.carryOver': 'Saldo carregado',
+  'settings.reviewCurrentMonth': 'Revisar mÃªs atual',
+  'monthReview.eyebrow': 'Abertura do mÃªs',
+  'monthReview.heading': 'ComeÃ§ar {month}',
+  'monthReview.stepIndicator': 'Etapa {current} de {total}',
+  'monthReview.expensesDescription':
+    'Estas despesas jÃ¡ estÃ£o previstas para este mÃªs: {amount}.',
+  'monthReview.noPlannedExpenses': 'Ainda nÃ£o hÃ¡ despesas previstas para este mÃªs.',
+  'monthReview.expenseType.installment': 'Parcela',
+  'monthReview.expenseType.expense': 'Despesa prevista',
+  'monthReview.expenseType.setAside': 'Reserva',
+  'monthReview.incomeQuestion': 'VocÃª quer adicionar uma receita planejada para este mÃªs?',
+  'monthReview.yesAddIncome': 'Sim, adicionar receita planejada',
+  'monthReview.noIncome': 'NÃ£o adicionar receita',
+  'monthReview.incomeAmount': 'Valor da receita planejada',
+  'monthReview.incomeDescription': 'DescriÃ§Ã£o',
+  'monthReview.incomePlaceholder': 'RÃ³tulo opcional para essa receita',
+  'monthReview.carryOverQuestion':
+    'VocÃª quer carregar o saldo do mÃªs anterior? Valor sugerido: {amount}.',
+  'monthReview.yesCarryOver': 'Sim, carregar saldo',
+  'monthReview.noCarryOver': 'NÃ£o carregar saldo',
+  'monthReview.carryOverAmount': 'Valor carregado',
+  'monthReview.back': 'Voltar',
+  'monthReview.continue': 'Continuar',
+  'monthReview.finish': 'Concluir abertura',
+  'monthReview.doLater': 'Fazer isso depois',
+  'monthReview.saving': 'Salvando...',
+  'monthReview.errorSave': 'NÃ£o foi possÃ­vel salvar a abertura do mÃªs.',
+});
+
 translations['pt-BR'] = normalizeTranslations(translations['pt-BR']);
 
 Object.assign(translations['en-US'], {

@@ -19,6 +19,24 @@ export function AvailableBalancePanel({ snapshot }: AvailableBalancePanelProps) 
       <div className="available-balance-panel__section">
         <div className="available-balance-list">
           <div className="available-balance-list__item">
+            <span>{translateAppText('dashboard.income')}</span>
+            <strong className="available-balance-list__amount">
+              {formatCurrency(snapshot.totalIncome)}
+            </strong>
+          </div>
+          <div className="available-balance-list__item">
+            <span>{translateAppText('dashboard.plannedIncome')}</span>
+            <strong className="available-balance-list__amount">
+              {formatCurrency(snapshot.plannedIncome)}
+            </strong>
+          </div>
+          <div className="available-balance-list__item">
+            <span>{translateAppText('dashboard.carryOver')}</span>
+            <strong className="available-balance-list__amount">
+              {formatCurrency(snapshot.carryOverAmount)}
+            </strong>
+          </div>
+          <div className="available-balance-list__item">
             <span>{translateAppText('dashboard.defaultBudget')}</span>
             <strong className="available-balance-list__amount">
               {formatCurrency(snapshot.totalBudget)}

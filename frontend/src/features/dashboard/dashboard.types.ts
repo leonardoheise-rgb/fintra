@@ -23,6 +23,8 @@ export type DashboardSnapshot = {
   month: string;
   totalBudget: number;
   totalIncome: number;
+  plannedIncome: number;
+  carryOverAmount: number;
   totalExpenses: number;
   totalReserved: number;
   remainingBudget: number;
