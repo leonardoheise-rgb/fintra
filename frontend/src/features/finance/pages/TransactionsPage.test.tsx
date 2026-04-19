@@ -134,8 +134,8 @@ describe('TransactionsPage', () => {
     expect(descriptionInput).not.toBeNull();
 
     await user.clear(amountInput!);
-    await user.type(amountInput!, '45.5');
-    expect(amountInput).toHaveValue('45,5');
+    await user.type(amountInput!, '455');
+    expect(amountInput).toHaveValue('4,55');
 
     await user.selectOptions(categorySelect!, 'category-food');
     await user.selectOptions(subcategorySelect!, 'subcategory-restaurants');
@@ -155,6 +155,45 @@ describe('TransactionsPage', () => {
         ),
       ).toBe(true);
     });
+  });
+
+  it('restores the in-progress transaction draft after a remount', async () => {
+    const user = userEvent.setup();
+    const authService = createAuthServiceStub({
+      initialSession: {
+        user: {
+          id: 'user-1',
+          email: 'owner@fintra.dev',
+        },
+      },
+    });
+
+    const firstRender = await renderAppAtPath('/transactions', authService.service);
+
+    await waitForTransactionsToLoad();
+
+    const amountInput = firstRender.container.querySelector<HTMLInputElement>('input[name="amount"]');
+    const descriptionInput = firstRender.container.querySelector<HTMLTextAreaElement>('textarea[name="description"]');
+
+    expect(amountInput).not.toBeNull();
+    expect(descriptionInput).not.toBeNull();
+
+    await user.type(amountInput!, '1234');
+    await user.type(descriptionInput!, 'Draft transaction');
+
+    firstRender.unmount();
+
+    const secondRender = await renderAppAtPath('/transactions', authService.service);
+
+    await waitForTransactionsToLoad();
+
+    const restoredAmountInput = secondRender.container.querySelector<HTMLInputElement>('input[name="amount"]');
+    const restoredDescriptionInput = secondRender.container.querySelector<HTMLTextAreaElement>('textarea[name="description"]');
+
+    expect(restoredAmountInput).not.toBeNull();
+    expect(restoredDescriptionInput).not.toBeNull();
+    expect(restoredAmountInput).toHaveValue('12.34');
+    expect(restoredDescriptionInput).toHaveValue('Draft transaction');
   });
 
   it('creates a new set-aside from the reserve form', async () => {
@@ -234,7 +273,7 @@ describe('TransactionsPage', () => {
     expect(descriptionInput).not.toBeNull();
 
     await user.clear(amountInput!);
-    await user.type(amountInput!, '500');
+    await user.type(amountInput!, '50000');
     await user.selectOptions(categorySelect!, 'category-food');
     await user.selectOptions(subcategorySelect!, 'subcategory-restaurants');
     await user.clear(dateInput!);

@@ -31,25 +31,44 @@ export function SettingsPage() {
     useDisplayPreferences();
   const [draftPreferences, setDraftPreferences] = useState(preferences);
   const [saveState, setSaveState] = useState<SaveState>('idle');
+  const [saveErrorMessage, setSaveErrorMessage] = useState<string | null>(null);
   const hasUnsavedChanges = !areDisplayPreferencesEqual(draftPreferences, preferences);
   const canResetToDefaults = !areDisplayPreferencesEqual(
     preferences,
     getDefaultDisplayPreferences(),
+  );
+  const currentMonthLabel = formatMonthLabel(
+    getCurrentMonthKey(new Date(), preferences.monthStartDay),
+    preferences.locale,
   );
 
   useEffect(() => {
     setDraftPreferences(preferences);
   }, [preferences]);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    updatePreferences(draftPreferences);
-    setSaveState('saved');
+    setSaveErrorMessage(null);
+
+    try {
+      await updatePreferences(draftPreferences);
+      setSaveState('saved');
+    } catch (error) {
+      setSaveState('idle');
+      setSaveErrorMessage(error instanceof Error ? error.message : translateAppText('errors.genericFinance'));
+    }
   }
 
-  function handleReset() {
-    resetPreferences();
-    setSaveState('saved');
+  async function handleReset() {
+    setSaveErrorMessage(null);
+
+    try {
+      await resetPreferences();
+      setSaveState('saved');
+    } catch (error) {
+      setSaveState('idle');
+      setSaveErrorMessage(error instanceof Error ? error.message : translateAppText('errors.genericFinance'));
+    }
   }
 
   return (
@@ -67,6 +86,10 @@ export function SettingsPage() {
           label={translateAppText('settings.monthStartsOn')}
           value={formatDayOfMonthLabel(preferences.monthStartDay)}
         />
+        <CategoriesSummaryCard
+          label={translateAppText('settings.currentMonth')}
+          value={currentMonthLabel}
+        />
       </section>
 
       <div className="finance-grid">
@@ -78,7 +101,7 @@ export function SettingsPage() {
             </div>
           </div>
 
-          <form className="finance-form" onSubmit={handleSubmit}>
+          <form className="finance-form" onSubmit={(event) => void handleSubmit(event)}>
             <label className="finance-field">
               <span>{translateAppText('settings.defaultCurrency')}</span>
               <select
@@ -89,6 +112,7 @@ export function SettingsPage() {
                     currency: event.target.value,
                   }));
                   setSaveState('idle');
+                  setSaveErrorMessage(null);
                 }}
                 value={draftPreferences.currency}
               >
@@ -110,6 +134,7 @@ export function SettingsPage() {
                     locale: event.target.value,
                   }));
                   setSaveState('idle');
+                  setSaveErrorMessage(null);
                 }}
                 value={draftPreferences.locale}
               >
@@ -131,6 +156,7 @@ export function SettingsPage() {
                     monthStartDay: Number(event.target.value),
                   }));
                   setSaveState('idle');
+                  setSaveErrorMessage(null);
                 }}
                 value={String(draftPreferences.monthStartDay)}
               >
@@ -152,14 +178,18 @@ export function SettingsPage() {
             <button
               className="secondary-button finance-form__submit"
               disabled={!canResetToDefaults}
-              onClick={handleReset}
+              onClick={() => void handleReset()}
               type="button"
             >
               {translateAppText('settings.reset')}
             </button>
           </form>
 
-          {saveState === 'saved' ? (
+          {saveErrorMessage ? (
+            <p aria-live="assertive" className="finance-message finance-message--error" role="alert">
+              {saveErrorMessage}
+            </p>
+          ) : saveState === 'saved' ? (
             <p aria-live="polite" className="finance-message" role="status">
               {translateAppText('settings.saved')}
             </p>

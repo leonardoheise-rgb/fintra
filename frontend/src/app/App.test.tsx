@@ -36,6 +36,7 @@ describe('App authentication routing', () => {
       await screen.findByRole('heading', { name: /^dashboard$/i, level: 1 }, { timeout: 3000 }),
     ).toBeInTheDocument();
     expect(screen.getAllByText('owner@fintra.dev').length).toBeGreaterThan(0);
+    expect(screen.getByLabelText(/current month balance/i)).toBeInTheDocument();
   });
 
   it('redirects authenticated users away from the sign-in page', async () => {

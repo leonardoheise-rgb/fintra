@@ -41,6 +41,7 @@ const translations: Record<SupportedLocale, Record<string, string>> = {
     'shell.bottomNavigation': 'Bottom navigation',
     'shell.signOut': 'Sign out',
     'shell.defaultTitle': 'Finance Tracker',
+    'shell.currentMonthBalance': 'Current month balance',
     'shell.defaultDescription':
       'Keep your spending, categories, budgets, and preferences in one place.',
     'page.title.dashboard': 'Dashboard',
@@ -343,6 +344,7 @@ const translations: Record<SupportedLocale, Record<string, string>> = {
     'settings.defaultCurrency': 'Default currency',
     'settings.defaultLocale': 'Language and region',
     'settings.monthStartsOn': 'Month starts on',
+    'settings.currentMonth': 'Current month',
     'settings.preferencesEyebrow': 'Preferences',
     'settings.preferencesHeading': 'Language, currency, and monthly cycle',
     'settings.save': 'Save preferences',
@@ -362,7 +364,7 @@ const translations: Record<SupportedLocale, Record<string, string>> = {
     'settings.signedInAccount': 'Signed-in account',
     'settings.notAvailable': 'Not available',
     'settings.dataAvailability': 'Data availability',
-    'settings.availableOnSignIn': 'Available whenever you sign in',
+    'settings.availableOnSignIn': 'Synced across your signed-in devices',
     'settings.storedOnDevice': 'Stored on this device for now',
     'settings.supportNote':
       'Open this area when you need account or sync details.',
@@ -442,6 +444,7 @@ const translations: Record<SupportedLocale, Record<string, string>> = {
     'shell.bottomNavigation': 'Navegação inferior',
     'shell.signOut': 'Sair',
     'shell.defaultTitle': 'Finance Tracker',
+    'shell.currentMonthBalance': 'Saldo do mÃªs atual',
     'shell.defaultDescription':
       'Mantenha seus gastos, categorias, orçamentos e preferências em um só lugar.',
     'page.title.dashboard': 'Painel',
@@ -755,6 +758,7 @@ const translations: Record<SupportedLocale, Record<string, string>> = {
     'settings.defaultCurrency': 'Moeda padrão',
     'settings.defaultLocale': 'Idioma e região',
     'settings.monthStartsOn': 'O mês começa no dia',
+    'settings.currentMonth': 'Mês atual',
     'settings.preferencesEyebrow': 'Preferências',
     'settings.preferencesHeading': 'Idioma, moeda e ciclo mensal',
     'settings.save': 'Salvar preferências',
@@ -774,7 +778,7 @@ const translations: Record<SupportedLocale, Record<string, string>> = {
     'settings.signedInAccount': 'Conta conectada',
     'settings.notAvailable': 'Não disponível',
     'settings.dataAvailability': 'Disponibilidade dos dados',
-    'settings.availableOnSignIn': 'Disponível sempre que você entrar',
+    'settings.availableOnSignIn': 'Sincronizado entre seus dispositivos conectados',
     'settings.storedOnDevice': 'Armazenado neste dispositivo por enquanto',
     'settings.supportNote':
       'Abra esta área quando precisar de detalhes sobre conta ou sincronização.',

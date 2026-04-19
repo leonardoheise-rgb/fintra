@@ -1,7 +1,9 @@
 import {
   formatDecimalInput,
   getDecimalSeparator,
+  normalizeImplicitCurrencyInput,
   normalizeDecimalInput,
+  parseImplicitCurrencyInput,
   parseDecimalInput,
 } from './decimalInput';
 
@@ -29,5 +31,18 @@ describe('decimalInput', () => {
   it('formats numbers without grouping for editable inputs', () => {
     expect(formatDecimalInput(45.5, 'pt-BR')).toBe('45,5');
     expect(formatDecimalInput(45.5, 'en-US')).toBe('45.5');
+  });
+
+  it('formats implicit-cents typing from right to left', () => {
+    expect(normalizeImplicitCurrencyInput('1', 'en-US')).toBe('0.01');
+    expect(normalizeImplicitCurrencyInput('12', 'en-US')).toBe('0.12');
+    expect(normalizeImplicitCurrencyInput('123', 'en-US')).toBe('1.23');
+    expect(normalizeImplicitCurrencyInput('123', 'pt-BR')).toBe('1,23');
+  });
+
+  it('parses implicit-cents input back into numbers', () => {
+    expect(parseImplicitCurrencyInput('1.23')).toBe(1.23);
+    expect(parseImplicitCurrencyInput('1,23')).toBe(1.23);
+    expect(parseImplicitCurrencyInput('')).toBeNull();
   });
 });

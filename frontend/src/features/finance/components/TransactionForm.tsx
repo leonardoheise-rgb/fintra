@@ -5,8 +5,11 @@ import { translateAppText } from '../../../shared/i18n/appText';
 import {
   formatDecimalInput,
   normalizeDecimalInput,
+  normalizeImplicitCurrencyInput,
   parseDecimalInput,
+  parseImplicitCurrencyInput,
 } from '../../../shared/lib/formatters/decimalInput';
+import { useAuth } from '../../auth/useAuth';
 import { useDisplayPreferences } from '../../settings/useDisplayPreferences';
 import type {
   CategoryRecord,
@@ -15,6 +18,11 @@ import type {
   TransactionRecord,
 } from '../finance.types';
 import { getSubcategoriesForCategory } from '../lib/financeSelectors';
+import {
+  clearTransactionFormDraft,
+  readTransactionFormDraft,
+  writeTransactionFormDraft,
+} from '../lib/transactionFormDraft';
 
 type TransactionFormProps = {
   categories: CategoryRecord[];
@@ -36,6 +44,21 @@ function createInitialFormState(categories: CategoryRecord[]) {
   };
 }
 
+function isSubcategoryValid(
+  subcategories: SubcategoryRecord[],
+  categoryId: string,
+  subcategoryId: string,
+) {
+  if (!subcategoryId) {
+    return true;
+  }
+
+  return subcategories.some(
+    (subcategory) =>
+      subcategory.id === subcategoryId && subcategory.categoryId === categoryId,
+  );
+}
+
 export function TransactionForm({
   categories,
   onCancelEdit,
@@ -43,6 +66,7 @@ export function TransactionForm({
   subcategories,
   transactionToEdit,
 }: TransactionFormProps) {
+  const auth = useAuth();
   const {
     preferences: { locale },
   } = useDisplayPreferences();
@@ -80,14 +104,62 @@ export function TransactionForm({
     }
 
     const initialState = createInitialFormState(categories);
-    setAmount(initialState.amount);
-    setType(initialState.type);
-    setCategoryId(initialState.categoryId);
-    setSubcategoryId(initialState.subcategoryId);
-    setDate(initialState.date);
-    setDescription(initialState.description);
-    setInstallmentCount(initialState.installmentCount);
-  }, [categories, locale, transactionToEdit]);
+    const storedDraft = auth.user ? readTransactionFormDraft(auth.user.id) : null;
+
+    if (!storedDraft) {
+      setAmount(initialState.amount);
+      setType(initialState.type);
+      setCategoryId(initialState.categoryId);
+      setSubcategoryId(initialState.subcategoryId);
+      setDate(initialState.date);
+      setDescription(initialState.description);
+      setInstallmentCount(initialState.installmentCount);
+      return;
+    }
+
+    const nextCategoryId = storedDraft.categoryId || initialState.categoryId;
+    const nextSubcategoryId = isSubcategoryValid(
+      subcategories,
+      nextCategoryId,
+      storedDraft.subcategoryId,
+    )
+      ? storedDraft.subcategoryId
+      : '';
+
+    setAmount(normalizeImplicitCurrencyInput(storedDraft.amount, locale));
+    setType(storedDraft.type);
+    setCategoryId(nextCategoryId);
+    setSubcategoryId(nextSubcategoryId);
+    setDate(storedDraft.date || initialState.date);
+    setDescription(storedDraft.description);
+    setInstallmentCount(storedDraft.installmentCount || '1');
+  }, [auth.user, categories, locale, subcategories, transactionToEdit]);
+
+  useEffect(() => {
+    if (!auth.user || transactionToEdit) {
+      return;
+    }
+
+    writeTransactionFormDraft(auth.user.id, {
+      amount,
+      type,
+      categoryId,
+      subcategoryId,
+      date,
+      description,
+      installmentCount,
+    });
+  }, [
+    amount,
+    auth.user,
+    categoryId,
+    date,
+    description,
+    installmentCount,
+    subcategoryId,
+    transactionToEdit,
+    type,
+  ]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -97,7 +169,9 @@ export function TransactionForm({
       return;
     }
 
-    const parsedAmount = parseDecimalInput(amount, locale);
+    const parsedAmount = transactionToEdit
+      ? parseDecimalInput(amount, locale)
+      : parseImplicitCurrencyInput(amount);
 
     if (parsedAmount === null || parsedAmount <= 0) {
       setFormError(translateAppText('transactions.errorAmount'));
@@ -111,10 +185,7 @@ export function TransactionForm({
 
     const parsedInstallmentCount = Number(installmentCount);
 
-    if (
-      !Number.isInteger(parsedInstallmentCount) ||
-      parsedInstallmentCount <= 0
-    ) {
+    if (!Number.isInteger(parsedInstallmentCount) || parsedInstallmentCount <= 0) {
       setFormError(translateAppText('transactions.errorInstallmentCount'));
       return;
     }
@@ -141,12 +212,18 @@ export function TransactionForm({
       setDate(initialState.date);
       setDescription(initialState.description);
       setInstallmentCount(initialState.installmentCount);
+
+      if (auth.user && !transactionToEdit) {
+        clearTransactionFormDraft(auth.user.id);
+      }
     } catch (error) {
       setFormError(resolveAppErrorMessage(error, 'transactions.errorSave'));
     } finally {
       setIsSubmitting(false);
     }
   }
+
+  const amountInputValue = transactionToEdit ? amount : normalizeImplicitCurrencyInput(amount, locale);
 
   return (
     <section className="finance-panel">
@@ -170,18 +247,33 @@ export function TransactionForm({
         <label className="finance-field">
           <span>{translateAppText('transactions.amount')}</span>
           <input
-            inputMode="decimal"
+            className="finance-input--amount"
+            inputMode={transactionToEdit ? 'decimal' : 'numeric'}
             name="amount"
-            onBlur={(event) => setAmount(normalizeDecimalInput(event.target.value, locale))}
-            onChange={(event) => setAmount(normalizeDecimalInput(event.target.value, locale))}
+            onBlur={(event) => {
+              if (transactionToEdit) {
+                setAmount(normalizeDecimalInput(event.target.value, locale));
+              }
+            }}
+            onChange={(event) => {
+              setAmount(
+                transactionToEdit
+                  ? normalizeDecimalInput(event.target.value, locale)
+                  : normalizeImplicitCurrencyInput(event.target.value, locale),
+              );
+            }}
             type="text"
-            value={amount}
+            value={amountInputValue}
           />
         </label>
 
         <label className="finance-field">
           <span>{translateAppText('transactions.type')}</span>
-          <select name="type" onChange={(event) => setType(event.target.value as TransactionInput['type'])} value={type}>
+          <select
+            name="type"
+            onChange={(event) => setType(event.target.value as TransactionInput['type'])}
+            value={type}
+          >
             <option value="expense">{translateAppText('transactions.expense')}</option>
             <option value="income">{translateAppText('transactions.incomeOption')}</option>
           </select>
@@ -197,7 +289,9 @@ export function TransactionForm({
             }}
             value={categoryId}
           >
-            {categories.length === 0 ? <option value="">{translateAppText('transactions.noCategoriesYet')}</option> : null}
+            {categories.length === 0 ? (
+              <option value="">{translateAppText('transactions.noCategoriesYet')}</option>
+            ) : null}
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}

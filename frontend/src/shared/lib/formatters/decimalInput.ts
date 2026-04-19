@@ -58,3 +58,33 @@ export function formatDecimalInput(value: number, locale: string) {
     useGrouping: false,
   }).format(value);
 }
+
+function extractDigits(rawValue: string) {
+  return rawValue.replace(/\D/g, '');
+}
+
+export function normalizeImplicitCurrencyInput(rawValue: string, locale: string) {
+  const digits = extractDigits(rawValue);
+
+  if (!digits) {
+    return '';
+  }
+
+  return new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+    useGrouping: false,
+  }).format(Number(digits) / 100);
+}
+
+export function parseImplicitCurrencyInput(rawValue: string) {
+  const digits = extractDigits(rawValue);
+
+  if (!digits) {
+    return null;
+  }
+
+  const parsedValue = Number(digits) / 100;
+
+  return Number.isFinite(parsedValue) ? parsedValue : null;
+}

@@ -6,8 +6,8 @@ export type DisplayPreferencesContextValue = {
   preferences: DisplayPreferences;
   currencyOptions: DisplayPreferenceOption[];
   localeOptions: DisplayPreferenceOption[];
-  updatePreferences(preferences: DisplayPreferences): void;
-  resetPreferences(): void;
+  updatePreferences(preferences: DisplayPreferences): Promise<void>;
+  resetPreferences(): Promise<void>;
 };
 
 export const DisplayPreferencesContext = createContext<DisplayPreferencesContextValue | undefined>(

@@ -311,6 +311,48 @@ p {
   gap: 0.65rem;
 }
 
+.topbar__balance-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid rgba(47, 62, 119, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.45),
+    var(--shadow-soft);
+}
+
+.topbar__balance-chip svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  color: var(--color-primary-container);
+}
+
+.topbar__balance-chip div {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.topbar__balance-chip span {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-on-surface-variant);
+}
+
+.topbar__balance-chip strong {
+  color: var(--color-on-surface);
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
 .topbar__notifications {
   border: 1px solid rgba(184, 58, 48, 0.14);
   background: var(--color-tertiary-fixed);
@@ -328,6 +370,16 @@ p {
   background: var(--color-primary-fixed);
   color: var(--color-primary-container);
   font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  .topbar__balance-chip {
+    padding-inline: 0.7rem;
+  }
+
+  .topbar__balance-chip span {
+    display: none;
+  }
 }
 
 .content,

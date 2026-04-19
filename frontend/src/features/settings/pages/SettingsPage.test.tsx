@@ -3,8 +3,10 @@ import userEvent from '@testing-library/user-event';
 
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { formatMonthLabel } from '../../../shared/lib/formatters/date';
+import { getCurrentMonthKey } from '../../../shared/lib/date/months';
 import { setRuntimeDisplayPreferences } from '../../../shared/preferences/displayPreferences';
 import { createAuthServiceStub } from '../../../test/createAuthServiceStub';
+import { createDisplayPreferencesServiceStub } from '../../../test/createDisplayPreferencesServiceStub';
 import { renderAppAtPath } from '../../../test/renderAppAtPath';
 
 describe('SettingsPage', () => {
@@ -18,8 +20,15 @@ describe('SettingsPage', () => {
         },
       },
     });
+    const displayPreferencesService = createDisplayPreferencesServiceStub({
+      initialPreferences: {
+        currency: 'BRL',
+        locale: 'en-US',
+        monthStartDay: 1,
+      },
+    });
 
-    await renderAppAtPath('/settings', authService.service);
+    await renderAppAtPath('/settings', authService.service, undefined, displayPreferencesService.service);
 
     expect(
       await screen.findByRole('heading', { name: /^settings$/i, level: 1 }, { timeout: 8000 }),
@@ -28,6 +37,11 @@ describe('SettingsPage', () => {
     expect(screen.getByText(/^brl$/i)).toBeInTheDocument();
     expect(screen.getByText(/^en-us$/i)).toBeInTheDocument();
     expect(screen.getAllByText(/^1st$/i).length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText(
+        new RegExp(formatMonthLabel(getCurrentMonthKey(new Date(), 1), 'en-US'), 'i'),
+      ).length,
+    ).toBeGreaterThan(0);
     expect(screen.getByText(/support details/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /save preferences/i })).toBeDisabled();
 
@@ -53,6 +67,11 @@ describe('SettingsPage', () => {
       locale: 'pt-BR',
       monthStartDay: 15,
     });
+    expect(displayPreferencesService.getPreferences()).toEqual({
+      currency: 'USD',
+      locale: 'pt-BR',
+      monthStartDay: 15,
+    });
   });
 
   it('shows support details without surfacing technical implementation labels', async () => {
@@ -71,7 +90,7 @@ describe('SettingsPage', () => {
 
     await user.click(await screen.findByText(/support details/i));
 
-    expect(await screen.findByText(/available whenever you sign in/i)).toBeInTheDocument();
+    expect(await screen.findByText(/synced across your signed-in devices/i)).toBeInTheDocument();
     expect(screen.getAllByText(/owner@fintra.dev/i).length).toBeGreaterThan(0);
     expect(screen.queryByText(/supabase/i)).not.toBeInTheDocument();
   });

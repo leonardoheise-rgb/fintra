@@ -1,7 +1,8 @@
-import { useEffect, useState, type PropsWithChildren } from 'react';
+import { useEffect, useMemo, useState, type PropsWithChildren } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
 import { useAuth } from '../../features/auth/useAuth';
+import { buildDashboardSnapshot } from '../../features/dashboard/lib/buildDashboardSnapshot';
 import { SetAsideDecisionPrompt } from '../../features/finance/components/SetAsideDecisionPrompt';
 import { getCategoryName, getSubcategoryName } from '../../features/finance/lib/financeSelectors';
 import { getDueSetAsides } from '../../features/finance/lib/setAsides';
@@ -10,6 +11,8 @@ import { useNotifications } from '../../features/notifications/useNotifications'
 import { useDisplayPreferences } from '../../features/settings/useDisplayPreferences';
 import { translateAppText } from '../../shared/i18n/appText';
 import { formatLocalIsoDate } from '../../shared/lib/date/isoDates';
+import { getCurrentMonthKey } from '../../shared/lib/date/months';
+import { formatCurrency } from '../../shared/lib/formatters/currency';
 import { SidebarNavigation } from './SidebarNavigation';
 
 function getUserInitials(email: string | undefined) {
@@ -40,7 +43,9 @@ export function AppLayout({ children }: PropsWithChildren) {
   const auth = useAuth();
   const financeData = useFinanceData();
   const { unreadCount } = useNotifications();
-  const { preferences } = useDisplayPreferences();
+  const {
+    preferences: { monthStartDay },
+  } = useDisplayPreferences();
   const location = useLocation();
   const [isMobileNavigationOpen, setIsMobileNavigationOpen] = useState(false);
   const [isResolvingSetAside, setIsResolvingSetAside] = useState(false);
@@ -50,7 +55,6 @@ export function AppLayout({ children }: PropsWithChildren) {
     pageTitleByPath[location.pathname] ?? 'shell.defaultTitle',
   );
 
-  void preferences;
   useEffect(() => {
     setIsMobileNavigationOpen(false);
   }, [location.pathname]);
@@ -76,6 +80,26 @@ export function AppLayout({ children }: PropsWithChildren) {
         dueSetAside.subcategoryId,
       )}`
     : '';
+  const currentMonthBalance = useMemo(() => {
+    if (financeData.status !== 'ready') {
+      return null;
+    }
+
+    const currentMonth = getCurrentMonthKey(new Date(), monthStartDay);
+    const snapshot = buildDashboardSnapshot(
+      {
+        categories: financeData.categories,
+        budgets: financeData.budgets,
+        budgetOverrides: financeData.budgetOverrides,
+        transactions: financeData.transactions,
+        setAsides: financeData.setAsides,
+      },
+      currentMonth,
+      monthStartDay,
+    );
+
+    return snapshot.totalAvailable;
+  }, [financeData, monthStartDay]);
 
   async function handleMarkSetAsideSpent() {
     if (!dueSetAside) {
@@ -219,6 +243,22 @@ export function AppLayout({ children }: PropsWithChildren) {
           </div>
 
           <div className="topbar__meta">
+            {currentMonthBalance !== null ? (
+              <div
+                aria-label={translateAppText('shell.currentMonthBalance')}
+                className="topbar__balance-chip"
+              >
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-9Z" />
+                  <path d="M4 9h16" />
+                  <path d="M15.5 13h2.5" />
+                </svg>
+                <div>
+                  <span>{translateAppText('shell.currentMonthBalance')}</span>
+                  <strong>{formatCurrency(currentMonthBalance)}</strong>
+                </div>
+              </div>
+            ) : null}
             {unreadCount > 0 ? (
               <NavLink className="topbar__notifications" to="/notifications">
                 {translateAppText('notifications.unreadBadge', { count: unreadCount })}

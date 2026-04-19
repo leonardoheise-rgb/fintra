@@ -188,6 +188,11 @@
   box-shadow: inset 0 -1px 0 var(--color-primary);
 }
 
+.finance-input--amount {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 .finance-field select:disabled {
   color: #8a8f9d;
 }
