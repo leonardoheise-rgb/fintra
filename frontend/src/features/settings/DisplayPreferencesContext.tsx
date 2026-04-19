@@ -48,13 +48,14 @@ export function DisplayPreferencesProvider({
     }
 
     let isMounted = true;
-    const cachedPreferences = readStoredDisplayPreferences(auth.user.id);
+    const userId = auth.user.id;
+    const cachedPreferences = readStoredDisplayPreferences(userId);
 
     setPreferences(cachedPreferences);
     setRuntimeDisplayPreferences(cachedPreferences);
 
     displayPreferencesService
-      .readPreferences(auth.user.id)
+      .readPreferences(userId)
       .then((nextPreferences) => {
         if (!isMounted) {
           return;
@@ -62,7 +63,7 @@ export function DisplayPreferencesProvider({
 
         setPreferences(nextPreferences);
         setRuntimeDisplayPreferences(nextPreferences);
-        writeStoredDisplayPreferences(auth.user.id, nextPreferences);
+        writeStoredDisplayPreferences(userId, nextPreferences);
       })
       .catch(() => {
         // Keep the local cache active when cloud sync is temporarily unavailable.
@@ -83,6 +84,8 @@ export function DisplayPreferencesProvider({
       return;
     }
 
+    const userId = auth.user.id;
+
     async function syncPreferencesFromCloud(userId: string) {
       try {
         const nextPreferences = await displayPreferencesService.readPreferences(userId);
@@ -97,12 +100,12 @@ export function DisplayPreferencesProvider({
 
     function handleVisibilityChange() {
       if (document.visibilityState === 'visible') {
-        void syncPreferencesFromCloud(auth.user!.id);
+        void syncPreferencesFromCloud(userId);
       }
     }
 
     function handleWindowFocus() {
-      void syncPreferencesFromCloud(auth.user!.id);
+      void syncPreferencesFromCloud(userId);
     }
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
