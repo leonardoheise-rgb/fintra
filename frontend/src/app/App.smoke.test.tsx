@@ -171,8 +171,15 @@ describe('Fintra smoke flows', () => {
     await user.click(screen.getByRole('tab', { name: /categories/i }));
 
     expect(
-      await screen.findByRole('heading', { name: /spending by category/i }, { timeout: 8000 }),
+      await screen.findByRole('heading', { name: /spending transactions/i }, { timeout: 8000 }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/food and dining/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/category filter/i)).toBeInTheDocument();
+    expect(screen.getByText(/client dinner/i)).toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText(/category filter/i), 'category-food');
+
+    expect(
+      await screen.findByRole('heading', { name: /food and dining over time/i }, { timeout: 8000 }),
+    ).toBeInTheDocument();
   });
 });
