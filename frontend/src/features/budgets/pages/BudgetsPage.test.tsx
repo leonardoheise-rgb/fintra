@@ -90,9 +90,11 @@ describe('BudgetsPage', () => {
       expect(screen.getAllByRole('button', { name: /reset override/i }).length).toBe(1);
     });
 
-    const [, overrideCategorySelect] = await screen.findAllByLabelText(/^category$/i, {}, { timeout: 8000 });
-    const [, overrideSubcategorySelect] = screen.getAllByLabelText(/subcategor/i);
-    const [, overrideAmountInput] = screen.getAllByLabelText(/^amount$/i);
+    await user.click(screen.getByRole('tab', { name: /add monthly override/i }));
+
+    const overrideCategorySelect = await screen.findByLabelText(/^category$/i, {}, { timeout: 8000 });
+    const overrideSubcategorySelect = screen.getByLabelText(/subcategor/i);
+    const overrideAmountInput = screen.getByLabelText(/^amount$/i);
 
     await user.selectOptions(overrideCategorySelect, 'category-transport');
     await user.clear(overrideAmountInput);
@@ -112,6 +114,29 @@ describe('BudgetsPage', () => {
         ),
       ).toBe(true);
     });
+  });
+
+  it('switches between default budget and monthly override tabs', async () => {
+    const user = userEvent.setup();
+    const authService = createAuthServiceStub({
+      initialSession: {
+        user: {
+          id: 'user-1',
+          email: 'owner@fintra.dev',
+        },
+      },
+    });
+
+    await renderAppAtPath('/budgets', authService.service);
+
+    await waitForBudgetsToLoad();
+
+    expect(screen.getByRole('button', { name: /create default budget/i })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('tab', { name: /add monthly override/i }));
+
+    expect(screen.getByRole('button', { name: /create monthly override/i })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /create default budget/i })).not.toBeInTheDocument();
   });
 
   it('edits an existing budget inline from the budget card amount area', async () => {

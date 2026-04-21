@@ -16,12 +16,12 @@ function escapeCsvCell(value: string | number) {
   return `"${text.replace(/"/g, '""')}"`;
 }
 
-export function buildTransactionsCsv(
+export function buildTransactionsCsvRows(
   transactions: TransactionRecord[],
   categories: CategoryRecord[],
   subcategories: SubcategoryRecord[],
 ) {
-  const rows = [
+  return [
     [
       translateAppText('transactions.date'),
       translateAppText('transactions.type'),
@@ -41,6 +41,14 @@ export function buildTransactionsCsv(
       transaction.amount.toFixed(2),
     ]),
   ];
+}
+
+export function buildTransactionsCsv(
+  transactions: TransactionRecord[],
+  categories: CategoryRecord[],
+  subcategories: SubcategoryRecord[],
+) {
+  const rows = buildTransactionsCsvRows(transactions, categories, subcategories);
 
   return rows.map((row) => row.map(escapeCsvCell).join(',')).join('\n');
 }

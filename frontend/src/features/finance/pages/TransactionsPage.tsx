@@ -34,6 +34,7 @@ export function TransactionsPage() {
     preferences: { monthStartDay },
   } = useDisplayPreferences();
   const [transactionToEdit, setTransactionToEdit] = useState<TransactionRecord | null>(null);
+  const [isUpdatingTransaction, setIsUpdatingTransaction] = useState(false);
   const [pendingBudgetReallocation, setPendingBudgetReallocation] =
     useState<PendingBudgetReallocation | null>(null);
   const [selectedDonorCategoryId, setSelectedDonorCategoryId] = useState('');
@@ -147,17 +148,22 @@ export function TransactionsPage() {
   }
 
   async function handleSubmit(input: TransactionInput) {
-    if (transactionToEdit) {
-      await financeData.updateTransaction(transactionToEdit.id, input);
-      setTransactionToEdit(null);
-      setPendingBudgetReallocation(null);
-      return;
-    }
-
     const nextBudgetReallocation = buildBudgetReallocation(input);
     await financeData.createTransaction(input);
     setPendingBudgetReallocation(nextBudgetReallocation);
     setReallocationErrorMessage(null);
+  }
+
+  async function handleUpdateTransaction(transactionId: string, input: TransactionInput) {
+    setIsUpdatingTransaction(true);
+
+    try {
+      await financeData.updateTransaction(transactionId, input);
+      setTransactionToEdit(null);
+      setPendingBudgetReallocation(null);
+    } finally {
+      setIsUpdatingTransaction(false);
+    }
   }
 
   async function upsertBudgetOverride(
@@ -324,10 +330,10 @@ export function TransactionsPage() {
           {activeOperation === 'log' ? (
             <TransactionForm
               categories={financeData.categories}
-              onCancelEdit={() => setTransactionToEdit(null)}
+              onCancelEdit={() => {}}
               onSubmit={handleSubmit}
               subcategories={financeData.subcategories}
-              transactionToEdit={transactionToEdit}
+              transactionToEdit={null}
             />
           ) : (
             <SetAsideForm
@@ -346,9 +352,13 @@ export function TransactionsPage() {
 
           <TransactionsList
             categories={financeData.categories}
+            onCancelEdit={() => setTransactionToEdit(null)}
             onDelete={financeData.deleteTransaction}
-            onEdit={setTransactionToEdit}
             onExportCsv={handleExportCsv}
+            onStartEdit={setTransactionToEdit}
+            onUpdate={handleUpdateTransaction}
+            editingTransaction={transactionToEdit}
+            isUpdatingTransaction={isUpdatingTransaction}
             subcategories={financeData.subcategories}
             transactions={sortedTransactions}
           />

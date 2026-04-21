@@ -34,10 +34,17 @@ export function BudgetsPage() {
   const [budgetOverrideToEdit, setBudgetOverrideToEdit] = useState<BudgetOverrideRecord | null>(
     null,
   );
+  const [activeFormTab, setActiveFormTab] = useState<'default' | 'override'>('default');
 
   useEffect(() => {
     setSelectedMonth(currentMonth);
   }, [currentMonth]);
+
+  useEffect(() => {
+    if (budgetOverrideToEdit) {
+      setActiveFormTab('override');
+    }
+  }, [budgetOverrideToEdit]);
 
   const allocatedBudget = useMemo(
     () => calculateAllocatedBudget(financeData.budgets),
@@ -120,13 +127,60 @@ export function BudgetsPage() {
       ) : (
         <>
           <div className="finance-grid">
-            <BudgetForm
-              budgetToEdit={null}
-              categories={financeData.categories}
-              onCancelEdit={() => {}}
-              onSubmit={handleSubmit}
-              subcategories={financeData.subcategories}
-            />
+            <div className="finance-grid finance-grid--stacked">
+              <section className="finance-panel finance-panel--segment">
+                <div
+                  className="analytics-tabbar"
+                  role="tablist"
+                  aria-label={translateAppText('budgets.formTabs')}
+                >
+                  <button
+                    aria-selected={activeFormTab === 'default'}
+                    className={`analytics-tabbar__button${
+                      activeFormTab === 'default' ? ' analytics-tabbar__button--active' : ''
+                    }`}
+                    onClick={() => {
+                      setActiveFormTab('default');
+                      setBudgetOverrideToEdit(null);
+                    }}
+                    role="tab"
+                    type="button"
+                  >
+                    {translateAppText('budgets.addDefaultHeading')}
+                  </button>
+                  <button
+                    aria-selected={activeFormTab === 'override'}
+                    className={`analytics-tabbar__button${
+                      activeFormTab === 'override' ? ' analytics-tabbar__button--active' : ''
+                    }`}
+                    onClick={() => setActiveFormTab('override')}
+                    role="tab"
+                    type="button"
+                  >
+                    {translateAppText('budgets.addOverrideHeading')}
+                  </button>
+                </div>
+              </section>
+
+              {activeFormTab === 'default' ? (
+                <BudgetForm
+                  budgetToEdit={null}
+                  categories={financeData.categories}
+                  onCancelEdit={() => {}}
+                  onSubmit={handleSubmit}
+                  subcategories={financeData.subcategories}
+                />
+              ) : (
+                <BudgetOverrideForm
+                  categories={financeData.categories}
+                  month={selectedMonth}
+                  onCancelEdit={() => setBudgetOverrideToEdit(null)}
+                  onSubmit={handleOverrideSubmit}
+                  overrideToEdit={budgetOverrideToEdit}
+                  subcategories={financeData.subcategories}
+                />
+              )}
+            </div>
             <BudgetsList
               budgetOverrides={financeData.budgetOverrides}
               budgets={financeData.budgets}
@@ -139,14 +193,6 @@ export function BudgetsPage() {
           </div>
 
           <div className="finance-grid">
-            <BudgetOverrideForm
-              categories={financeData.categories}
-              month={selectedMonth}
-              onCancelEdit={() => setBudgetOverrideToEdit(null)}
-              onSubmit={handleOverrideSubmit}
-              overrideToEdit={budgetOverrideToEdit}
-              subcategories={financeData.subcategories}
-            />
             <BudgetOverridesList
               budgetOverrides={financeData.budgetOverrides}
               categories={financeData.categories}

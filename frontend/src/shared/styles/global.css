@@ -592,6 +592,23 @@ p {
   box-shadow: var(--shadow-soft);
 }
 
+.budget-card--interactive {
+  width: 100%;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.budget-card--interactive:hover {
+  transform: translateY(-1px);
+}
+
+.budget-card--interactive:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 .budget-card--used {
   background:
     linear-gradient(135deg, rgba(123, 127, 140, 0.16), rgba(255, 255, 255, 0.96)),

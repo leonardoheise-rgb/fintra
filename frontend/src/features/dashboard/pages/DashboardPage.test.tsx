@@ -57,4 +57,30 @@ describe('DashboardPage', () => {
     );
     expect(navigationPanel).not.toHaveClass('sidebar--open');
   });
+
+  it('opens month-scoped transactions when a category highlight is clicked', async () => {
+    const user = userEvent.setup();
+    const authService = createAuthServiceStub({
+      initialSession: {
+        user: {
+          id: 'user-1',
+          email: 'owner@fintra.dev',
+        },
+      },
+    });
+
+    await renderAppAtPath('/', authService.service);
+
+    await waitForDashboardToLoad();
+
+    await user.click(await screen.findByRole('button', { name: /housing/i }));
+
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /housing transactions in/i })).toBeInTheDocument();
+    expect(screen.getByText(/apartment rent/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /close details/i }));
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
 });

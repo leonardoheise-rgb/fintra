@@ -1,4 +1,4 @@
-import { screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
+import { screen, waitFor, waitForElementToBeRemoved, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { createAuthServiceStub } from '../../../test/createAuthServiceStub';
@@ -289,5 +289,76 @@ describe('TransactionsPage', () => {
     await waitFor(() => {
       expect(screen.queryByRole('heading', { name: /move budget for this month/i })).not.toBeInTheDocument();
     });
+  });
+
+  it('shows a CSV-style table view beside export controls', async () => {
+    const user = userEvent.setup();
+    const authService = createAuthServiceStub({
+      initialSession: {
+        user: {
+          id: 'user-1',
+          email: 'owner@fintra.dev',
+        },
+      },
+    });
+
+    await renderAppAtPath('/transactions', authService.service);
+
+    await waitForTransactionsToLoad();
+    await user.click(screen.getByRole('button', { name: /table view/i }));
+
+    const tableView = screen.getByRole('table', { name: /transactions table view/i });
+
+    expect(tableView).toBeInTheDocument();
+    expect(within(tableView).getByRole('columnheader', { name: /date/i })).toBeInTheDocument();
+    expect(within(tableView).getAllByRole('cell', { name: /monthly salary/i }).length).toBeGreaterThan(0);
+  });
+
+  it('edits an existing transaction inline from the entry card', async () => {
+    const user = userEvent.setup();
+    const authService = createAuthServiceStub({
+      initialSession: {
+        user: {
+          id: 'user-1',
+          email: 'owner@fintra.dev',
+        },
+      },
+    });
+
+    await renderAppAtPath('/transactions', authService.service);
+
+    await waitForTransactionsToLoad();
+
+    const salaryEditButton = screen.getAllByRole('button', { name: /edit transaction monthly salary/i })[0];
+    const salaryCard = salaryEditButton.closest('article');
+
+    expect(salaryCard).not.toBeNull();
+
+    await user.click(salaryEditButton);
+
+    const inlineAmountInput = within(salaryCard!).getByRole('textbox', { name: /^amount$/i });
+    const inlineDescriptionInput = within(salaryCard!).getByRole('textbox', {
+      name: /^description$/i,
+    });
+
+    await user.clear(inlineAmountInput);
+    await user.type(inlineAmountInput, '3500');
+    await user.clear(inlineDescriptionInput);
+    await user.type(inlineDescriptionInput, 'Updated salary');
+    await user.click(within(salaryCard!).getByRole('button', { name: /update transaction/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/updated salary/i)).toBeInTheDocument();
+    });
+
+    const persistedWorkspace = JSON.parse(
+      window.localStorage.getItem('fintra.preview.workspace.test-finance-user') ?? '{}',
+    );
+
+    expect(
+      persistedWorkspace.transactions.find(
+        (transaction: { description: string }) => transaction.description === 'Updated salary',
+      ),
+    ).toBeTruthy();
   });
 });

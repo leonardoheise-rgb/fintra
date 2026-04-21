@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { translateAppText } from '../../../shared/i18n/appText';
-import { getCurrentMonthKey } from '../../../shared/lib/date/months';
+import { getCurrentMonthKey, getMonthKey } from '../../../shared/lib/date/months';
 import { useDisplayPreferences } from '../../settings/useDisplayPreferences';
 import { sortTransactionsByDateDesc } from '../../finance/lib/financeSelectors';
 import { useFinanceData } from '../../finance/useFinanceData';
 import { useNotifications } from '../../notifications/useNotifications';
 import { AvailableBalancePanel } from '../components/AvailableBalancePanel';
 import { BudgetHighlights } from '../components/BudgetHighlights';
+import { CategoryTransactionsDialog } from '../components/CategoryTransactionsDialog';
 import { InsightsPanel } from '../components/InsightsPanel';
 import { RecentTransactionsPanel } from '../components/RecentTransactionsPanel';
 import { buildDashboardSnapshot } from '../lib/buildDashboardSnapshot';
@@ -21,6 +22,20 @@ export function DashboardPage() {
   const { unreadCount, unreadNotifications } = useNotifications();
   const currentMonth = useMemo(() => getCurrentMonthKey(new Date(), monthStartDay), [monthStartDay]);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const selectedCategoryTransactions = useMemo(
+    () =>
+      selectedCategoryId
+        ? sortTransactionsByDateDesc(
+            financeData.transactions.filter(
+              (transaction) =>
+                transaction.categoryId === selectedCategoryId &&
+                getMonthKey(transaction.date, monthStartDay) === selectedMonth,
+            ),
+          )
+        : [],
+    [financeData.transactions, monthStartDay, selectedCategoryId, selectedMonth],
+  );
 
   useEffect(() => {
     setSelectedMonth(currentMonth);
@@ -47,8 +62,20 @@ export function DashboardPage() {
     monthStartDay,
   );
   const recentTransactions = sortTransactionsByDateDesc(financeData.transactions);
+  const selectedCategoryCard = snapshot.cards.find((card) => card.id === selectedCategoryId) ?? null;
+
   return (
     <div className="dashboard-page">
+      {selectedCategoryCard ? (
+        <CategoryTransactionsDialog
+          categoryName={selectedCategoryCard.name}
+          month={selectedMonth}
+          onClose={() => setSelectedCategoryId(null)}
+          subcategories={financeData.subcategories}
+          transactions={selectedCategoryTransactions}
+        />
+      ) : null}
+
       <section className="finance-panel dashboard-toolbar dashboard-toolbar--compact">
         <label className="finance-field dashboard-toolbar__field">
           <span>{translateAppText('dashboard.selectedMonth')}</span>
@@ -97,7 +124,11 @@ export function DashboardPage() {
 
       <AvailableBalancePanel snapshot={snapshot} />
       <InsightsPanel insight={snapshot.insight} />
-      <BudgetHighlights cards={snapshot.cards} month={selectedMonth} />
+      <BudgetHighlights
+        cards={snapshot.cards}
+        month={selectedMonth}
+        onSelectCategory={setSelectedCategoryId}
+      />
       <RecentTransactionsPanel
         categories={financeData.categories}
         subcategories={financeData.subcategories}

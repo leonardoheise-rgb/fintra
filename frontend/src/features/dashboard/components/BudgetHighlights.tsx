@@ -10,9 +10,10 @@ import type { BudgetCard } from '../dashboard.types';
 type BudgetHighlightsProps = {
   cards: BudgetCard[];
   month: string;
+  onSelectCategory(categoryId: string): void;
 };
 
-export function BudgetHighlights({ cards, month }: BudgetHighlightsProps) {
+export function BudgetHighlights({ cards, month, onSelectCategory }: BudgetHighlightsProps) {
   const {
     preferences: { monthStartDay },
   } = useDisplayPreferences();
@@ -62,7 +63,12 @@ export function BudgetHighlights({ cards, month }: BudgetHighlightsProps) {
                     : 'neutral';
 
             return (
-              <article className={`budget-card budget-card--${cardTone}`} key={card.id}>
+              <button
+                className={`budget-card budget-card--${cardTone} budget-card--interactive`}
+                key={card.id}
+                onClick={() => onSelectCategory(card.id)}
+                type="button"
+              >
                 <div className="budget-card__header">
                   <div className="budget-card__badge" aria-hidden="true">
                     {card.shortLabel}
@@ -116,7 +122,7 @@ export function BudgetHighlights({ cards, month }: BudgetHighlightsProps) {
                     {paceLabel}
                   </span>
                 </div>
-              </article>
+              </button>
             );
           })}
         </div>
