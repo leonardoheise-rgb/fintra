@@ -36,6 +36,13 @@ export type CategoryTrendPoint = {
   amount: number;
 };
 
+export type CategorySpendSeries = {
+  categoryId: string | null;
+  categoryName: string;
+  monthlyPoints: CategoryTrendPoint[];
+  totalSpent: number;
+};
+
 export type CategorySpendingTrend = {
   categoryId: string;
   categoryName: string;

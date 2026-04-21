@@ -11,11 +11,13 @@ import { useDisplayPreferences } from '../../settings/useDisplayPreferences';
 import type { AnalyticsRangePreset } from '../analytics.types';
 import { AnalyticsComparisonPanel } from '../components/AnalyticsComparisonPanel';
 import { AnalyticsTabBar } from '../components/AnalyticsTabBar';
+import { CategorySpendingChart } from '../components/CategorySpendingChart';
 import { CategoryTrendList } from '../components/CategoryTrendList';
 import { MonthlyCashflowChart } from '../components/MonthlyCashflowChart';
 import { SavingsRateChart } from '../components/SavingsRateChart';
 import { resolveAnalyticsRange } from '../lib/analyticsRange';
 import { buildAnalyticsComparison } from '../lib/buildAnalyticsComparison';
+import { buildCategorySpendSeries } from '../lib/buildCategorySpendSeries';
 import { buildCategorySpendingTrends } from '../lib/buildCategorySpendingTrends';
 import { buildMonthlyAnalyticsSeries } from '../lib/buildMonthlyAnalyticsSeries';
 
@@ -54,6 +56,7 @@ export function AnalyticsPage() {
   const currentMonth = useMemo(() => getCurrentMonthKey(new Date(), monthStartDay), [monthStartDay]);
   const [activeTab, setActiveTab] = useState<'overview' | 'categories'>('overview');
   const [preset, setPreset] = useState<AnalyticsRangePreset>('3m');
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
   const [selectedEndMonth, setSelectedEndMonth] = useState(currentMonth);
   const [customStartMonth, setCustomStartMonth] = useState(shiftMonthKey(currentMonth, -2));
   const [customEndMonth, setCustomEndMonth] = useState(currentMonth);
@@ -112,6 +115,23 @@ export function AnalyticsPage() {
   const totalExpenses = sumValues(monthlySeries.map((point) => point.expenses));
   const averageSavingsRate = comparison.averageSavingsRate;
   const topCategory = categoryTrends[0]?.categoryName ?? null;
+  const availableCategoryOptions = useMemo(
+    () =>
+      categoryTrends.map((trend) => ({
+        value: trend.categoryId,
+        label: trend.categoryName,
+      })),
+    [categoryTrends],
+  );
+  const selectedCategorySeries = useMemo(
+    () =>
+      buildCategorySpendSeries({
+        selectedCategoryId: selectedCategoryId === 'all' ? null : selectedCategoryId,
+        trends: categoryTrends,
+        months: deferredRange.months,
+      }),
+    [categoryTrends, deferredRange.months, selectedCategoryId],
+  );
   const currentPoint = monthlySeries[monthlySeries.length - 1] ?? null;
   const hasWorkspaceTransactions = financeData.transactions.length > 0;
   const hasActivityInSelectedRange = hasRangeActivity(monthlySeries);
@@ -123,6 +143,16 @@ export function AnalyticsPage() {
         : preset === '12m'
           ? translateAppText('analytics.last12Months')
           : translateAppText('analytics.customRange');
+
+  useEffect(() => {
+    if (selectedCategoryId === 'all') {
+      return;
+    }
+
+    if (!availableCategoryOptions.some((option) => option.value === selectedCategoryId)) {
+      setSelectedCategoryId('all');
+    }
+  }, [availableCategoryOptions, selectedCategoryId]);
 
   return (
     <div className="finance-page finance-page--analytics">
@@ -250,7 +280,29 @@ export function AnalyticsPage() {
               <SavingsRateChart monthlyPoints={monthlySeries} />
             </div>
           ) : (
-            <CategoryTrendList trends={categoryTrends} />
+            <>
+              <section className="finance-panel analytics-filters">
+                <label className="finance-field">
+                  <span>{translateAppText('analytics.categoryFilter')}</span>
+                  <select
+                    name="analyticsCategory"
+                    onChange={(event) => setSelectedCategoryId(event.target.value)}
+                    value={selectedCategoryId}
+                  >
+                    <option value="all">{translateAppText('analytics.allCategories')}</option>
+                    {availableCategoryOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </section>
+              <div className="analytics-overview-grid">
+                <CategorySpendingChart series={selectedCategorySeries} />
+                <CategoryTrendList trends={categoryTrends} />
+              </div>
+            </>
           )}
         </>
       )}

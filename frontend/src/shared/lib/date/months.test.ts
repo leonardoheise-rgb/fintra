@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { addMonthsToIsoDate, getCurrentMonthKey, getMonthKey } from './months';
+import { addMonthsToIsoDate, buildMonthRange, getCurrentMonthKey, getMonthKey, shiftMonthKey } from './months';
 
 describe('months helpers', () => {
   it('maps dates to the correct finance month when the month starts mid-month', () => {
@@ -20,5 +20,14 @@ describe('months helpers', () => {
 
   it('shifts ISO dates while keeping the nearest valid day', () => {
     expect(addMonthsToIsoDate('2026-01-31', 1)).toBe('2026-02-28');
+  });
+
+  it('shifts month keys without falling back across local timezone boundaries', () => {
+    expect(shiftMonthKey('2026-03', 1)).toBe('2026-04');
+    expect(shiftMonthKey('2026-03', -1)).toBe('2026-02');
+  });
+
+  it('builds inclusive month ranges in order', () => {
+    expect(buildMonthRange('2026-02', '2026-04')).toEqual(['2026-02', '2026-03', '2026-04']);
   });
 });

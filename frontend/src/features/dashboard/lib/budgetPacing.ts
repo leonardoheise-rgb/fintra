@@ -3,7 +3,10 @@ import { isValidMonthKey, shiftMonthKey } from '../../../shared/lib/date/months'
 export type BudgetPacingStatus = 'above' | 'below' | 'aligned';
 
 export type BudgetPacing = {
+  elapsedDays: number;
+  totalDays: number;
   elapsedPercentage: number;
+  expectedPercentage: number;
   status: BudgetPacingStatus;
 };
 
@@ -41,6 +44,30 @@ function clampPercentage(value: number) {
   return Math.min(Math.max(value, 0), 100);
 }
 
+function getElapsedDays(nowAtUtcMidnight: number, start: number, end: number) {
+  const dayDuration = 24 * 60 * 60 * 1000;
+  const totalDays = Math.max(Math.round((end - start) / dayDuration), 1);
+
+  if (nowAtUtcMidnight < start) {
+    return {
+      elapsedDays: 0,
+      totalDays,
+    };
+  }
+
+  if (nowAtUtcMidnight >= end) {
+    return {
+      elapsedDays: totalDays,
+      totalDays,
+    };
+  }
+
+  return {
+    elapsedDays: Math.min(Math.floor((nowAtUtcMidnight - start) / dayDuration) + 1, totalDays),
+    totalDays,
+  };
+}
+
 export function resolveBudgetPacing(
   spentPercentage: number,
   month: string,
@@ -49,7 +76,10 @@ export function resolveBudgetPacing(
 ): BudgetPacing {
   if (!isValidMonthKey(month)) {
     return {
+      elapsedDays: 0,
+      totalDays: 1,
       elapsedPercentage: 100,
+      expectedPercentage: 100,
       status: 'aligned',
     };
   }
@@ -58,7 +88,10 @@ export function resolveBudgetPacing(
 
   if (!monthBounds || monthBounds.end <= monthBounds.start) {
     return {
+      elapsedDays: 0,
+      totalDays: 1,
       elapsedPercentage: 100,
+      expectedPercentage: 100,
       status: 'aligned',
     };
   }
@@ -68,10 +101,14 @@ export function resolveBudgetPacing(
     now.getUTCMonth(),
     now.getUTCDate(),
   );
-  const elapsedPercentage = clampPercentage(
-    ((nowAtUtcMidnight - monthBounds.start) / (monthBounds.end - monthBounds.start)) * 100,
+  const { elapsedDays, totalDays } = getElapsedDays(
+    nowAtUtcMidnight,
+    monthBounds.start,
+    monthBounds.end,
   );
-  const spentGap = spentPercentage - elapsedPercentage;
+  const expectedPercentage = clampPercentage((elapsedDays / totalDays) * 100);
+  const elapsedPercentage = expectedPercentage;
+  const spentGap = spentPercentage - expectedPercentage;
 
   /**
    * A small tolerance prevents copy from flipping because of 1-2 percentage point
@@ -79,20 +116,29 @@ export function resolveBudgetPacing(
    */
   if (spentGap > 5) {
     return {
+      elapsedDays,
+      totalDays,
       elapsedPercentage,
+      expectedPercentage,
       status: 'above',
     };
   }
 
   if (spentGap < -5) {
     return {
+      elapsedDays,
+      totalDays,
       elapsedPercentage,
+      expectedPercentage,
       status: 'below',
     };
   }
 
   return {
+    elapsedDays,
+    totalDays,
     elapsedPercentage,
+    expectedPercentage,
     status: 'aligned',
   };
 }

@@ -20,6 +20,10 @@ function parseMonthKey(month: string) {
   return { year, monthIndex };
 }
 
+function formatMonthKey(year: number, monthIndex: number) {
+  return `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
+}
+
 function parseIsoDate(date: string) {
   if (!isoDatePattern.test(date)) {
     return null;
@@ -72,12 +76,12 @@ export function getMonthKey(date: string, monthStartDay = 1) {
   );
 
   if (parsedDate.day >= currentMonthStartDay) {
-    return `${parsedDate.year}-${String(parsedDate.monthIndex + 1).padStart(2, '0')}`;
+    return formatMonthKey(parsedDate.year, parsedDate.monthIndex);
   }
 
   const previousMonth = new Date(Date.UTC(parsedDate.year, parsedDate.monthIndex - 1, 1));
 
-  return `${previousMonth.getUTCFullYear()}-${String(previousMonth.getUTCMonth() + 1).padStart(2, '0')}`;
+  return formatMonthKey(previousMonth.getUTCFullYear(), previousMonth.getUTCMonth());
 }
 
 export function getCurrentMonthKey(now = new Date(), monthStartDay = 1) {
@@ -95,7 +99,7 @@ export function shiftMonthKey(month: string, offset: number) {
 
   const shiftedDate = new Date(Date.UTC(parsedMonth.year, parsedMonth.monthIndex + offset, 1));
 
-  return getCurrentMonthKey(shiftedDate);
+  return formatMonthKey(shiftedDate.getUTCFullYear(), shiftedDate.getUTCMonth());
 }
 
 export function buildMonthRange(startMonth: string, endMonth: string) {

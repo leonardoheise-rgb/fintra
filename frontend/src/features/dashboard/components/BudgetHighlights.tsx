@@ -40,15 +40,29 @@ export function BudgetHighlights({ cards, month }: BudgetHighlightsProps) {
               spent: card.spent + card.reserved,
             });
             const pacing = resolveBudgetPacing(summary.rawPercentage, month, monthStartDay);
+            const cardTone =
+              summary.status === 'over' ? 'overused' : summary.status === 'at' ? 'used' : 'default';
             const paceLabel =
-              pacing.status === 'above'
-                ? translateAppText('dashboard.aboveIdeal')
-                : pacing.status === 'below'
-                  ? translateAppText('dashboard.belowIdeal')
-                  : translateAppText('dashboard.alignedWithIdeal');
+              summary.status === 'over'
+                ? translateAppText('dashboard.overused')
+                : summary.status === 'at'
+                  ? translateAppText('dashboard.allUsed')
+                  : pacing.status === 'above'
+                    ? translateAppText('dashboard.aboveIdeal')
+                    : pacing.status === 'below'
+                      ? translateAppText('dashboard.belowIdeal')
+                      : translateAppText('dashboard.alignedWithIdeal');
+            const paceTone =
+              summary.status === 'over' || summary.status === 'at'
+                ? 'alert'
+                : pacing.status === 'above'
+                  ? 'alert'
+                  : pacing.status === 'below'
+                    ? 'calm'
+                    : 'neutral';
 
             return (
-              <article className="budget-card" key={card.id}>
+              <article className={`budget-card budget-card--${cardTone}`} key={card.id}>
                 <div className="budget-card__header">
                   <div className="budget-card__badge" aria-hidden="true">
                     {card.shortLabel}
@@ -98,7 +112,9 @@ export function BudgetHighlights({ cards, month }: BudgetHighlightsProps) {
                       percent: Math.round(summary.rawPercentage),
                     })}
                   </span>
-                  <span>{paceLabel}</span>
+                  <span className={`budget-card__pace budget-card__pace--${paceTone}`}>
+                    {paceLabel}
+                  </span>
                 </div>
               </article>
             );

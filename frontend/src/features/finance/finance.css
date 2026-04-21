@@ -574,6 +574,10 @@
   background: var(--color-surface-container);
 }
 
+.analytics-chart__bars--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .analytics-chart__bar,
 .analytics-rate-chart__fill,
 .analytics-category-card__bar {
@@ -586,6 +590,10 @@
 
 .analytics-chart__bar--expense {
   background: rgba(100, 0, 13, 0.72);
+}
+
+.analytics-chart__bar--spend {
+  background: rgba(168, 94, 32, 0.82);
 }
 
 .analytics-chart__labels {

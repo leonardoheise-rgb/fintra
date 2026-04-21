@@ -592,6 +592,18 @@ p {
   box-shadow: var(--shadow-soft);
 }
 
+.budget-card--used {
+  background:
+    linear-gradient(135deg, rgba(123, 127, 140, 0.16), rgba(255, 255, 255, 0.96)),
+    var(--color-surface-container-lowest);
+}
+
+.budget-card--overused {
+  background:
+    linear-gradient(135deg, rgba(184, 58, 48, 0.18), rgba(255, 244, 243, 0.96)),
+    var(--color-surface-container-lowest);
+}
+
 .budget-card__header {
   display: flex;
   align-items: center;
@@ -646,11 +658,27 @@ p {
 }
 
 .budget-card__fill--at {
-  background: var(--color-secondary-fixed);
+  background: rgba(167, 84, 36, 0.72);
 }
 
 .budget-card__fill--over {
   background: var(--color-error);
+}
+
+.budget-card__pace {
+  font-weight: 700;
+}
+
+.budget-card__pace--neutral {
+  color: var(--color-on-surface-variant);
+}
+
+.budget-card__pace--calm {
+  color: var(--color-secondary);
+}
+
+.budget-card__pace--alert {
+  color: #b83a30;
 }
 
 .budget-card__footer {

@@ -1074,6 +1074,32 @@ Object.assign(translations['pt-BR'], {
 
 translations['pt-BR'] = normalizeTranslations(translations['pt-BR']);
 
+Object.assign(translations['en-US'], {
+  'dashboard.allUsed': 'All used',
+  'dashboard.overused': "Heads up! It's overused",
+  'analytics.categoryFilter': 'Category filter',
+  'analytics.allCategories': 'All categories',
+  'analytics.spendingTrend': 'Spending trend',
+  'analytics.spendingOverTime': 'Spending over time',
+  'analytics.filteredCategoryTrend': '{category} over time',
+  'analytics.monthlySpendBars': 'Monthly spending bars',
+  'analytics.noCategorySeries': 'No spending was recorded for this category in the selected range.',
+});
+
+Object.assign(translations['pt-BR'], {
+  'dashboard.allUsed': 'Tudo usado',
+  'dashboard.overused': 'Atenção! Está acima do usado',
+  'analytics.categoryFilter': 'Filtro de categoria',
+  'analytics.allCategories': 'Todas as categorias',
+  'analytics.spendingTrend': 'Tendência de gastos',
+  'analytics.spendingOverTime': 'Gastos ao longo do tempo',
+  'analytics.filteredCategoryTrend': '{category} ao longo do tempo',
+  'analytics.monthlySpendBars': 'Barras mensais de gastos',
+  'analytics.noCategorySeries': 'Não houve gastos nesta categoria no período selecionado.',
+});
+
+translations['pt-BR'] = normalizeTranslations(translations['pt-BR']);
+
 function getSupportedLocale(locale: string): SupportedLocale {
   if (locale.startsWith('pt')) {
     return 'pt-BR';

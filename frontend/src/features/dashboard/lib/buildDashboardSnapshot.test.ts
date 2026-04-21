@@ -143,7 +143,7 @@ describe('buildDashboardSnapshot', () => {
     expect(snapshot.totalReserved).toBe(120);
     expect(snapshot.remainingBudget).toBe(850);
     expect(snapshot.remainingBalance).toBe(4570);
-    expect(snapshot.totalAvailable).toBe(3600);
+    expect(snapshot.totalAvailable).toBe(4450);
     expect(snapshot.averageMonthlyExpenses).toBe(1250);
     expect(snapshot.categoryAvailability).toEqual([
       {
@@ -216,7 +216,7 @@ describe('buildDashboardSnapshot', () => {
       '2026-03',
     );
 
-    expect(snapshot.totalAvailable).toBe(3470);
+    expect(snapshot.totalAvailable).toBe(3750);
     expect(snapshot.categoryAvailability).toContainEqual({
         id: 'category-food',
         name: 'Food and dining',

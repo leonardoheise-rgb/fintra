@@ -56,7 +56,31 @@ describe('AnalyticsPage', () => {
     expect(
       await screen.findByRole('heading', { name: /spending by category/i }, { timeout: 8000 }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/food and dining/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/food and dining/i).length).toBeGreaterThan(0);
+    expect(screen.getByLabelText(/category filter/i)).toBeInTheDocument();
+  });
+
+  it('filters the spending time series to a specific category', async () => {
+    const user = userEvent.setup();
+    const authService = createAuthServiceStub({
+      initialSession: {
+        user: {
+          id: 'user-1',
+          email: 'owner@fintra.dev',
+        },
+      },
+    });
+
+    await renderAppAtPath('/analytics', authService.service);
+
+    await waitForAnalyticsToLoad();
+
+    await user.click(await screen.findByRole('tab', { name: /categories/i }));
+    await user.selectOptions(screen.getByLabelText(/category filter/i), 'category-food');
+
+    expect(
+      await screen.findByRole('heading', { name: /food and dining over time/i }, { timeout: 8000 }),
+    ).toBeInTheDocument();
   });
 
   it('shows an empty state when the selected range has no activity', async () => {
