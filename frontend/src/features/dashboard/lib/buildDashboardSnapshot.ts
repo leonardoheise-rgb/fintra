@@ -139,29 +139,43 @@ function buildCategoryAvailability(cards: BudgetCard[]): CategoryAvailability[] 
 }
 
 function calculateTotalAvailable(
+  cards: BudgetCard[],
   transactions: TransactionRecord[],
   setAsides: SetAsideRecord[],
   plannedIncome: number,
   carryOverAmount: number,
 ): number {
-  /**
-   * "Available" in the shell and dashboard is the live amount still on hand for
-   * the month, so we subtract actual expenses and reserved money instead of
-   * forecasting the rest of every budget envelope.
-   */
+  const budgetedCategoryIds = new Set(cards.map((card) => card.id));
+  const forecastedBudgetedSpending = sumValues(
+    cards.map((card) => Math.max(card.spent, card.effectiveBudget)),
+  );
+  const nonBudgetedExpenses = sumValues(
+    transactions
+      .filter(
+        (transaction) =>
+          transaction.type === 'expense' && !budgetedCategoryIds.has(transaction.categoryId),
+      )
+      .map((transaction) => transaction.amount),
+  );
+  const nonBudgetedSetAsides = sumValues(
+    setAsides
+      .filter((setAside) => !budgetedCategoryIds.has(setAside.categoryId))
+      .map((setAside) => setAside.amount),
+  );
   const totalIncome = sumValues(
     transactions
       .filter((transaction) => transaction.type === 'income')
       .map((transaction) => transaction.amount),
   );
-  const totalExpenses = sumValues(
-    transactions
-      .filter((transaction) => transaction.type === 'expense')
-      .map((transaction) => transaction.amount),
-  );
-  const totalReserved = sumValues(setAsides.map((setAside) => setAside.amount));
 
-  return totalIncome + plannedIncome + carryOverAmount - totalExpenses - totalReserved;
+  return (
+    totalIncome +
+    plannedIncome +
+    carryOverAmount -
+    forecastedBudgetedSpending -
+    nonBudgetedExpenses -
+    nonBudgetedSetAsides
+  );
 }
 
 function buildInsight(cards: BudgetCard[], remainingBudget: number) {
@@ -233,6 +247,7 @@ export function buildDashboardSnapshot(
   const remainingBalance = totalIncome + plannedIncome + carryOverAmount - totalExpenses;
   const categoryAvailability = buildCategoryAvailability(cards);
   const totalAvailable = calculateTotalAvailable(
+    cards,
     monthlyTransactions,
     monthlySetAsides,
     plannedIncome,

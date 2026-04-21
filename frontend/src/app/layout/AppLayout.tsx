@@ -3,6 +3,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../features/auth/useAuth';
 import { buildDashboardSnapshot } from '../../features/dashboard/lib/buildDashboardSnapshot';
+import { calculateLiveAvailableAmount } from '../../features/dashboard/lib/calculateLiveAvailableAmount';
 import { filterTransactionsByMonth } from '../../features/dashboard/lib/buildDashboardSnapshot';
 import { MonthReviewPrompt } from '../../features/finance/components/MonthReviewPrompt';
 import { SetAsideDecisionPrompt } from '../../features/finance/components/SetAsideDecisionPrompt';
@@ -105,20 +106,23 @@ export function AppLayout({ children }: PropsWithChildren) {
       return null;
     }
 
-    const snapshot = buildDashboardSnapshot(
-      {
-        categories: financeData.categories,
-        budgets: financeData.budgets,
-        budgetOverrides: financeData.budgetOverrides,
-        transactions: financeData.transactions,
-        setAsides: financeData.setAsides,
-        monthReviews: financeData.monthReviews,
-      },
+    const currentMonthTransactions = filterTransactionsByMonth(
+      financeData.transactions,
       currentMonth,
       monthStartDay,
     );
+    const currentMonthSetAsides = filterSetAsidesByMonth(
+      financeData.setAsides,
+      currentMonth,
+      monthStartDay,
+    );
+    const monthReview = findMonthReview(financeData.monthReviews, currentMonth);
 
-    return snapshot.totalAvailable;
+    return calculateLiveAvailableAmount({
+      transactions: currentMonthTransactions,
+      setAsides: currentMonthSetAsides,
+      monthReview,
+    });
   }, [currentMonth, financeData, monthStartDay]);
   const currentMonthReview =
     financeData.status === 'ready' ? findMonthReview(financeData.monthReviews, currentMonth) : null;
