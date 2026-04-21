@@ -54,9 +54,9 @@ describe('AnalyticsPage', () => {
     await user.click(await screen.findByRole('tab', { name: /categories/i }));
 
     expect(
-      await screen.findByRole('heading', { name: /spending by category/i }, { timeout: 8000 }),
+      await screen.findByRole('heading', { name: /spending transactions/i }, { timeout: 8000 }),
     ).toBeInTheDocument();
-    expect(screen.getAllByText(/food and dining/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/client dinner/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/category filter/i)).toBeInTheDocument();
   });
 
@@ -81,6 +81,7 @@ describe('AnalyticsPage', () => {
     expect(
       await screen.findByRole('heading', { name: /food and dining over time/i }, { timeout: 8000 }),
     ).toBeInTheDocument();
+    expect(screen.getByText(/client dinner/i)).toBeInTheDocument();
   });
 
   it('shows an empty state when the selected range has no activity', async () => {

@@ -11,9 +11,26 @@ function getMaxValue(series: CategorySpendSeries) {
   return Math.max(...series.monthlyPoints.map((point) => point.amount), 1);
 }
 
+function buildLinePath(series: CategorySpendSeries, maxValue: number) {
+  if (series.monthlyPoints.length === 0) {
+    return '';
+  }
+
+  return series.monthlyPoints
+    .map((point, index) => {
+      const x =
+        series.monthlyPoints.length === 1 ? 50 : (index / (series.monthlyPoints.length - 1)) * 100;
+      const y = 100 - (point.amount / maxValue) * 100;
+
+      return `${index === 0 ? 'M' : 'L'} ${x} ${y}`;
+    })
+    .join(' ');
+}
+
 export function CategorySpendingChart({ series }: CategorySpendingChartProps) {
   const maxValue = getMaxValue(series);
   const hasSpend = series.monthlyPoints.some((point) => point.amount > 0);
+  const linePath = buildLinePath(series, maxValue);
   const title =
     series.categoryId === null
       ? translateAppText('analytics.spendingOverTime')
@@ -34,22 +51,46 @@ export function CategorySpendingChart({ series }: CategorySpendingChartProps) {
       {!hasSpend ? (
         <p className="finance-empty-state">{translateAppText('analytics.noCategorySeries')}</p>
       ) : (
-        <div className="analytics-chart analytics-chart--single">
-          {series.monthlyPoints.map((point) => (
-            <article className="analytics-chart__group" key={point.month}>
-              <div className="analytics-chart__bars analytics-chart__bars--single">
-                <div
-                  className="analytics-chart__bar analytics-chart__bar--spend"
-                  style={{ height: `${(point.amount / maxValue) * 100}%` }}
-                  title={formatCurrency(point.amount)}
-                />
-              </div>
-              <div className="analytics-chart__labels">
+        <div className="analytics-line-chart">
+          <svg
+            aria-label={title}
+            className="analytics-line-chart__svg"
+            role="img"
+            viewBox="0 0 100 100"
+          >
+            <path className="analytics-line-chart__grid" d="M 0 100 L 100 100" />
+            <path className="analytics-line-chart__grid" d="M 0 66.6 L 100 66.6" />
+            <path className="analytics-line-chart__grid" d="M 0 33.3 L 100 33.3" />
+            <path className="analytics-line-chart__path" d={linePath} />
+            {series.monthlyPoints.map((point, index) => {
+              const x =
+                series.monthlyPoints.length === 1
+                  ? 50
+                  : (index / (series.monthlyPoints.length - 1)) * 100;
+              const y = 100 - (point.amount / maxValue) * 100;
+
+              return (
+                <circle
+                  className="analytics-line-chart__point"
+                  cx={x}
+                  cy={y}
+                  key={point.month}
+                  r="2.2"
+                >
+                  <title>{`${formatMonthLabel(point.month)}: ${formatCurrency(point.amount)}`}</title>
+                </circle>
+              );
+            })}
+          </svg>
+
+          <div className="analytics-line-chart__labels">
+            {series.monthlyPoints.map((point) => (
+              <div className="analytics-line-chart__label" key={point.month}>
                 <strong>{formatMonthLabel(point.month)}</strong>
                 <span>{formatCurrency(point.amount)}</span>
               </div>
-            </article>
-          ))}
+            ))}
+          </div>
         </div>
       )}
     </section>

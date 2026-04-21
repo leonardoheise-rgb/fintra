@@ -1082,8 +1082,11 @@ Object.assign(translations['en-US'], {
   'analytics.spendingTrend': 'Spending trend',
   'analytics.spendingOverTime': 'Spending over time',
   'analytics.filteredCategoryTrend': '{category} over time',
-  'analytics.monthlySpendBars': 'Monthly spending bars',
+  'analytics.monthlySpendBars': 'Monthly spending line',
   'analytics.noCategorySeries': 'No spending was recorded for this category in the selected range.',
+  'analytics.spendingTransactions': 'Spending transactions',
+  'analytics.simpleTransactionList': 'Simple expense list for the selected range',
+  'analytics.noExpenseTransactions': 'No expense transactions match the selected range and category.',
 });
 
 Object.assign(translations['pt-BR'], {
@@ -1094,8 +1097,11 @@ Object.assign(translations['pt-BR'], {
   'analytics.spendingTrend': 'Tendência de gastos',
   'analytics.spendingOverTime': 'Gastos ao longo do tempo',
   'analytics.filteredCategoryTrend': '{category} ao longo do tempo',
-  'analytics.monthlySpendBars': 'Barras mensais de gastos',
+  'analytics.monthlySpendBars': 'Linha mensal de gastos',
   'analytics.noCategorySeries': 'Não houve gastos nesta categoria no período selecionado.',
+  'analytics.spendingTransactions': 'Transações de gastos',
+  'analytics.simpleTransactionList': 'Lista simples de despesas para o período selecionado',
+  'analytics.noExpenseTransactions': 'Nenhuma despesa corresponde ao período e à categoria selecionados.',
 });
 
 translations['pt-BR'] = normalizeTranslations(translations['pt-BR']);

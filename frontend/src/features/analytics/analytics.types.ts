@@ -43,6 +43,15 @@ export type CategorySpendSeries = {
   totalSpent: number;
 };
 
+export type AnalyticsExpenseTransaction = {
+  id: string;
+  amount: number;
+  categoryId: string;
+  subcategoryId: string | null;
+  date: string;
+  description: string;
+};
+
 export type CategorySpendingTrend = {
   categoryId: string;
   categoryName: string;

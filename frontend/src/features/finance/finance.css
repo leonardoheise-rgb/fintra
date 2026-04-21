@@ -9,6 +9,7 @@
 .analytics-overview-grid,
 .analytics-category-list,
 .analytics-mini-series,
+.analytics-transaction-list,
 .ledger-table,
 .finance-form,
 .dashboard-toolbar,
@@ -231,6 +232,7 @@
 .subcategory-chip,
 .analytics-category-card,
 .analytics-comparison-card,
+.analytics-transaction-card,
 .notification-card,
 .notification-preview-card {
   display: grid;
@@ -601,6 +603,46 @@
   gap: 0.2rem;
 }
 
+.analytics-line-chart {
+  display: grid;
+  gap: 1rem;
+}
+
+.analytics-line-chart__svg {
+  width: 100%;
+  height: 14rem;
+  overflow: visible;
+}
+
+.analytics-line-chart__grid {
+  fill: none;
+  stroke: rgba(138, 143, 157, 0.28);
+  stroke-width: 0.6;
+}
+
+.analytics-line-chart__path {
+  fill: none;
+  stroke: rgba(168, 94, 32, 0.9);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.5;
+}
+
+.analytics-line-chart__point {
+  fill: rgba(168, 94, 32, 1);
+}
+
+.analytics-line-chart__labels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  gap: 0.75rem;
+}
+
+.analytics-line-chart__label {
+  display: grid;
+  gap: 0.15rem;
+}
+
 .analytics-rate-chart__track {
   display: flex;
   align-items: end;
@@ -650,6 +692,32 @@
 .analytics-category-card__bar {
   height: 0.55rem;
   background: var(--color-primary-container);
+}
+
+.analytics-transaction-card {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.analytics-transaction-card__meta {
+  color: var(--color-on-surface-variant);
+  font-size: 0.85rem;
+}
+
+.analytics-transaction-card__amounts {
+  display: grid;
+  gap: 0.2rem;
+  justify-items: end;
+}
+
+.analytics-transaction-card__amounts strong {
+  font-size: 1rem;
+}
+
+.analytics-transaction-card__amounts span,
+.analytics-line-chart__label span {
+  color: var(--color-on-surface-variant);
+  font-size: 0.82rem;
 }
 
 .set-aside-prompt__actions {

@@ -10,13 +10,14 @@ import { useFinanceData } from '../../finance/useFinanceData';
 import { useDisplayPreferences } from '../../settings/useDisplayPreferences';
 import type { AnalyticsRangePreset } from '../analytics.types';
 import { AnalyticsComparisonPanel } from '../components/AnalyticsComparisonPanel';
+import { AnalyticsExpenseList } from '../components/AnalyticsExpenseList';
 import { AnalyticsTabBar } from '../components/AnalyticsTabBar';
 import { CategorySpendingChart } from '../components/CategorySpendingChart';
-import { CategoryTrendList } from '../components/CategoryTrendList';
 import { MonthlyCashflowChart } from '../components/MonthlyCashflowChart';
 import { SavingsRateChart } from '../components/SavingsRateChart';
 import { resolveAnalyticsRange } from '../lib/analyticsRange';
 import { buildAnalyticsComparison } from '../lib/buildAnalyticsComparison';
+import { buildAnalyticsExpenseTransactions } from '../lib/buildAnalyticsExpenseTransactions';
 import { buildCategorySpendSeries } from '../lib/buildCategorySpendSeries';
 import { buildCategorySpendingTrends } from '../lib/buildCategorySpendingTrends';
 import { buildMonthlyAnalyticsSeries } from '../lib/buildMonthlyAnalyticsSeries';
@@ -131,6 +132,16 @@ export function AnalyticsPage() {
         months: deferredRange.months,
       }),
     [categoryTrends, deferredRange.months, selectedCategoryId],
+  );
+  const expenseTransactions = useMemo(
+    () =>
+      buildAnalyticsExpenseTransactions({
+        transactions: financeData.transactions,
+        months: deferredRange.months,
+        monthStartDay,
+        selectedCategoryId: selectedCategoryId === 'all' ? null : selectedCategoryId,
+      }),
+    [deferredRange.months, financeData.transactions, monthStartDay, selectedCategoryId],
   );
   const currentPoint = monthlySeries[monthlySeries.length - 1] ?? null;
   const hasWorkspaceTransactions = financeData.transactions.length > 0;
@@ -300,7 +311,11 @@ export function AnalyticsPage() {
               </section>
               <div className="analytics-overview-grid">
                 <CategorySpendingChart series={selectedCategorySeries} />
-                <CategoryTrendList trends={categoryTrends} />
+                <AnalyticsExpenseList
+                  categories={financeData.categories}
+                  subcategories={financeData.subcategories}
+                  transactions={expenseTransactions}
+                />
               </div>
             </>
           )}
