@@ -112,6 +112,8 @@ const monthReviews: MonthReviewRecord[] = [
 ];
 
 describe('buildDashboardSnapshot', () => {
+  const referenceDate = new Date('2026-03-20T12:00:00.000Z');
+
   it('filters transactions by month', () => {
     expect(filterTransactionsByMonth(transactions, '2026-03')).toHaveLength(3);
     expect(filterTransactionsByMonth(transactions, '2026-02')).toHaveLength(1);
@@ -133,6 +135,8 @@ describe('buildDashboardSnapshot', () => {
         monthReviews,
       },
       '2026-03',
+      1,
+      referenceDate,
     );
 
     expect(snapshot.totalBudget).toBe(3250);
@@ -174,6 +178,7 @@ describe('buildDashboardSnapshot', () => {
         isOverridden: false,
         spent: 2100,
         reserved: 0,
+        todayAvailableToSpend: 0,
       },
       {
         id: 'category-food',
@@ -185,6 +190,7 @@ describe('buildDashboardSnapshot', () => {
         isOverridden: true,
         spent: 180,
         reserved: 120,
+        todayAvailableToSpend: 0,
       },
     ]);
   });
@@ -214,6 +220,8 @@ describe('buildDashboardSnapshot', () => {
         monthReviews,
       },
       '2026-03',
+      1,
+      referenceDate,
     );
 
     expect(snapshot.totalAvailable).toBe(3470);
@@ -238,6 +246,8 @@ describe('buildDashboardSnapshot', () => {
         monthReviews: [],
       },
       '2026-03',
+      1,
+      referenceDate,
     );
 
     expect(snapshot.insight).toMatch(/set your first default budget/i);

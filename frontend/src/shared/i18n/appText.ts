@@ -1114,6 +1114,16 @@ Object.assign(translations['pt-BR'], {
 
 translations['pt-BR'] = normalizeTranslations(translations['pt-BR']);
 
+Object.assign(translations['en-US'], {
+  'dashboard.todayAvailableToSpend': 'You can spend today up to {amount}',
+});
+
+Object.assign(translations['pt-BR'], {
+  'dashboard.todayAvailableToSpend': 'Você pode gastar hoje até {amount}',
+});
+
+translations['pt-BR'] = normalizeTranslations(translations['pt-BR']);
+
 function getSupportedLocale(locale: string): SupportedLocale {
   if (locale.startsWith('pt')) {
     return 'pt-BR';

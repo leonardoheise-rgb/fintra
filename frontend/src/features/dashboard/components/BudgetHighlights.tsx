@@ -85,6 +85,11 @@ export function BudgetHighlights({ cards, month, onSelectCategory }: BudgetHighl
 
                 <p className="budget-card__amount">{formatCurrency(summary.remaining)}</p>
                 <p className="budget-card__caption">
+                  {translateAppText('dashboard.todayAvailableToSpend', {
+                    amount: formatCurrency(card.todayAvailableToSpend),
+                  })}
+                </p>
+                <p className="budget-card__caption">
                   {translateAppText('dashboard.spentOfBudget', {
                     spent: formatCurrency(card.spent),
                     budget: formatCurrency(card.effectiveBudget),

@@ -6,6 +6,7 @@ export type BudgetCard = {
   effectiveBudget: number;
   spent: number;
   reserved: number;
+  todayAvailableToSpend: number;
   overrideAmount: number | null;
   isOverridden: boolean;
 };

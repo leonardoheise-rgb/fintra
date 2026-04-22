@@ -1,4 +1,4 @@
-import { screen, waitForElementToBeRemoved } from '@testing-library/react';
+import { screen, waitForElementToBeRemoved, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { createAuthServiceStub } from '../../../test/createAuthServiceStub';
@@ -43,6 +43,7 @@ describe('DashboardPage', () => {
     expect(screen.getByText(/available this month/i)).toBeInTheDocument();
     expect(screen.getByText(/planned budget/i)).toBeInTheDocument();
     expect(screen.getByText(/^expenses$/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/you can spend today up to/i).length).toBeGreaterThan(0);
     expect(
       await screen.findByRole('heading', { name: /^housing$/i, level: 4 }, { timeout: 8000 }),
     ).toBeInTheDocument();
@@ -73,14 +74,28 @@ describe('DashboardPage', () => {
 
     await waitForDashboardToLoad();
 
+    const dismissMonthReviewButton = screen.queryByRole('button', { name: /do this later/i });
+
+    if (dismissMonthReviewButton) {
+      await user.click(dismissMonthReviewButton);
+    }
+
+    await user.clear(screen.getByLabelText(/selected month/i));
+    await user.type(screen.getByLabelText(/selected month/i), '2026-03');
     await user.click(await screen.findByRole('button', { name: /housing/i }));
 
-    expect(await screen.findByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /housing transactions in/i })).toBeInTheDocument();
-    expect(screen.getByText(/apartment rent/i)).toBeInTheDocument();
+    const categoryDialogHeading = await screen.findByRole('heading', {
+      name: /housing transactions in march 2026/i,
+    });
+    const categoryDialog = categoryDialogHeading.closest('[role="dialog"]');
+
+    expect(categoryDialogHeading).toBeInTheDocument();
+    expect(within(categoryDialog ?? document.body).getByText(/apartment rent/i)).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /close details/i }));
 
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: /housing transactions in march 2026/i }),
+    ).not.toBeInTheDocument();
   });
 });

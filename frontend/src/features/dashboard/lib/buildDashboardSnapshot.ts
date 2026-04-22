@@ -14,6 +14,7 @@ import { filterSetAsidesByMonth } from '../../finance/lib/setAsides';
 import { findMonthReview } from '../../finance/lib/monthReviews';
 import { resolveEffectiveBudgets } from '../../budgets/lib/effectiveBudgetResolver';
 import type { BudgetCard, CategoryAvailability, DashboardSnapshot } from '../dashboard.types';
+import { calculateCategoryTodayAvailableToSpend } from './categoryHighlights';
 
 type DashboardSource = {
   categories: CategoryRecord[];
@@ -75,31 +76,46 @@ function buildBudgetCards(
   transactions: TransactionRecord[],
   setAsides: SetAsideRecord[],
   month: string,
+  monthStartDay: number,
+  now: Date,
 ): BudgetCard[] {
   const effectiveBudgets = resolveEffectiveBudgets(budgets, budgetOverrides, month);
 
   return categories
-    .map((category) => ({
-      id: category.id,
-      name: category.name,
-      shortLabel: buildShortLabel(category.name),
-      defaultBudget: getBudgetTotalForCategory(budgets, category.id),
-      effectiveBudget: sumValues(
-        effectiveBudgets
-          .filter((item) => item.categoryId === category.id)
-          .map((item) => item.effectiveAmount),
-      ),
-      overrideAmount: sumValues(
-        effectiveBudgets
-          .filter((item) => item.categoryId === category.id && item.isOverridden)
-          .map((item) => item.overrideAmount ?? 0),
-      ) || null,
-      isOverridden: effectiveBudgets.some(
-        (item) => item.categoryId === category.id && item.isOverridden,
-      ),
-      spent: getExpenseTotalForCategory(transactions, category.id),
-      reserved: getReservedTotalForCategory(setAsides, category.id),
-    }))
+    .map((category) => {
+      const card = {
+        id: category.id,
+        name: category.name,
+        shortLabel: buildShortLabel(category.name),
+        defaultBudget: getBudgetTotalForCategory(budgets, category.id),
+        effectiveBudget: sumValues(
+          effectiveBudgets
+            .filter((item) => item.categoryId === category.id)
+            .map((item) => item.effectiveAmount),
+        ),
+        overrideAmount: sumValues(
+          effectiveBudgets
+            .filter((item) => item.categoryId === category.id && item.isOverridden)
+            .map((item) => item.overrideAmount ?? 0),
+        ) || null,
+        isOverridden: effectiveBudgets.some(
+          (item) => item.categoryId === category.id && item.isOverridden,
+        ),
+        spent: getExpenseTotalForCategory(transactions, category.id),
+        reserved: getReservedTotalForCategory(setAsides, category.id),
+      };
+
+      return {
+        ...card,
+        todayAvailableToSpend: calculateCategoryTodayAvailableToSpend(
+          card,
+          transactions,
+          month,
+          monthStartDay,
+          now,
+        ),
+      };
+    })
     .filter((card) => card.effectiveBudget > 0)
     .sort(
       (left, right) =>
@@ -217,6 +233,7 @@ export function buildDashboardSnapshot(
   source: DashboardSource,
   month: string,
   monthStartDay = 1,
+  now = new Date(),
 ): DashboardSnapshot {
   const monthlyTransactions = filterTransactionsByMonth(source.transactions, month, monthStartDay);
   const monthlySetAsides = filterSetAsidesByMonth(source.setAsides, month, monthStartDay);
@@ -227,6 +244,8 @@ export function buildDashboardSnapshot(
     monthlyTransactions,
     monthlySetAsides,
     month,
+    monthStartDay,
+    now,
   );
   const totalBudget = sumValues(cards.map((card) => card.effectiveBudget));
   const monthReview = findMonthReview(source.monthReviews, month);
