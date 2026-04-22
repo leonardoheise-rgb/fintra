@@ -70,26 +70,28 @@ export function MonthReviewPrompt({
         className="finance-panel finance-panel--spotlight month-review-dialog"
         role="dialog"
       >
-        <div className="finance-panel__heading">
-          <div>
-            <p className="finance-panel__eyebrow">{translateAppText('monthReview.eyebrow')}</p>
-            <h2 id="month-review-heading">
-              {translateAppText('monthReview.heading', {
-                month: formatMonthLabel(currentMonth),
-              })}
-            </h2>
+        <div className="month-review-dialog__header">
+          <div className="finance-panel__heading">
+            <div>
+              <p className="finance-panel__eyebrow">{translateAppText('monthReview.eyebrow')}</p>
+              <h2 id="month-review-heading">
+                {translateAppText('monthReview.heading', {
+                  month: formatMonthLabel(currentMonth),
+                })}
+              </h2>
+            </div>
+            <button className="secondary-button" onClick={onClose} type="button">
+              {translateAppText('monthReview.doLater')}
+            </button>
           </div>
-          <button className="secondary-button" onClick={onClose} type="button">
-            {translateAppText('monthReview.doLater')}
-          </button>
-        </div>
 
-        <p className="finance-header__copy">
-          {translateAppText('monthReview.stepIndicator', {
-            current: step === 'expenses' ? 1 : step === 'income' ? 2 : 3,
-            total: 3,
-          })}
-        </p>
+          <p className="finance-header__copy">
+            {translateAppText('monthReview.stepIndicator', {
+              current: step === 'expenses' ? 1 : step === 'income' ? 2 : 3,
+              total: 3,
+            })}
+          </p>
+        </div>
 
         {step === 'expenses' ? (
           <div className="month-review-step">

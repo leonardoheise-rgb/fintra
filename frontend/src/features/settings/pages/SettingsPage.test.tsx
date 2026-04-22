@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { formatMonthLabel } from '../../../shared/lib/formatters/date';
-import { getCurrentMonthKey } from '../../../shared/lib/date/months';
+import { getClosestMonthToFirstDay } from '../../../shared/lib/date/months';
 import { setRuntimeDisplayPreferences } from '../../../shared/preferences/displayPreferences';
 import { createAuthServiceStub } from '../../../test/createAuthServiceStub';
 import { createDisplayPreferencesServiceStub } from '../../../test/createDisplayPreferencesServiceStub';
@@ -39,7 +39,7 @@ describe('SettingsPage', () => {
     expect(screen.getAllByText(/^1st$/i).length).toBeGreaterThan(0);
     expect(
       screen.getAllByText(
-        new RegExp(formatMonthLabel(getCurrentMonthKey(new Date(), 1), 'en-US'), 'i'),
+        new RegExp(formatMonthLabel(getClosestMonthToFirstDay(new Date()), 'en-US'), 'i'),
       ).length,
     ).toBeGreaterThan(0);
     expect(screen.getByText(/support details/i)).toBeInTheDocument();

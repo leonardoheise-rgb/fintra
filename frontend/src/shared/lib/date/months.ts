@@ -90,6 +90,19 @@ export function getCurrentMonthKey(now = new Date(), monthStartDay = 1) {
   return getMonthKey(isoDate, monthStartDay);
 }
 
+export function getClosestMonthToFirstDay(now = new Date()) {
+  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const distanceToCurrentMonthStart = Math.abs(now.getTime() - currentMonthStart.getTime());
+  const distanceToNextMonthStart = Math.abs(nextMonthStart.getTime() - now.getTime());
+
+  if (distanceToCurrentMonthStart <= distanceToNextMonthStart) {
+    return formatMonthKey(now.getFullYear(), now.getMonth());
+  }
+
+  return formatMonthKey(nextMonthStart.getFullYear(), nextMonthStart.getMonth());
+}
+
 export function shiftMonthKey(month: string, offset: number) {
   const parsedMonth = parseMonthKey(month);
 

@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { translateAppText } from '../../../shared/i18n/appText';
 import { FinancePageHeader } from '../../finance/components/FinancePageHeader';
 import { CategoriesSummaryCard } from '../../finance/components/CategoriesSummaryCard';
-import { getCurrentMonthKey } from '../../../shared/lib/date/months';
+import { getClosestMonthToFirstDay } from '../../../shared/lib/date/months';
 import { formatMonthLabel } from '../../../shared/lib/formatters/date';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { formatDayOfMonthLabel } from '../../../shared/lib/formatters/dayOfMonth';
@@ -41,7 +41,7 @@ export function SettingsPage() {
     getDefaultDisplayPreferences(),
   );
   const currentMonthLabel = formatMonthLabel(
-    getCurrentMonthKey(new Date(), preferences.monthStartDay),
+    getClosestMonthToFirstDay(new Date()),
     preferences.locale,
   );
 
@@ -248,7 +248,7 @@ export function SettingsPage() {
               <span className="finance-summary-card__label">{translateAppText('settings.monthPreview')}</span>
               <strong>
                 {formatMonthLabel(
-                  getCurrentMonthKey(new Date(), draftPreferences.monthStartDay),
+                  getClosestMonthToFirstDay(new Date()),
                   draftPreferences.locale,
                 )}
               </strong>

@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { createPreviewWorkspace } from '../features/finance/lib/previewWorkspace';
 import { createAuthServiceStub } from '../test/createAuthServiceStub';
 import { renderAppAtPath } from '../test/renderAppAtPath';
-import { getCurrentMonthKey } from '../shared/lib/date/months';
+import { getClosestMonthToFirstDay, getCurrentMonthKey } from '../shared/lib/date/months';
 
 describe('App authentication routing', () => {
   beforeEach(() => {
@@ -156,7 +156,7 @@ describe('App authentication routing', () => {
     ];
     workspace.monthReviews = [
       {
-        month: getCurrentMonthKey(new Date()),
+        month: getClosestMonthToFirstDay(new Date()),
         plannedIncomeAmount: 0,
         plannedIncomeDescription: '',
         carryOverAmount: 0,
@@ -239,7 +239,7 @@ describe('App authentication routing', () => {
 
     expect(persistedWorkspace.monthReviews).toEqual([
       expect.objectContaining({
-        month: getCurrentMonthKey(new Date()),
+        month: getClosestMonthToFirstDay(new Date()),
         plannedIncomeAmount: 1200,
         plannedIncomeDescription: 'Freelance invoice',
         carryOverAmount: -80,

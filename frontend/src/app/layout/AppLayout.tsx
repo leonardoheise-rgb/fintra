@@ -19,7 +19,11 @@ import { useNotifications } from '../../features/notifications/useNotifications'
 import { useDisplayPreferences } from '../../features/settings/useDisplayPreferences';
 import { translateAppText } from '../../shared/i18n/appText';
 import { formatLocalIsoDate } from '../../shared/lib/date/isoDates';
-import { getCurrentMonthKey, shiftMonthKey } from '../../shared/lib/date/months';
+import {
+  getClosestMonthToFirstDay,
+  getCurrentMonthKey,
+  shiftMonthKey,
+} from '../../shared/lib/date/months';
 import { formatCurrency } from '../../shared/lib/formatters/currency';
 import { SidebarNavigation } from './SidebarNavigation';
 
@@ -67,6 +71,7 @@ export function AppLayout({ children }: PropsWithChildren) {
     pageTitleByPath[location.pathname] ?? 'shell.defaultTitle',
   );
   const currentMonth = useMemo(() => getCurrentMonthKey(new Date(), monthStartDay), [monthStartDay]);
+  const reviewMonth = useMemo(() => getClosestMonthToFirstDay(new Date()), []);
   const shouldOpenMonthReviewFromSettings = useMemo(() => {
     const searchParams = new URLSearchParams(location.search);
     return searchParams.get('month-review') === 'open';
@@ -87,7 +92,7 @@ export function AppLayout({ children }: PropsWithChildren) {
 
   useEffect(() => {
     setDismissedMonthReview(null);
-  }, [currentMonth]);
+  }, [reviewMonth]);
 
   const dueSetAside =
     financeData.status === 'ready'
@@ -125,17 +130,17 @@ export function AppLayout({ children }: PropsWithChildren) {
     });
   }, [currentMonth, financeData, monthStartDay]);
   const currentMonthReview =
-    financeData.status === 'ready' ? findMonthReview(financeData.monthReviews, currentMonth) : null;
+    financeData.status === 'ready' ? findMonthReview(financeData.monthReviews, reviewMonth) : null;
   const plannedExpenseItems = useMemo(() => {
     if (financeData.status !== 'ready') {
       return [];
     }
 
     return buildPlannedExpenseItems(
-      filterTransactionsByMonth(financeData.transactions, currentMonth, monthStartDay),
-      filterSetAsidesByMonth(financeData.setAsides, currentMonth, monthStartDay),
+      filterTransactionsByMonth(financeData.transactions, reviewMonth, monthStartDay),
+      filterSetAsidesByMonth(financeData.setAsides, reviewMonth, monthStartDay),
     );
-  }, [currentMonth, financeData, monthStartDay]);
+  }, [financeData, monthStartDay, reviewMonth]);
   const plannedExpenseTotal = useMemo(
     () => sumPlannedExpenseItems(plannedExpenseItems),
     [plannedExpenseItems],
@@ -149,7 +154,7 @@ export function AppLayout({ children }: PropsWithChildren) {
       return currentMonthReview.carryOverAmount;
     }
 
-    const previousMonth = shiftMonthKey(currentMonth, -1);
+    const previousMonth = shiftMonthKey(reviewMonth, -1);
     const previousSnapshot = buildDashboardSnapshot(
       {
         categories: financeData.categories,
@@ -164,14 +169,14 @@ export function AppLayout({ children }: PropsWithChildren) {
     );
 
     return previousSnapshot.totalAvailable;
-  }, [currentMonth, currentMonthReview, financeData, monthStartDay]);
+  }, [currentMonthReview, financeData, monthStartDay, reviewMonth]);
   const shouldAutoOpenMonthReview = location.pathname === '/';
   const shouldShowMonthReviewPrompt =
     financeData.status === 'ready' &&
     (shouldOpenMonthReviewFromSettings ||
       (shouldAutoOpenMonthReview &&
         !currentMonthReview &&
-        dismissedMonthReview !== currentMonth));
+        dismissedMonthReview !== reviewMonth));
 
   async function handleMarkSetAsideSpent() {
     if (!dueSetAside) {
@@ -248,7 +253,7 @@ export function AppLayout({ children }: PropsWithChildren) {
 
   function handleCloseMonthReview() {
     setMonthReviewError(null);
-    setDismissedMonthReview(currentMonth);
+    setDismissedMonthReview(reviewMonth);
 
     if (shouldOpenMonthReviewFromSettings) {
       const searchParams = new URLSearchParams(location.search);
@@ -268,7 +273,7 @@ export function AppLayout({ children }: PropsWithChildren) {
     <div className="app-shell">
       {shouldShowMonthReviewPrompt ? (
         <MonthReviewPrompt
-          currentMonth={currentMonth}
+          currentMonth={reviewMonth}
           errorMessage={monthReviewError}
           existingReview={currentMonthReview}
           isSubmitting={isSavingMonthReview}
