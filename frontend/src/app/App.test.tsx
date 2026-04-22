@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { createPreviewWorkspace } from '../features/finance/lib/previewWorkspace';
 import { createAuthServiceStub } from '../test/createAuthServiceStub';
 import { renderAppAtPath } from '../test/renderAppAtPath';
-import { getClosestMonthToFirstDay, getCurrentMonthKey } from '../shared/lib/date/months';
+import { getClosestMonthToFirstDay } from '../shared/lib/date/months';
 
 describe('App authentication routing', () => {
   beforeEach(() => {

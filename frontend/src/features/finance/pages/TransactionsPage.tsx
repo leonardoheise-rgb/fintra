@@ -89,6 +89,7 @@ export function TransactionsPage() {
     financeData.budgetOverrides,
     financeData.budgets,
     financeData.categories,
+    financeData.monthReviews,
     financeData.setAsides,
     financeData.transactions,
     monthStartDay,
