@@ -3,12 +3,14 @@ export type TransactionType = 'income' | 'expense';
 export type CategoryRecord = {
   id: string;
   name: string;
+  icon: string | null;
 };
 
 export type SubcategoryRecord = {
   id: string;
   categoryId: string;
   name: string;
+  icon: string | null;
 };
 
 export type TransactionRecord = {
@@ -69,11 +71,13 @@ export type FinanceWorkspace = {
 
 export type CategoryInput = {
   name: string;
+  icon?: string | null;
 };
 
 export type SubcategoryInput = {
   categoryId: string;
   name: string;
+  icon?: string | null;
 };
 
 export type TransactionInput = {

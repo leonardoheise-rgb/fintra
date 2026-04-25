@@ -4,9 +4,9 @@ import type { CategoryRecord, TransactionRecord } from '../../finance/finance.ty
 import { buildCategorySpendingTrends } from './buildCategorySpendingTrends';
 
 const categories: CategoryRecord[] = [
-  { id: 'category-housing', name: 'Housing' },
-  { id: 'category-food', name: 'Food and dining' },
-  { id: 'category-transport', name: 'Transport' },
+  { id: 'category-housing', name: 'Housing', icon: null },
+  { id: 'category-food', name: 'Food and dining', icon: null },
+  { id: 'category-transport', name: 'Transport', icon: null },
 ];
 
 const transactions: TransactionRecord[] = [

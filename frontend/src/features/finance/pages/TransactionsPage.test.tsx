@@ -232,6 +232,10 @@ describe('TransactionsPage', () => {
     await user.type(descriptionInput!, 'Summer trip dinner');
     await user.click(screen.getByRole('button', { name: /set aside money/i }));
 
+    expect(screen.queryByRole('button', { name: /discard/i })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /expand/i }));
+    expect(screen.getByRole('button', { name: /discard/i })).toBeInTheDocument();
+
     await waitFor(() => {
       const persistedWorkspace = JSON.parse(
         window.localStorage.getItem('fintra.preview.workspace.test-finance-user') ?? '{}',
@@ -243,6 +247,52 @@ describe('TransactionsPage', () => {
         ),
       ).toBe(true);
     });
+  });
+
+  it('shows future transactions collapsed until the user expands them', async () => {
+    const user = userEvent.setup();
+    const authService = createAuthServiceStub({
+      initialSession: {
+        user: {
+          id: 'user-1',
+          email: 'owner@fintra.dev',
+        },
+      },
+    });
+
+    const { container } = await renderAppAtPath('/transactions', authService.service);
+
+    await waitForTransactionsToLoad();
+
+    const amountInput = container.querySelector<HTMLInputElement>('input[name="amount"]');
+    const categorySelect = container.querySelector<HTMLSelectElement>('select[name="categoryId"]');
+    const subcategorySelect = container.querySelector<HTMLSelectElement>('select[name="subcategoryId"]');
+    const dateInput = container.querySelector<HTMLInputElement>('input[name="date"]');
+    const descriptionInput = container.querySelector<HTMLTextAreaElement>('textarea[name="description"]');
+
+    expect(amountInput).not.toBeNull();
+    expect(categorySelect).not.toBeNull();
+    expect(subcategorySelect).not.toBeNull();
+    expect(dateInput).not.toBeNull();
+    expect(descriptionInput).not.toBeNull();
+
+    await user.clear(amountInput!);
+    await user.type(amountInput!, '8400');
+    await user.selectOptions(categorySelect!, 'category-food');
+    await user.selectOptions(subcategorySelect!, 'subcategory-restaurants');
+    await user.clear(dateInput!);
+    await user.type(dateInput!, '2099-08-20');
+    await user.type(descriptionInput!, 'Future travel dinner');
+    await user.click(screen.getByRole('button', { name: /create transaction/i }));
+
+    expect(screen.getByText(/future travel dinner/i)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /edit transaction future travel dinner/i })).not.toBeInTheDocument();
+
+    await user.click(screen.getAllByRole('button', { name: /expand/i })[0]);
+
+    expect(
+      await screen.findByRole('button', { name: /edit transaction future travel dinner/i }),
+    ).toBeInTheDocument();
   });
 
   it('offers to rebalance the month after an expense pushes a category over budget', async () => {

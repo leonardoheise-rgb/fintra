@@ -3,16 +3,16 @@ import type { FinanceWorkspace } from '../finance.types';
 export function createPreviewWorkspace(): FinanceWorkspace {
   return {
     categories: [
-      { id: 'category-salary', name: 'Salary' },
-      { id: 'category-housing', name: 'Housing' },
-      { id: 'category-food', name: 'Food and dining' },
-      { id: 'category-transport', name: 'Transport' },
+      { id: 'category-salary', name: 'Salary', icon: '💼' },
+      { id: 'category-housing', name: 'Housing', icon: '🏠' },
+      { id: 'category-food', name: 'Food and dining', icon: '🍽️' },
+      { id: 'category-transport', name: 'Transport', icon: '🚌' },
     ],
     subcategories: [
-      { id: 'subcategory-rent', categoryId: 'category-housing', name: 'Rent' },
-      { id: 'subcategory-groceries', categoryId: 'category-food', name: 'Groceries' },
-      { id: 'subcategory-restaurants', categoryId: 'category-food', name: 'Restaurants' },
-      { id: 'subcategory-transit', categoryId: 'category-transport', name: 'Transit' },
+      { id: 'subcategory-rent', categoryId: 'category-housing', name: 'Rent', icon: '🧾' },
+      { id: 'subcategory-groceries', categoryId: 'category-food', name: 'Groceries', icon: '🛒' },
+      { id: 'subcategory-restaurants', categoryId: 'category-food', name: 'Restaurants', icon: '🍷' },
+      { id: 'subcategory-transit', categoryId: 'category-transport', name: 'Transit', icon: '🚇' },
     ],
     transactions: [
       {

@@ -293,6 +293,7 @@
 }
 
 .transaction-card__main,
+.transaction-card__summary,
 .category-card__header,
 .budget-plan-card__header,
 .analytics-category-card__header,
@@ -418,8 +419,26 @@
   flex: 1 1 11rem;
 }
 
+.ledger-row__actions--toggle {
+  justify-content: flex-end;
+}
+
 .ledger-row__editor {
   grid-column: 1 / -1;
+}
+
+.ledger-row--collapsed {
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+}
+
+.transaction-card--collapsible .transaction-card__amounts {
+  justify-items: end;
+}
+
+.transaction-card__toggle {
+  min-height: 2.25rem;
+  padding: 0.45rem 0.75rem;
 }
 
 .csv-preview-table-wrapper {

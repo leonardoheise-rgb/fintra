@@ -73,6 +73,12 @@ function normalizeStoredMonthReviewRecord(review: Partial<MonthReviewRecord>): M
   };
 }
 
+function normalizeStoredIcon(icon: string | null | undefined) {
+  const trimmedIcon = icon?.trim() ?? '';
+
+  return trimmedIcon ? trimmedIcon : null;
+}
+
 function normalizeName(value: string) {
   return value.trim().toLowerCase();
 }
@@ -172,8 +178,17 @@ function readWorkspace(userId: string): PreviewFinanceStore {
     const parsedValue = JSON.parse(rawValue) as Partial<PreviewFinanceStore>;
 
     return {
-      categories: parsedValue.categories ?? [],
-      subcategories: parsedValue.subcategories ?? [],
+      categories: (parsedValue.categories ?? []).map((category) => ({
+        id: category.id ?? createLocalId('category'),
+        name: category.name ?? '',
+        icon: normalizeStoredIcon(category.icon),
+      })),
+      subcategories: (parsedValue.subcategories ?? []).map((subcategory) => ({
+        id: subcategory.id ?? createLocalId('subcategory'),
+        categoryId: subcategory.categoryId ?? '',
+        name: subcategory.name ?? '',
+        icon: normalizeStoredIcon(subcategory.icon),
+      })),
       transactions: (parsedValue.transactions ?? []).map(normalizeStoredTransactionRecord),
       setAsides: parsedValue.setAsides ?? [],
       budgets: parsedValue.budgets ?? [],
@@ -270,6 +285,7 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
       const category = {
         id: createLocalId('category'),
         name: input.name.trim(),
+        icon: normalizeStoredIcon(input.icon),
       };
 
       writeWorkspace(userId, {
@@ -297,6 +313,7 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
       const updatedCategory = {
         ...category,
         name: input.name.trim(),
+        icon: normalizeStoredIcon(input.icon),
       };
 
       writeWorkspace(userId, {
@@ -356,6 +373,7 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
         id: createLocalId('subcategory'),
         categoryId: input.categoryId,
         name: input.name.trim(),
+        icon: normalizeStoredIcon(input.icon),
       };
 
       writeWorkspace(userId, {
@@ -391,6 +409,7 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
         ...subcategory,
         categoryId: input.categoryId,
         name: input.name.trim(),
+        icon: normalizeStoredIcon(input.icon),
       };
 
       writeWorkspace(userId, {

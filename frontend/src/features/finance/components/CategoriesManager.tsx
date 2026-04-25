@@ -4,7 +4,9 @@ import { resolveAppErrorMessage } from '../../../shared/i18n/appErrors';
 import { translateAppText } from '../../../shared/i18n/appText';
 import { getSubcategoriesForCategory } from '../lib/financeSelectors';
 import type {
+  CategoryInput,
   CategoryRecord,
+  SubcategoryInput,
   SubcategoryRecord,
   TransactionRecord,
 } from '../finance.types';
@@ -12,12 +14,12 @@ import type {
 type CategoriesManagerProps = {
   categories: CategoryRecord[];
   errorMessage: string | null;
-  onCreateCategory(name: string): Promise<void>;
-  onCreateSubcategory(input: { categoryId: string; name: string }): Promise<void>;
+  onCreateCategory(input: CategoryInput): Promise<void>;
+  onCreateSubcategory(input: SubcategoryInput): Promise<void>;
   onDeleteCategory(categoryId: string): Promise<void>;
   onDeleteSubcategory(subcategoryId: string): Promise<void>;
-  onUpdateCategory(categoryId: string, name: string): Promise<void>;
-  onUpdateSubcategory(subcategoryId: string, input: { categoryId: string; name: string }): Promise<void>;
+  onUpdateCategory(categoryId: string, input: CategoryInput): Promise<void>;
+  onUpdateSubcategory(subcategoryId: string, input: SubcategoryInput): Promise<void>;
   subcategories: SubcategoryRecord[];
   transactions: TransactionRecord[];
 };
@@ -35,12 +37,16 @@ export function CategoriesManager({
   transactions,
 }: CategoriesManagerProps) {
   const [newCategoryName, setNewCategoryName] = useState('');
+  const [newCategoryIcon, setNewCategoryIcon] = useState('');
   const [newSubcategoryName, setNewSubcategoryName] = useState('');
+  const [newSubcategoryIcon, setNewSubcategoryIcon] = useState('');
   const [newSubcategoryCategoryId, setNewSubcategoryCategoryId] = useState(categories[0]?.id ?? '');
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
   const [editingCategoryName, setEditingCategoryName] = useState('');
+  const [editingCategoryIcon, setEditingCategoryIcon] = useState('');
   const [editingSubcategoryId, setEditingSubcategoryId] = useState<string | null>(null);
   const [editingSubcategoryName, setEditingSubcategoryName] = useState('');
+  const [editingSubcategoryIcon, setEditingSubcategoryIcon] = useState('');
   const [editingSubcategoryCategoryId, setEditingSubcategoryCategoryId] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -61,8 +67,12 @@ export function CategoriesManager({
     setFormError(null);
 
     try {
-      await onCreateCategory(newCategoryName);
+      await onCreateCategory({
+        name: newCategoryName,
+        icon: newCategoryIcon,
+      });
       setNewCategoryName('');
+      setNewCategoryIcon('');
     } catch (error) {
       setFormError(resolveAppErrorMessage(error, 'categories.errorCreate'));
     }
@@ -87,8 +97,10 @@ export function CategoriesManager({
       await onCreateSubcategory({
         categoryId: newSubcategoryCategoryId,
         name: newSubcategoryName,
+        icon: newSubcategoryIcon,
       });
       setNewSubcategoryName('');
+      setNewSubcategoryIcon('');
     } catch (error) {
       setFormError(resolveAppErrorMessage(error, 'categories.errorCreateSubcategory'));
     }
@@ -112,6 +124,17 @@ export function CategoriesManager({
               onChange={(event) => setNewCategoryName(event.target.value)}
               type="text"
               value={newCategoryName}
+            />
+          </label>
+          <label className="finance-field">
+            <span>Icon</span>
+            <input
+              maxLength={8}
+              name="newCategoryIcon"
+              onChange={(event) => setNewCategoryIcon(event.target.value)}
+              placeholder="e.g. 🏠"
+              type="text"
+              value={newCategoryIcon}
             />
           </label>
           <button className="primary-button finance-form__submit" type="submit">
@@ -152,6 +175,17 @@ export function CategoriesManager({
               onChange={(event) => setNewSubcategoryName(event.target.value)}
               type="text"
               value={newSubcategoryName}
+            />
+          </label>
+          <label className="finance-field">
+            <span>Icon</span>
+            <input
+              maxLength={8}
+              name="newSubcategoryIcon"
+              onChange={(event) => setNewSubcategoryIcon(event.target.value)}
+              placeholder="e.g. 🍽️"
+              type="text"
+              value={newSubcategoryIcon}
             />
           </label>
 
@@ -197,10 +231,14 @@ export function CategoriesManager({
                             className="category-card__edit-form"
                             onSubmit={(event) => {
                               event.preventDefault();
-                              void onUpdateCategory(category.id, editingCategoryName)
+                              void onUpdateCategory(category.id, {
+                                name: editingCategoryName,
+                                icon: editingCategoryIcon,
+                              })
                                 .then(() => {
                                   setEditingCategoryId(null);
                                   setEditingCategoryName('');
+                                  setEditingCategoryIcon('');
                                 })
                                 .catch((error) => {
                                   setFormError(resolveAppErrorMessage(error, 'categories.errorUpdate'));
@@ -212,12 +250,19 @@ export function CategoriesManager({
                               type="text"
                               value={editingCategoryName}
                             />
+                            <input
+                              maxLength={8}
+                              onChange={(event) => setEditingCategoryIcon(event.target.value)}
+                              placeholder="Icon"
+                              type="text"
+                              value={editingCategoryIcon}
+                            />
                             <button className="secondary-button" type="submit">
                               {translateAppText('categories.save')}
                             </button>
                           </form>
                         ) : (
-                          <h3>{category.name}</h3>
+                          <h3>{category.icon ? `${category.icon} ${category.name}` : category.name}</h3>
                         )}
                       </div>
 
@@ -227,6 +272,7 @@ export function CategoriesManager({
                           onClick={() => {
                             setEditingCategoryId(category.id);
                             setEditingCategoryName(category.name);
+                            setEditingCategoryIcon(category.icon ?? '');
                           }}
                           type="button"
                         >
@@ -258,10 +304,12 @@ export function CategoriesManager({
                                   void onUpdateSubcategory(subcategory.id, {
                                     categoryId: editingSubcategoryCategoryId,
                                     name: editingSubcategoryName,
+                                    icon: editingSubcategoryIcon,
                                   })
                                     .then(() => {
                                       setEditingSubcategoryId(null);
                                       setEditingSubcategoryName('');
+                                      setEditingSubcategoryIcon('');
                                       setEditingSubcategoryCategoryId('');
                                     })
                                     .catch((error) => {
@@ -275,6 +323,13 @@ export function CategoriesManager({
                                   onChange={(event) => setEditingSubcategoryName(event.target.value)}
                                   type="text"
                                   value={editingSubcategoryName}
+                                />
+                                <input
+                                  maxLength={8}
+                                  onChange={(event) => setEditingSubcategoryIcon(event.target.value)}
+                                  placeholder="Icon"
+                                  type="text"
+                                  value={editingSubcategoryIcon}
                                 />
                                 <select
                                   onChange={(event) =>
@@ -294,13 +349,16 @@ export function CategoriesManager({
                               </form>
                             ) : (
                               <>
-                                <span>{subcategory.name}</span>
+                                <span>
+                                  {subcategory.icon ? `${subcategory.icon} ${subcategory.name}` : subcategory.name}
+                                </span>
                                 <div className="subcategory-chip__actions">
                                   <button
                                     className="subcategory-chip__button"
                                     onClick={() => {
                                       setEditingSubcategoryId(subcategory.id);
                                       setEditingSubcategoryName(subcategory.name);
+                                      setEditingSubcategoryIcon(subcategory.icon ?? '');
                                       setEditingSubcategoryCategoryId(subcategory.categoryId);
                                     }}
                                     type="button"

@@ -5,9 +5,9 @@ import type {
 } from '../finance.types';
 import { buildTransactionsCsv } from './transactionsCsv';
 
-const categories: CategoryRecord[] = [{ id: 'category-food', name: 'Food' }];
+const categories: CategoryRecord[] = [{ id: 'category-food', name: 'Food', icon: null }];
 const subcategories: SubcategoryRecord[] = [
-  { id: 'subcategory-dining', categoryId: 'category-food', name: 'Dining out' },
+  { id: 'subcategory-dining', categoryId: 'category-food', name: 'Dining out', icon: null },
 ];
 const transactions: TransactionRecord[] = [
   {

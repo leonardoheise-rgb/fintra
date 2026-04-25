@@ -9,8 +9,8 @@ import type {
 import { buildMonthlyAnalyticsSeries } from './buildMonthlyAnalyticsSeries';
 
 const categories: CategoryRecord[] = [
-  { id: 'category-housing', name: 'Housing' },
-  { id: 'category-food', name: 'Food and dining' },
+  { id: 'category-housing', name: 'Housing', icon: null },
+  { id: 'category-food', name: 'Food and dining', icon: null },
 ];
 
 const budgets: BudgetRecord[] = [

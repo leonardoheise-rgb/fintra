@@ -31,7 +31,7 @@ describe('CategoriesPage', () => {
       await screen.findByRole('heading', { name: /^categories$/i, level: 1 }, { timeout: 8000 }),
     ).toBeInTheDocument();
     expect(
-      await screen.findByRole('heading', { name: /^housing$/i, level: 3 }, { timeout: 8000 }),
+      await screen.findByRole('heading', { name: /housing/i, level: 3 }, { timeout: 8000 }),
     ).toBeInTheDocument();
   });
 
@@ -46,15 +46,20 @@ describe('CategoriesPage', () => {
       },
     });
 
-    await renderAppAtPath('/categories', authService.service);
+    const { container } = await renderAppAtPath('/categories', authService.service);
 
     await waitForCategoriesToLoad();
 
     await user.type(await screen.findByLabelText(/new category/i, {}, { timeout: 8000 }), 'Health');
+    const categoryIconInput = container.querySelector<HTMLInputElement>('input[name="newCategoryIcon"]');
+
+    expect(categoryIconInput).not.toBeNull();
+    await user.type(categoryIconInput!, '🩺');
     await user.click(screen.getByRole('button', { name: /add category/i }));
 
     expect(
-      await screen.findByRole('heading', { name: /^health$/i, level: 3 }, { timeout: 8000 }),
+      await screen.findByRole('heading', { name: /health/i, level: 3 }, { timeout: 8000 }),
     ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /health/i, level: 3 })).toHaveTextContent('🩺 Health');
   });
 });

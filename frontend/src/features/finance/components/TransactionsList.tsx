@@ -2,9 +2,14 @@ import { useState } from 'react';
 
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { translateAppText } from '../../../shared/i18n/appText';
+import { formatLocalIsoDate } from '../../../shared/lib/date/isoDates';
 import { buildTransactionsCsvRows } from '../lib/transactionsCsv';
 import { getInstallmentLabel } from '../lib/installments';
-import { getCategoryName, getSubcategoryName } from '../lib/financeSelectors';
+import {
+  getCategoryName,
+  getSubcategoryName,
+  getTransactionDisplayIcon,
+} from '../lib/financeSelectors';
 import type {
   CategoryRecord,
   SubcategoryRecord,
@@ -40,9 +45,19 @@ export function TransactionsList({
 }: TransactionsListProps) {
   const csvRows = buildTransactionsCsvRows(transactions, categories, subcategories);
   const [isTableViewVisible, setIsTableViewVisible] = useState(false);
+  const [expandedFutureTransactionIds, setExpandedFutureTransactionIds] = useState<string[]>([]);
+  const todayIsoDate = formatLocalIsoDate();
 
   function getTransactionTitle(transaction: TransactionRecord) {
     return transaction.description || translateAppText('transactions.noDescription');
+  }
+
+  function toggleFutureTransaction(transactionId: string) {
+    setExpandedFutureTransactionIds((currentIds) =>
+      currentIds.includes(transactionId)
+        ? currentIds.filter((id) => id !== transactionId)
+        : [...currentIds, transactionId],
+    );
   }
 
   return (
@@ -109,24 +124,34 @@ export function TransactionsList({
 
             {transactions.map((transaction) => {
               const isEditing = editingTransaction?.id === transaction.id;
+              const isFutureTransaction = transaction.date > todayIsoDate;
+              const isFutureTransactionExpanded =
+                isEditing || !isFutureTransaction || expandedFutureTransactionIds.includes(transaction.id);
+              const transactionIcon = getTransactionDisplayIcon(categories, subcategories, transaction);
 
               return (
-                <article className="ledger-row" key={transaction.id} role="row">
+                <article
+                  className={`ledger-row${isFutureTransaction && !isFutureTransactionExpanded ? ' ledger-row--collapsed' : ''}`}
+                  key={transaction.id}
+                  role="row"
+                >
                   <div className="ledger-row__date">
                     <span>{transaction.date}</span>
                   </div>
 
                   <div className="ledger-row__description">
                     <div className="ledger-row__icon" aria-hidden="true">
-                      {transaction.type === 'income' ? 'IN' : 'EX'}
+                      {transactionIcon}
                     </div>
                     <div>
                       <h3>{getTransactionTitle(transaction)}</h3>
                       <p className="ledger-row__subcopy">
-                        {getInstallmentLabel(
-                          transaction.installmentIndex,
-                          transaction.installmentCount,
-                        )
+                        {isFutureTransaction && !isFutureTransactionExpanded
+                          ? 'Future entry'
+                          : getInstallmentLabel(
+                                transaction.installmentIndex,
+                                transaction.installmentCount,
+                              )
                           ? translateAppText('transactions.installmentCaption', {
                               installment: getInstallmentLabel(
                                 transaction.installmentIndex,
@@ -138,15 +163,6 @@ export function TransactionsList({
                             : translateAppText('transactions.noDetailAdded')}
                       </p>
                     </div>
-                  </div>
-
-                  <div className="ledger-row__category">
-                    <p className="transaction-card__meta">
-                      {getCategoryName(categories, transaction.categoryId)}
-                    </p>
-                    <span className="ledger-row__tag">
-                      {getSubcategoryName(subcategories, transaction.subcategoryId)}
-                    </span>
                   </div>
 
                   <div className="transaction-card__amounts ledger-row__amounts">
@@ -162,55 +178,80 @@ export function TransactionsList({
                     </strong>
                   </div>
 
-                  <div className="ledger-row__type">
-                    <span
-                      className={
-                        transaction.type === 'income'
-                          ? 'ledger-row__type-pill ledger-row__type-pill--income'
-                          : 'ledger-row__type-pill ledger-row__type-pill--expense'
-                      }
-                    >
-                      {transaction.type === 'income'
-                        ? translateAppText('transactions.incomeOption')
-                        : translateAppText('transactions.expense')}
-                    </span>
-                  </div>
-
-                  {isEditing ? (
-                    <div className="ledger-row__editor">
-                      <TransactionInlineEditor
-                        categories={categories}
-                        isSubmitting={isUpdatingTransaction}
-                        onCancel={onCancelEdit}
-                        onSubmit={(input) => onUpdate(transaction.id, input)}
-                        subcategories={subcategories}
-                        transaction={transaction}
-                      />
-                    </div>
-                  ) : (
-                    <div className="transaction-card__actions ledger-row__actions">
+                  {isFutureTransaction ? (
+                    <div className="ledger-row__actions ledger-row__actions--toggle">
                       <button
-                        aria-label={translateAppText('transactions.editTransaction', {
-                          name: getTransactionTitle(transaction),
-                        })}
                         className="secondary-button"
-                        onClick={() => onStartEdit(transaction)}
+                        onClick={() => toggleFutureTransaction(transaction.id)}
                         type="button"
                       >
-                        {translateAppText('transactions.edit')}
-                      </button>
-                      <button
-                        aria-label={translateAppText('transactions.deleteTransaction', {
-                          name: getTransactionTitle(transaction),
-                        })}
-                        className="secondary-button secondary-button--danger"
-                        onClick={() => void onDelete(transaction.id)}
-                        type="button"
-                      >
-                        {translateAppText('transactions.delete')}
+                        {isFutureTransactionExpanded ? 'Collapse' : 'Expand'}
                       </button>
                     </div>
-                  )}
+                  ) : null}
+
+                  {isFutureTransactionExpanded ? (
+                    <>
+                      <div className="ledger-row__category">
+                        <p className="transaction-card__meta">
+                          {getCategoryName(categories, transaction.categoryId)}
+                        </p>
+                        <span className="ledger-row__tag">
+                          {getSubcategoryName(subcategories, transaction.subcategoryId)}
+                        </span>
+                      </div>
+
+                      <div className="ledger-row__type">
+                        <span
+                          className={
+                            transaction.type === 'income'
+                              ? 'ledger-row__type-pill ledger-row__type-pill--income'
+                              : 'ledger-row__type-pill ledger-row__type-pill--expense'
+                          }
+                        >
+                          {transaction.type === 'income'
+                            ? translateAppText('transactions.incomeOption')
+                            : translateAppText('transactions.expense')}
+                        </span>
+                      </div>
+
+                      {isEditing ? (
+                        <div className="ledger-row__editor">
+                          <TransactionInlineEditor
+                            categories={categories}
+                            isSubmitting={isUpdatingTransaction}
+                            onCancel={onCancelEdit}
+                            onSubmit={(input) => onUpdate(transaction.id, input)}
+                            subcategories={subcategories}
+                            transaction={transaction}
+                          />
+                        </div>
+                      ) : (
+                        <div className="transaction-card__actions ledger-row__actions">
+                          <button
+                            aria-label={translateAppText('transactions.editTransaction', {
+                              name: getTransactionTitle(transaction),
+                            })}
+                            className="secondary-button"
+                            onClick={() => onStartEdit(transaction)}
+                            type="button"
+                          >
+                            {translateAppText('transactions.edit')}
+                          </button>
+                          <button
+                            aria-label={translateAppText('transactions.deleteTransaction', {
+                              name: getTransactionTitle(transaction),
+                            })}
+                            className="secondary-button secondary-button--danger"
+                            onClick={() => void onDelete(transaction.id)}
+                            type="button"
+                          >
+                            {translateAppText('transactions.delete')}
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  ) : null}
                 </article>
               );
             })}

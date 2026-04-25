@@ -9,9 +9,9 @@ import type {
 } from '../../finance/finance.types';
 
 const categories: CategoryRecord[] = [
-  { id: 'category-salary', name: 'Salary' },
-  { id: 'category-housing', name: 'Housing' },
-  { id: 'category-food', name: 'Food and dining' },
+  { id: 'category-salary', name: 'Salary', icon: null },
+  { id: 'category-housing', name: 'Housing', icon: null },
+  { id: 'category-food', name: 'Food and dining', icon: null },
 ];
 
 const budgets: BudgetRecord[] = [

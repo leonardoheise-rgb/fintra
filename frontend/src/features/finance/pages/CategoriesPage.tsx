@@ -22,13 +22,11 @@ export function CategoriesPage() {
         <CategoriesManager
           categories={financeData.categories}
           errorMessage={financeData.errorMessage}
-          onCreateCategory={async (name) => financeData.createCategory({ name })}
+          onCreateCategory={financeData.createCategory}
           onCreateSubcategory={financeData.createSubcategory}
           onDeleteCategory={financeData.deleteCategory}
           onDeleteSubcategory={financeData.deleteSubcategory}
-          onUpdateCategory={async (categoryId, name) =>
-            financeData.updateCategory(categoryId, { name })
-          }
+          onUpdateCategory={financeData.updateCategory}
           onUpdateSubcategory={financeData.updateSubcategory}
           subcategories={financeData.subcategories}
           transactions={financeData.transactions}

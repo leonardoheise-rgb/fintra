@@ -19,10 +19,17 @@ import type {
 } from '../finance.types';
 import type { FinanceService } from './financeService';
 
-function mapCategory(record: { id: string; name: string }): CategoryRecord {
+function normalizeIcon(icon: string | null | undefined) {
+  const trimmedIcon = icon?.trim() ?? '';
+
+  return trimmedIcon ? trimmedIcon : null;
+}
+
+function mapCategory(record: { id: string; name: string; icon: string | null }): CategoryRecord {
   return {
     id: record.id,
     name: record.name,
+    icon: normalizeIcon(record.icon),
   };
 }
 
@@ -30,11 +37,13 @@ function mapSubcategory(record: {
   id: string;
   category_id: string;
   name: string;
+  icon: string | null;
 }): SubcategoryRecord {
   return {
     id: record.id,
     categoryId: record.category_id,
     name: record.name,
+    icon: normalizeIcon(record.icon),
   };
 }
 
@@ -180,10 +189,10 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
         { data: monthReviews, error: monthReviewsError },
       ] = await withTimeout(
         Promise.all([
-          client.from('categories').select('id, name').eq('user_id', userId).order('name'),
+          client.from('categories').select('id, name, icon').eq('user_id', userId).order('name'),
           client
             .from('subcategories')
-            .select('id, category_id, name')
+            .select('id, category_id, name, icon')
             .eq('user_id', userId)
             .order('name'),
           client
@@ -255,8 +264,9 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
         .insert({
           user_id: userId,
           name: input.name.trim(),
+          icon: normalizeIcon(input.icon),
         })
-        .select('id, name')
+        .select('id, name, icon')
         .single();
 
       if (error) {
@@ -270,10 +280,11 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
         .from('categories')
         .update({
           name: input.name.trim(),
+          icon: normalizeIcon(input.icon),
         })
         .eq('id', categoryId)
         .eq('user_id', userId)
-        .select('id, name')
+        .select('id, name, icon')
         .single();
 
       if (error) {
@@ -296,8 +307,9 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
           user_id: userId,
           category_id: input.categoryId,
           name: input.name.trim(),
+          icon: normalizeIcon(input.icon),
         })
-        .select('id, category_id, name')
+        .select('id, category_id, name, icon')
         .single();
 
       if (error) {
@@ -312,10 +324,11 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
         .update({
           category_id: input.categoryId,
           name: input.name.trim(),
+          icon: normalizeIcon(input.icon),
         })
         .eq('id', subcategoryId)
         .eq('user_id', userId)
-        .select('id, category_id, name')
+        .select('id, category_id, name, icon')
         .single();
 
       if (error) {

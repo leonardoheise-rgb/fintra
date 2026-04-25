@@ -24,7 +24,7 @@ describe('DashboardPage', () => {
       },
     });
 
-    await renderAppAtPath('/', authService.service);
+    const { container } = await renderAppAtPath('/', authService.service);
 
     await waitForDashboardToLoad();
 
@@ -47,6 +47,8 @@ describe('DashboardPage', () => {
     expect(
       await screen.findByRole('heading', { name: /^housing$/i, level: 4 }, { timeout: 8000 }),
     ).toBeInTheDocument();
+    const recentActivityIcons = [...container.querySelectorAll<HTMLElement>('.recent-activity-item__icon')];
+    expect(recentActivityIcons.some((icon) => icon.textContent === '🍷')).toBe(true);
     expect(screen.getByLabelText(/selected month/i)).toBeInTheDocument();
     expect(screen.getByRole('progressbar', { name: /housing budget usage/i })).toBeInTheDocument();
 
@@ -90,7 +92,9 @@ describe('DashboardPage', () => {
     const categoryDialog = categoryDialogHeading.closest('[role="dialog"]');
 
     expect(categoryDialogHeading).toBeInTheDocument();
-    expect(within(categoryDialog ?? document.body).getByText(/apartment rent/i)).toBeInTheDocument();
+    expect(
+      within((categoryDialog as HTMLElement | null) ?? document.body).getByText(/apartment rent/i),
+    ).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /close details/i }));
 

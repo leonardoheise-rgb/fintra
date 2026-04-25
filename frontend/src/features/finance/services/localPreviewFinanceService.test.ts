@@ -21,6 +21,20 @@ describe('localPreviewFinanceService', () => {
     );
   });
 
+  it('stores icons for categories and subcategories', async () => {
+    const service = createLocalPreviewFinanceService('user-1');
+
+    const category = await service.createCategory({ name: 'Health', icon: '🩺' });
+    const subcategory = await service.createSubcategory({
+      categoryId: category.id,
+      name: 'Pharmacy',
+      icon: '💊',
+    });
+
+    expect(category.icon).toBe('🩺');
+    expect(subcategory.icon).toBe('💊');
+  });
+
   it('rejects transactions when the subcategory does not belong to the chosen category', async () => {
     const service = createLocalPreviewFinanceService('user-1');
 

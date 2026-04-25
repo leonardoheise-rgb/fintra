@@ -3,7 +3,11 @@ import { Link } from 'react-router-dom';
 import { translateAppText } from '../../../shared/i18n/appText';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { getInstallmentLabel } from '../../finance/lib/installments';
-import { getCategoryName, getSubcategoryName } from '../../finance/lib/financeSelectors';
+import {
+  getCategoryName,
+  getSubcategoryName,
+  getTransactionDisplayIcon,
+} from '../../finance/lib/financeSelectors';
 import type {
   CategoryRecord,
   SubcategoryRecord,
@@ -42,7 +46,7 @@ export function RecentTransactionsPanel({
           {transactions.slice(0, 5).map((transaction) => (
             <article className="recent-activity-item" key={transaction.id}>
               <div className="recent-activity-item__icon" aria-hidden="true">
-                {transaction.type === 'income' ? 'IN' : 'EX'}
+                {getTransactionDisplayIcon(categories, subcategories, transaction)}
               </div>
               <div>
                 <h3>{transaction.description || translateAppText('dashboard.untitledEntry')}</h3>

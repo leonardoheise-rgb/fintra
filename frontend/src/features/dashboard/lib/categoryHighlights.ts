@@ -70,9 +70,19 @@ function getRemainingDays(month: string, monthStartDay: number, now: Date) {
   return Math.max(totalDays - elapsedDays + 1, 1);
 }
 
-function calculateRecentExpenseAverage(transactions: TransactionRecord[], categoryId: string) {
+function calculateRecentExpenseAverage(
+  transactions: TransactionRecord[],
+  categoryId: string,
+  now: Date,
+) {
+  const todayIsoDate = now.toISOString().slice(0, 10);
   const recentExpenses = sortTransactionsByDateDesc(
-    transactions.filter((transaction) => transaction.categoryId === categoryId && transaction.type === 'expense'),
+    transactions.filter(
+      (transaction) =>
+        transaction.categoryId === categoryId &&
+        transaction.type === 'expense' &&
+        transaction.date <= todayIsoDate,
+    ),
   ).slice(0, 5);
 
   if (recentExpenses.length === 0) {
@@ -84,7 +94,7 @@ function calculateRecentExpenseAverage(transactions: TransactionRecord[], catego
 
 export function calculateCategoryTodayAvailableToSpend(
   card: CategoryHighlightInput,
-  transactions: TransactionRecord[],
+  allTransactions: TransactionRecord[],
   month: string,
   monthStartDay: number,
   now = new Date(),
@@ -102,7 +112,7 @@ export function calculateCategoryTodayAvailableToSpend(
   }
 
   const dailyAvailableAmount = remainingCategoryAmount / remainingDays;
-  const recentExpenseAverage = calculateRecentExpenseAverage(transactions, card.id);
+  const recentExpenseAverage = calculateRecentExpenseAverage(allTransactions, card.id, now);
 
   if (dailyAvailableAmount < recentExpenseAverage) {
     return 0;

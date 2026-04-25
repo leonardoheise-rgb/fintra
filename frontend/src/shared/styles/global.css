@@ -267,11 +267,18 @@ p {
 }
 
 .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 15;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.9rem;
-  padding-top: 0.25rem;
+  padding: 0.75rem 0 0.4rem;
+  background:
+    linear-gradient(180deg, rgba(251, 252, 253, 0.97), rgba(251, 252, 253, 0.9)),
+    transparent;
+  backdrop-filter: blur(10px);
 }
 
 .topbar__menu-button {

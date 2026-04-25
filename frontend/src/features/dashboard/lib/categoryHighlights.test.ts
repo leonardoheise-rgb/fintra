@@ -127,4 +127,35 @@ describe('calculateCategoryTodayAvailableToSpend', () => {
       ),
     ).toBe(0);
   });
+
+  it('ignores future-dated expenses when averaging the last five category entries', () => {
+    expect(
+      calculateCategoryTodayAvailableToSpend(
+        {
+          id: 'category-food',
+          effectiveBudget: 1200,
+          spent: 300,
+          reserved: 0,
+        },
+        [
+          {
+            id: 'future-transaction',
+            amount: 900,
+            type: 'expense',
+            categoryId: 'category-food',
+            subcategoryId: null,
+            date: '2026-03-28',
+            description: 'Booked dinner',
+            installmentGroupId: null,
+            installmentIndex: null,
+            installmentCount: null,
+          },
+          ...baseTransactions,
+        ],
+        '2026-03',
+        1,
+        new Date('2026-03-20T12:00:00.000Z'),
+      ),
+    ).toBe(75);
+  });
 });

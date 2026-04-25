@@ -73,7 +73,8 @@ function buildBudgetCards(
   categories: CategoryRecord[],
   budgets: BudgetRecord[],
   budgetOverrides: BudgetOverrideRecord[],
-  transactions: TransactionRecord[],
+  monthlyTransactions: TransactionRecord[],
+  allTransactions: TransactionRecord[],
   setAsides: SetAsideRecord[],
   month: string,
   monthStartDay: number,
@@ -101,7 +102,7 @@ function buildBudgetCards(
         isOverridden: effectiveBudgets.some(
           (item) => item.categoryId === category.id && item.isOverridden,
         ),
-        spent: getExpenseTotalForCategory(transactions, category.id),
+        spent: getExpenseTotalForCategory(monthlyTransactions, category.id),
         reserved: getReservedTotalForCategory(setAsides, category.id),
       };
 
@@ -109,7 +110,7 @@ function buildBudgetCards(
         ...card,
         todayAvailableToSpend: calculateCategoryTodayAvailableToSpend(
           card,
-          transactions,
+          allTransactions,
           month,
           monthStartDay,
           now,
@@ -218,7 +219,7 @@ function buildInsight(cards: BudgetCard[], remainingBudget: number) {
 
   return `You still have ${formatCurrency(
     remainingBudget,
-  )} available across the default monthly plan. The dashboard is now reconciling budgets against live transactions.`;
+  )} available across the default monthly plan.`;
 }
 
 export function filterTransactionsByMonth(
@@ -242,6 +243,7 @@ export function buildDashboardSnapshot(
     source.budgets,
     source.budgetOverrides,
     monthlyTransactions,
+    source.transactions,
     monthlySetAsides,
     month,
     monthStartDay,
