@@ -77,9 +77,9 @@ describe('Fintra smoke flows', () => {
         name: /edit transaction coffee with client/i,
       }),
     );
-    await user.clear(screen.getByLabelText(/description/i));
-    await user.type(screen.getByLabelText(/description/i), 'Lunch with client');
-    await user.click(screen.getByRole('button', { name: /update transaction/i }));
+    await user.clear(within(createdTransactionCard!).getByLabelText(/description/i));
+    await user.type(within(createdTransactionCard!).getByLabelText(/description/i), 'Lunch with client');
+    await user.click(within(createdTransactionCard!).getByRole('button', { name: /update transaction/i }));
 
     const updatedTransactionTitle = await screen.findByText(/lunch with client/i, {}, { timeout: 8000 });
     const updatedTransactionCard = updatedTransactionTitle.closest('article');
@@ -118,8 +118,10 @@ describe('Fintra smoke flows', () => {
       await screen.findByRole('heading', { name: /transport \/ transit/i, level: 3 }, { timeout: 8000 }),
     ).toBeInTheDocument();
 
-    const [, overrideCategorySelect] = await screen.findAllByLabelText(/^category$/i, {}, { timeout: 8000 });
-    const [, overrideAmountInput] = screen.getAllByLabelText(/^amount$/i);
+    await user.click(screen.getByRole('tab', { name: /add monthly override/i }));
+
+    const overrideCategorySelect = await screen.findByLabelText(/^category$/i, {}, { timeout: 8000 });
+    const overrideAmountInput = screen.getByLabelText(/^amount$/i);
 
     await user.selectOptions(overrideCategorySelect, 'category-transport');
     await user.clear(overrideAmountInput);
