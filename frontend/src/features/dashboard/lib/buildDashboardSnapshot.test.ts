@@ -171,6 +171,7 @@ describe('buildDashboardSnapshot', () => {
       {
         id: 'category-housing',
         name: 'Housing',
+        icon: null,
         shortLabel: 'H',
         defaultBudget: 2500,
         effectiveBudget: 2500,
@@ -183,6 +184,7 @@ describe('buildDashboardSnapshot', () => {
       {
         id: 'category-food',
         name: 'Food and dining',
+        icon: null,
         shortLabel: 'FD',
         defaultBudget: 600,
         effectiveBudget: 750,

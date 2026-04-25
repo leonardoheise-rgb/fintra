@@ -1,6 +1,7 @@
 export type BudgetCard = {
   id: string;
   name: string;
+  icon: string | null;
   shortLabel: string;
   defaultBudget: number;
   effectiveBudget: number;

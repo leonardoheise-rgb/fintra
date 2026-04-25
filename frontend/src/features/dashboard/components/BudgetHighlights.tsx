@@ -71,7 +71,7 @@ export function BudgetHighlights({ cards, month, onSelectCategory }: BudgetHighl
               >
                 <div className="budget-card__header">
                   <div className="budget-card__badge" aria-hidden="true">
-                    {card.shortLabel}
+                    {card.icon ?? card.shortLabel}
                   </div>
                   <div>
                     {card.isOverridden ? (

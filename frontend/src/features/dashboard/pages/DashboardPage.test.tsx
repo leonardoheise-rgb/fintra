@@ -47,6 +47,8 @@ describe('DashboardPage', () => {
     expect(
       await screen.findByRole('heading', { name: /^housing$/i, level: 4 }, { timeout: 8000 }),
     ).toBeInTheDocument();
+    const budgetCardBadges = [...container.querySelectorAll<HTMLElement>('.budget-card__badge')];
+    expect(budgetCardBadges.some((badge) => badge.textContent === '🏠')).toBe(true);
     const recentActivityIcons = [...container.querySelectorAll<HTMLElement>('.recent-activity-item__icon')];
     expect(recentActivityIcons.some((icon) => icon.textContent === '🍷')).toBe(true);
     expect(screen.getByLabelText(/selected month/i)).toBeInTheDocument();

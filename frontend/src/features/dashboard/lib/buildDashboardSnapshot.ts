@@ -87,6 +87,7 @@ function buildBudgetCards(
       const card = {
         id: category.id,
         name: category.name,
+        icon: category.icon,
         shortLabel: buildShortLabel(category.name),
         defaultBudget: getBudgetTotalForCategory(budgets, category.id),
         effectiveBudget: sumValues(
