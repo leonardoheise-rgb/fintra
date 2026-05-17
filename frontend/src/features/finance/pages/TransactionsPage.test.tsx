@@ -232,10 +232,6 @@ describe('TransactionsPage', () => {
     await user.type(descriptionInput!, 'Summer trip dinner');
     await user.click(screen.getByRole('button', { name: /set aside money/i }));
 
-    expect(screen.queryByRole('button', { name: /discard/i })).not.toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: /expand/i }));
-    expect(screen.getByRole('button', { name: /discard/i })).toBeInTheDocument();
-
     await waitFor(() => {
       const persistedWorkspace = JSON.parse(
         window.localStorage.getItem('fintra.preview.workspace.test-finance-user') ?? '{}',
@@ -247,6 +243,10 @@ describe('TransactionsPage', () => {
         ),
       ).toBe(true);
     });
+
+    expect(screen.queryByRole('button', { name: /discard/i })).not.toBeInTheDocument();
+    await user.click(await screen.findByRole('button', { name: /expand/i }));
+    expect(screen.getByRole('button', { name: /discard/i })).toBeInTheDocument();
   });
 
   it('shows future transactions collapsed until the user expands them', async () => {

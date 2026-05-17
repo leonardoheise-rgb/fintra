@@ -58,6 +58,56 @@ function clampMonthStartDay(year: number, monthIndex: number, monthStartDay: num
   );
 }
 
+function getFinancialMonthStart(parsedDate: {
+  year: number;
+  monthIndex: number;
+  day: number;
+}, monthStartDay: number) {
+  const currentMonthStartDay = clampMonthStartDay(
+    parsedDate.year,
+    parsedDate.monthIndex,
+    monthStartDay,
+  );
+
+  if (parsedDate.day >= currentMonthStartDay) {
+    return {
+      year: parsedDate.year,
+      monthIndex: parsedDate.monthIndex,
+      day: currentMonthStartDay,
+    };
+  }
+
+  const previousMonth = new Date(Date.UTC(parsedDate.year, parsedDate.monthIndex - 1, 1));
+  const previousYear = previousMonth.getUTCFullYear();
+  const previousMonthIndex = previousMonth.getUTCMonth();
+
+  return {
+    year: previousYear,
+    monthIndex: previousMonthIndex,
+    day: clampMonthStartDay(previousYear, previousMonthIndex, monthStartDay),
+  };
+}
+
+function getClosestCalendarMonthToStartDate(periodStart: {
+  year: number;
+  monthIndex: number;
+  day: number;
+}) {
+  const startDate = new Date(
+    Date.UTC(periodStart.year, periodStart.monthIndex, periodStart.day),
+  );
+  const startMonthFirstDay = new Date(Date.UTC(periodStart.year, periodStart.monthIndex, 1));
+  const nextMonthFirstDay = new Date(Date.UTC(periodStart.year, periodStart.monthIndex + 1, 1));
+  const distanceToStartMonth = Math.abs(startDate.getTime() - startMonthFirstDay.getTime());
+  const distanceToNextMonth = Math.abs(nextMonthFirstDay.getTime() - startDate.getTime());
+
+  if (distanceToStartMonth <= distanceToNextMonth) {
+    return formatMonthKey(periodStart.year, periodStart.monthIndex);
+  }
+
+  return formatMonthKey(nextMonthFirstDay.getUTCFullYear(), nextMonthFirstDay.getUTCMonth());
+}
+
 export function isValidMonthKey(month: string) {
   return monthKeyPattern.test(month);
 }
@@ -69,38 +119,15 @@ export function getMonthKey(date: string, monthStartDay = 1) {
     return date.slice(0, 7);
   }
 
-  const currentMonthStartDay = clampMonthStartDay(
-    parsedDate.year,
-    parsedDate.monthIndex,
-    monthStartDay,
+  return getClosestCalendarMonthToStartDate(
+    getFinancialMonthStart(parsedDate, monthStartDay),
   );
-
-  if (parsedDate.day >= currentMonthStartDay) {
-    return formatMonthKey(parsedDate.year, parsedDate.monthIndex);
-  }
-
-  const previousMonth = new Date(Date.UTC(parsedDate.year, parsedDate.monthIndex - 1, 1));
-
-  return formatMonthKey(previousMonth.getUTCFullYear(), previousMonth.getUTCMonth());
 }
 
 export function getCurrentMonthKey(now = new Date(), monthStartDay = 1) {
   const isoDate = formatLocalIsoDate(now);
 
   return getMonthKey(isoDate, monthStartDay);
-}
-
-export function getClosestMonthToFirstDay(now = new Date()) {
-  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-  const distanceToCurrentMonthStart = Math.abs(now.getTime() - currentMonthStart.getTime());
-  const distanceToNextMonthStart = Math.abs(nextMonthStart.getTime() - now.getTime());
-
-  if (distanceToCurrentMonthStart <= distanceToNextMonthStart) {
-    return formatMonthKey(now.getFullYear(), now.getMonth());
-  }
-
-  return formatMonthKey(nextMonthStart.getFullYear(), nextMonthStart.getMonth());
 }
 
 export function shiftMonthKey(month: string, offset: number) {

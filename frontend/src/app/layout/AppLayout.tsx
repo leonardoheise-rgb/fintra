@@ -20,7 +20,6 @@ import { useDisplayPreferences } from '../../features/settings/useDisplayPrefere
 import { translateAppText } from '../../shared/i18n/appText';
 import { formatLocalIsoDate } from '../../shared/lib/date/isoDates';
 import {
-  getClosestMonthToFirstDay,
   getCurrentMonthKey,
   shiftMonthKey,
 } from '../../shared/lib/date/months';
@@ -71,7 +70,7 @@ export function AppLayout({ children }: PropsWithChildren) {
     pageTitleByPath[location.pathname] ?? 'shell.defaultTitle',
   );
   const currentMonth = useMemo(() => getCurrentMonthKey(new Date(), monthStartDay), [monthStartDay]);
-  const reviewMonth = useMemo(() => getClosestMonthToFirstDay(new Date()), []);
+  const reviewMonth = currentMonth;
   const shouldOpenMonthReviewFromSettings = useMemo(() => {
     const searchParams = new URLSearchParams(location.search);
     return searchParams.get('month-review') === 'open';

@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import {
   addMonthsToIsoDate,
   buildMonthRange,
-  getClosestMonthToFirstDay,
   getCurrentMonthKey,
   getMonthKey,
   shiftMonthKey,
@@ -20,14 +19,14 @@ describe('months helpers', () => {
     expect(getCurrentMonthKey(new Date(2026, 2, 20, 12), 15)).toBe('2026-03');
   });
 
-  it('advances to the new finance month on the local month start day', () => {
-    expect(getCurrentMonthKey(new Date(2026, 4, 18, 23, 59), 19)).toBe('2026-04');
-    expect(getCurrentMonthKey(new Date(2026, 4, 19, 0, 1), 19)).toBe('2026-05');
+  it('names the finance month by the calendar month closest to the period start day', () => {
+    expect(getMonthKey('2026-05-25', 5)).toBe('2026-05');
+    expect(getMonthKey('2026-05-25', 19)).toBe('2026-06');
   });
 
-  it('returns the calendar month whose first day is closest to today', () => {
-    expect(getClosestMonthToFirstDay(new Date(2026, 3, 10, 12))).toBe('2026-04');
-    expect(getClosestMonthToFirstDay(new Date(2026, 3, 25, 12))).toBe('2026-05');
+  it('advances to the new finance month bucket on the local month start day', () => {
+    expect(getCurrentMonthKey(new Date(2026, 4, 18, 23, 59), 19)).toBe('2026-05');
+    expect(getCurrentMonthKey(new Date(2026, 4, 19, 0, 1), 19)).toBe('2026-06');
   });
 
   it('shifts ISO dates while keeping the nearest valid day', () => {

@@ -23,7 +23,8 @@ const setAsides: SetAsideRecord[] = [
 describe('set-asides helpers', () => {
   it('filters set-asides by finance month', () => {
     expect(filterSetAsidesByMonth(setAsides, '2026-03')).toHaveLength(2);
-    expect(filterSetAsidesByMonth(setAsides, '2026-02', 21)).toHaveLength(1);
+    expect(filterSetAsidesByMonth(setAsides, '2026-03', 21)).toHaveLength(1);
+    expect(filterSetAsidesByMonth(setAsides, '2026-04', 21)).toHaveLength(1);
   });
 
   it('returns only overdue set-asides one day after the planned date', () => {
