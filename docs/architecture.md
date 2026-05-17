@@ -4,7 +4,7 @@
 
 - Frontend: React + TypeScript + Vite
 - Routing: React Router
-- Authentication: Supabase Auth with a local preview fallback during setup
+- Authentication: Supabase Auth
 - Data layer: service-based finance workspace with preview local storage and Supabase implementations
 - Testing: Vitest + Testing Library
 - Linting: ESLint (flat config)

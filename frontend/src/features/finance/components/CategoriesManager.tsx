@@ -127,12 +127,12 @@ export function CategoriesManager({
             />
           </label>
           <label className="finance-field">
-            <span>Icon</span>
+            <span>{translateAppText('categories.icon')}</span>
             <input
               maxLength={8}
               name="newCategoryIcon"
               onChange={(event) => setNewCategoryIcon(event.target.value)}
-              placeholder="e.g. 🏠"
+              placeholder={translateAppText('categories.iconPlaceholder')}
               type="text"
               value={newCategoryIcon}
             />
@@ -178,12 +178,12 @@ export function CategoriesManager({
             />
           </label>
           <label className="finance-field">
-            <span>Icon</span>
+            <span>{translateAppText('categories.icon')}</span>
             <input
               maxLength={8}
               name="newSubcategoryIcon"
               onChange={(event) => setNewSubcategoryIcon(event.target.value)}
-              placeholder="e.g. 🍽️"
+              placeholder={translateAppText('categories.subcategoryIconPlaceholder')}
               type="text"
               value={newSubcategoryIcon}
             />
@@ -253,7 +253,7 @@ export function CategoriesManager({
                             <input
                               maxLength={8}
                               onChange={(event) => setEditingCategoryIcon(event.target.value)}
-                              placeholder="Icon"
+                              placeholder={translateAppText('categories.icon')}
                               type="text"
                               value={editingCategoryIcon}
                             />
@@ -327,7 +327,7 @@ export function CategoriesManager({
                                 <input
                                   maxLength={8}
                                   onChange={(event) => setEditingSubcategoryIcon(event.target.value)}
-                                  placeholder="Icon"
+                                  placeholder={translateAppText('categories.icon')}
                                   type="text"
                                   value={editingSubcategoryIcon}
                                 />

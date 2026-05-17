@@ -202,10 +202,10 @@ function buildInsight(cards: BudgetCard[], remainingBudget: number) {
   }
 
   const highestOverageCard = cards
-    .filter((card) => card.spent > card.defaultBudget)
+    .filter((card) => card.spent > card.effectiveBudget)
     .sort(
       (left, right) =>
-        right.spent - right.defaultBudget - (left.spent - left.defaultBudget),
+        right.spent - right.effectiveBudget - (left.spent - left.effectiveBudget),
     )[0];
 
   if (highestOverageCard) {

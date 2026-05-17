@@ -237,6 +237,66 @@ describe('buildDashboardSnapshot', () => {
       });
   });
 
+  it('uses effective budget overrides when choosing the over-plan insight', () => {
+    const snapshot = buildDashboardSnapshot(
+      {
+        categories,
+        budgets,
+        budgetOverrides: [
+          {
+            id: 'budget-override-housing',
+            categoryId: 'category-housing',
+            subcategoryId: null,
+            month: '2026-03',
+            amount: 3000,
+          },
+          {
+            id: 'budget-override-food',
+            categoryId: 'category-food',
+            subcategoryId: null,
+            month: '2026-03',
+            amount: 500,
+          },
+        ],
+        transactions: [
+          ...transactions,
+          {
+            id: 'transaction-housing-extra',
+            amount: 550,
+            type: 'expense',
+            categoryId: 'category-housing',
+            subcategoryId: null,
+            date: '2026-03-12',
+            description: 'Maintenance',
+            installmentGroupId: null,
+            installmentIndex: null,
+            installmentCount: null,
+          },
+          {
+            id: 'transaction-food-extra',
+            amount: 520,
+            type: 'expense',
+            categoryId: 'category-food',
+            subcategoryId: null,
+            date: '2026-03-12',
+            description: 'Extra dining',
+            installmentGroupId: null,
+            installmentIndex: null,
+            installmentCount: null,
+          },
+        ],
+        setAsides: [],
+        monthReviews,
+      },
+      '2026-03',
+      1,
+      referenceDate,
+    );
+
+    expect(snapshot.insight).toMatch(/Food and dining is over plan by \$200\.00/i);
+    expect(snapshot.insight).not.toMatch(/Housing/);
+  });
+
   it('returns an onboarding insight when no budgets exist yet', () => {
     const snapshot = buildDashboardSnapshot(
       {

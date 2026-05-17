@@ -57,6 +57,33 @@ describe('App authentication routing', () => {
     ).toBeInTheDocument();
   });
 
+  it('redirects unknown public routes to sign in', async () => {
+    const authService = createAuthServiceStub();
+
+    await renderAppAtPath('/missing-route', authService.service);
+
+    expect(
+      await screen.findByRole('heading', { name: /sign in/i }, { timeout: 5000 }),
+    ).toBeInTheDocument();
+  });
+
+  it('redirects unknown authenticated routes to the dashboard', async () => {
+    const authService = createAuthServiceStub({
+      initialSession: {
+        user: {
+          id: 'user-1',
+          email: 'owner@fintra.dev',
+        },
+      },
+    });
+
+    await renderAppAtPath('/missing-route', authService.service);
+
+    expect(
+      await screen.findByRole('heading', { name: /^dashboard$/i, level: 1 }, { timeout: 3000 }),
+    ).toBeInTheDocument();
+  });
+
   it('keeps the bottom navigation focused on the three main routes', async () => {
     const authService = createAuthServiceStub({
       initialSession: {

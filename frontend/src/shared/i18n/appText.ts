@@ -1128,6 +1128,30 @@ Object.assign(translations['pt-BR'], {
 
 translations['pt-BR'] = normalizeTranslations(translations['pt-BR']);
 
+Object.assign(translations['en-US'], {
+  'transactions.operationCenter': 'Operation center',
+  'transactions.operationModes': 'Transaction operation modes',
+  'transactions.operationLog': 'Log',
+  'transactions.operationReserve': 'Reserve',
+  'categories.icon': 'Icon',
+  'categories.iconPlaceholder': 'e.g. home',
+  'categories.subcategoryIconPlaceholder': 'e.g. dining',
+  'auth.workspaceHighlights': 'Workspace highlights',
+});
+
+Object.assign(translations['pt-BR'], {
+  'transactions.operationCenter': 'Central de operações',
+  'transactions.operationModes': 'Modos de operação de transações',
+  'transactions.operationLog': 'Registrar',
+  'transactions.operationReserve': 'Reservar',
+  'categories.icon': 'Ícone',
+  'categories.iconPlaceholder': 'ex.: casa',
+  'categories.subcategoryIconPlaceholder': 'ex.: restaurante',
+  'auth.workspaceHighlights': 'Destaques do espaço de trabalho',
+});
+
+translations['pt-BR'] = normalizeTranslations(translations['pt-BR']);
+
 function getSupportedLocale(locale: string): SupportedLocale {
   if (locale.startsWith('pt')) {
     return 'pt-BR';

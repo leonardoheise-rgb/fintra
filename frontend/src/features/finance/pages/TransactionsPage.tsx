@@ -315,12 +315,18 @@ export function TransactionsPage() {
           <section className="finance-panel finance-panel--segment">
             <div className="finance-panel__heading">
               <div>
-                <p className="finance-panel__eyebrow">Operation center</p>
+                <p className="finance-panel__eyebrow">
+                  {translateAppText('transactions.operationCenter')}
+                </p>
                 <h2>{translateAppText('transactions.title')}</h2>
               </div>
             </div>
 
-            <div className="analytics-tabbar" role="tablist" aria-label="Transaction operation modes">
+            <div
+              className="analytics-tabbar"
+              role="tablist"
+              aria-label={translateAppText('transactions.operationModes')}
+            >
               <button
                 aria-selected={activeOperation === 'log'}
                 className={`analytics-tabbar__button${
@@ -330,7 +336,7 @@ export function TransactionsPage() {
                 role="tab"
                 type="button"
               >
-                Log
+                {translateAppText('transactions.operationLog')}
               </button>
               <button
                 aria-selected={activeOperation === 'reserve'}
@@ -341,7 +347,7 @@ export function TransactionsPage() {
                 role="tab"
                 type="button"
               >
-                Reserve
+                {translateAppText('transactions.operationReserve')}
               </button>
             </div>
           </section>

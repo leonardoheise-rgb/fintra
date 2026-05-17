@@ -1,4 +1,4 @@
-import { Outlet, Route, Routes } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 
 import { ProtectedRoute } from '../features/auth/components/ProtectedRoute';
 import { AnalyticsPage } from '../features/analytics/pages/AnalyticsPage';
@@ -35,6 +35,7 @@ export function AppRouter({ financeService }: AppRouterProps) {
       <Route element={<PublicOnlyRoute />}>
         <Route path="/sign-in" element={<SignInPage />} />
         <Route path="/sign-up" element={<SignUpPage />} />
+        <Route path="*" element={<Navigate replace to="/sign-in" />} />
       </Route>
 
       <Route element={<ProtectedRoute />}>
@@ -46,6 +47,7 @@ export function AppRouter({ financeService }: AppRouterProps) {
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="*" element={<Navigate replace to="/" />} />
         </Route>
       </Route>
     </Routes>

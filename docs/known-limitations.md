@@ -4,8 +4,8 @@ These are the current MVP limitations accepted for Sprint 6.
 
 ## Data and sync
 
-- Display preferences are saved per signed-in user in the browser on the current device and are not yet synchronized through Supabase.
-- Preview mode data is stored locally and should be treated as demo-only behavior.
+- Display preferences are synchronized through Supabase when the environment is configured.
+- Local test fixtures and service stubs are demo-only behavior.
 - The app assumes the required Supabase migrations have already been applied and does not provision missing tables automatically.
 
 ## Product scope

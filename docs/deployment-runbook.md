@@ -81,7 +81,7 @@ Expected result:
 
 ## Failure handling
 
-### The deploy succeeds but the app shows preview mode
+### The deploy succeeds but auth or data loading fails
 
 Check Render environment variables first:
 

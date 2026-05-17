@@ -60,7 +60,7 @@ The current suite validates:
 - monthly budget override rendering and CRUD behavior
 - analytics route rendering and tab switching behavior
 - category and transaction route rendering
-- category, transaction, budget, and budget override preview persistence rules
+- category, transaction, budget, and budget override persistence rules
 - budget summary calculation behavior
 - currency formatting behavior
 - month label formatting behavior
@@ -76,10 +76,7 @@ Use this checklist after `npm run dev`.
 2. Run `npm run dev`.
 3. Open the local URL printed by Vite in your terminal.
 
-If Supabase is not configured yet, the app will use preview auth and still allow you to test the
-full route-guard flow locally.
-
-If Supabase is configured, make sure the budget migration has also been applied:
+Make sure Supabase is configured and the migrations have been applied:
 
 - `database/migrations/20260329193000_create_categories_and_subcategories.sql`
 - `database/migrations/20260329194000_create_transactions.sql`
@@ -97,13 +94,13 @@ If Supabase is configured, make sure the budget migration has also been applied:
 6. Confirm the left sidebar shows enabled links for Dashboard, Transactions, Categories, Budgets, and Analytics.
 7. Confirm the top shell shows the current user email and a `Sign out` button.
 8. Confirm the dashboard still loads from the protected root route.
-9. Open `/categories` and confirm preview categories such as Housing and Food and dining are visible.
+9. Open `/categories` and confirm existing categories such as Housing and Food and dining are visible, if your test account has seeded data.
 10. Create a new category and confirm it appears immediately in the list.
-11. Open `/transactions` and confirm preview transactions such as Monthly salary are visible.
+11. Open `/transactions` and confirm existing transactions such as Monthly salary are visible, if your test account has seeded data.
 12. Create a new transaction and confirm it appears immediately in the ledger.
 13. Edit a transaction and confirm the updated description or amount is rendered.
 14. Delete a transaction and confirm it disappears from the ledger.
-15. Open `/budgets` and confirm preview budgets such as Housing are visible.
+15. Open `/budgets` and confirm existing budgets such as Housing are visible, if your test account has seeded data.
 16. Create a default budget and confirm it appears immediately in the list.
 17. On `/budgets`, create a monthly override for the current month and confirm it appears in the override list.
 18. Confirm the matching default budget shows an override status for that selected month.

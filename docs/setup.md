@@ -11,11 +11,7 @@ npm ci
 ## 2. Create the frontend environment file
 
 1. Copy `frontend/.env.example` to `frontend/.env`
-2. Replace the placeholder Supabase values with your project settings
-
-If you leave the placeholder Supabase values in place, Fintra uses a local preview auth mode so
-you can still test sign-in, sign-up, redirects, and the protected shell before connecting a real
-project.
+2. Replace the placeholder Supabase values with your project settings before running the app
 
 ## 3. Start the app
 
@@ -55,14 +51,13 @@ The frontend currently expects:
 
 ## Authentication behavior
 
-- Real Supabase auth is used when `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are configured
-- Local preview auth is used when those values are still placeholders
-- Preview auth stores the session locally so Sprint 1 routes and guards remain testable
+- Supabase auth is required through `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
+- Placeholder Supabase values are only examples and are not a local auth fallback
 
 ## Finance data behavior
 
-- Preview mode stores categories, subcategories, transactions, budgets, and monthly budget overrides in local storage per signed-in preview user
-- Supabase mode expects the current migrations inside `database/migrations/` to be applied, including `20260329201000_create_budgets.sql` and `20260330091000_create_budget_overrides.sql`
+- Finance data is read from and written to Supabase
+- Supabase expects the current migrations inside `database/migrations/` to be applied, including `20260329201000_create_budgets.sql` and `20260330091000_create_budget_overrides.sql`
 - The app now includes protected routes for `/transactions`, `/categories`, `/budgets`, and `/analytics`
 
 ## Deployment flow

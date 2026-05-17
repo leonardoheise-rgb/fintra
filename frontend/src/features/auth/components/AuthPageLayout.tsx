@@ -46,7 +46,10 @@ export function AuthPageLayout({
           <p className="auth-page__copy">{translateAppText('auth.heroCopy')}</p>
         </div>
 
-        <div className="auth-page__highlights" aria-label="Workspace highlights">
+        <div
+          className="auth-page__highlights"
+          aria-label={translateAppText('auth.workspaceHighlights')}
+        >
           {mode === 'sign-in' ? (
             <>
               <article className="auth-page__highlight">

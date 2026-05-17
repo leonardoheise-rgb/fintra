@@ -40,13 +40,13 @@ Make sure these two things are true:
 
 - The sign-in page loads
 - Refreshing pages like `/budgets` or `/analytics` does not show a `404`
-- Signing in uses the real Supabase project instead of preview mode
+- Signing in uses the configured Supabase project
 
 ## If something goes wrong
 
-### The site builds but shows preview mode
+### The site builds but auth or data loading fails
 
-One of the Render environment variables is missing or wrong. Open the static site in Render and:
+One of the Render environment variables may be missing or wrong. Open the static site in Render and:
 
 1. Go to `Environment`.
 2. Check `VITE_SUPABASE_URL`.
