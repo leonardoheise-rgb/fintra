@@ -567,6 +567,44 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
 
       return setAside;
     },
+    async updateSetAside(setAsideId: string, input: SetAsideInput): Promise<SetAsideRecord> {
+      ensureValidSetAside(input);
+
+      const workspace = readWorkspace(userId);
+      const existingSetAside = workspace.setAsides.find((item) => item.id === setAsideId);
+
+      if (!existingSetAside) {
+        throw new Error('The selected set-aside does not exist.');
+      }
+
+      getCategoryOrThrow(workspace, input.categoryId);
+
+      if (input.subcategoryId) {
+        const subcategory = getSubcategoryOrThrow(workspace, input.subcategoryId);
+
+        if (subcategory.categoryId !== input.categoryId) {
+          throw new Error('The selected subcategory does not belong to the selected category.');
+        }
+      }
+
+      const updatedSetAside = {
+        ...existingSetAside,
+        amount: input.amount,
+        categoryId: input.categoryId,
+        subcategoryId: input.subcategoryId,
+        date: input.date,
+        description: input.description.trim(),
+      };
+
+      writeWorkspace(userId, {
+        ...workspace,
+        setAsides: workspace.setAsides.map((item) =>
+          item.id === setAsideId ? updatedSetAside : item,
+        ),
+      });
+
+      return updatedSetAside;
+    },
     async discardSetAside(setAsideId: string) {
       const workspace = readWorkspace(userId);
 

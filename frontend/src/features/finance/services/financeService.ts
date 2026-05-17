@@ -28,6 +28,7 @@ export interface FinanceService {
   updateTransaction(transactionId: string, input: TransactionInput): Promise<TransactionRecord>;
   deleteTransaction(transactionId: string): Promise<void>;
   createSetAside(input: SetAsideInput): Promise<SetAsideRecord>;
+  updateSetAside(setAsideId: string, input: SetAsideInput): Promise<SetAsideRecord>;
   discardSetAside(setAsideId: string): Promise<void>;
   convertSetAsideToTransaction(setAsideId: string): Promise<TransactionRecord>;
   createBudget(input: BudgetInput): Promise<BudgetRecord>;

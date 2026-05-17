@@ -4,6 +4,7 @@ import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { translateAppText } from '../../../shared/i18n/appText';
 import type {
   CategoryRecord,
+  SetAsideInput,
   SetAsideRecord,
   SubcategoryRecord,
 } from '../finance.types';
@@ -14,17 +15,28 @@ import {
   getSubcategoryName,
 } from '../lib/financeSelectors';
 import { sortSetAsidesByDateAsc } from '../lib/setAsides';
+import { SetAsideInlineEditor } from './SetAsideInlineEditor';
 
 type SetAsidesListProps = {
   categories: CategoryRecord[];
+  editingSetAside: SetAsideRecord | null;
+  isUpdatingSetAside: boolean;
+  onCancelEdit(): void;
   onDiscard(setAsideId: string): Promise<void>;
+  onStartEdit(setAside: SetAsideRecord): void;
+  onUpdate(setAsideId: string, input: SetAsideInput): Promise<void>;
   setAsides: SetAsideRecord[];
   subcategories: SubcategoryRecord[];
 };
 
 export function SetAsidesList({
   categories,
+  editingSetAside,
+  isUpdatingSetAside,
+  onCancelEdit,
   onDiscard,
+  onStartEdit,
+  onUpdate,
   setAsides,
   subcategories,
 }: SetAsidesListProps) {
@@ -54,6 +66,7 @@ export function SetAsidesList({
         <div className="finance-list">
           {sortedSetAsides.map((setAside) => {
             const isExpanded = expandedSetAsideIds.includes(setAside.id);
+            const isEditing = editingSetAside?.id === setAside.id;
             const displayIcon =
               getSubcategoryIcon(subcategories, setAside.subcategoryId) ??
               getCategoryIcon(categories, setAside.categoryId) ??
@@ -86,23 +99,50 @@ export function SetAsidesList({
                   </div>
                 </div>
 
-                {isExpanded ? (
+                {isExpanded || isEditing ? (
                   <>
-                    <p className="transaction-card__meta">
-                      {getCategoryName(categories, setAside.categoryId)}
-                      {' / '}
-                      {getSubcategoryName(subcategories, setAside.subcategoryId)}
-                    </p>
+                    {isEditing ? (
+                      <div className="ledger-row__editor">
+                        <SetAsideInlineEditor
+                          categories={categories}
+                          isSubmitting={isUpdatingSetAside}
+                          onCancel={onCancelEdit}
+                          onSubmit={(input) => onUpdate(setAside.id, input)}
+                          setAside={setAside}
+                          subcategories={subcategories}
+                        />
+                      </div>
+                    ) : (
+                      <>
+                        <p className="transaction-card__meta">
+                          {getCategoryName(categories, setAside.categoryId)}
+                          {' / '}
+                          {getSubcategoryName(subcategories, setAside.subcategoryId)}
+                        </p>
 
-                    <div className="transaction-card__actions">
-                      <button
-                        className="secondary-button secondary-button--danger"
-                        onClick={() => void onDiscard(setAside.id)}
-                        type="button"
-                      >
-                        {translateAppText('setAsides.discard')}
-                      </button>
-                    </div>
+                        <div className="transaction-card__actions">
+                          <button
+                            aria-label={translateAppText('setAsides.editSetAside', {
+                              name:
+                                setAside.description ||
+                                translateAppText('setAsides.defaultDescription'),
+                            })}
+                            className="secondary-button"
+                            onClick={() => onStartEdit(setAside)}
+                            type="button"
+                          >
+                            {translateAppText('transactions.edit')}
+                          </button>
+                          <button
+                            className="secondary-button secondary-button--danger"
+                            onClick={() => void onDiscard(setAside.id)}
+                            type="button"
+                          >
+                            {translateAppText('setAsides.discard')}
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </>
                 ) : null}
               </article>

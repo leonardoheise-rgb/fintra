@@ -28,6 +28,7 @@ export type FinanceDataContextValue = FinanceWorkspace & {
   updateTransaction(transactionId: string, input: TransactionInput): Promise<void>;
   deleteTransaction(transactionId: string): Promise<void>;
   createSetAside(input: SetAsideInput): Promise<void>;
+  updateSetAside(setAsideId: string, input: SetAsideInput): Promise<void>;
   discardSetAside(setAsideId: string): Promise<void>;
   convertSetAsideToTransaction(setAsideId: string): Promise<void>;
   createBudget(input: BudgetInput): Promise<void>;

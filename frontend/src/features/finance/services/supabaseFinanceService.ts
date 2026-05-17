@@ -435,6 +435,27 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
 
       return mapSetAside(data);
     },
+    async updateSetAside(setAsideId: string, input: SetAsideInput) {
+      const { data, error } = await client
+        .from('set_asides')
+        .update({
+          amount: input.amount,
+          category_id: input.categoryId,
+          subcategory_id: input.subcategoryId,
+          date: input.date,
+          description: input.description.trim(),
+        })
+        .eq('id', setAsideId)
+        .eq('user_id', userId)
+        .select('id, amount, category_id, subcategory_id, date, description')
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      return mapSetAside(data);
+    },
     async discardSetAside(setAsideId: string) {
       const { error } = await client
         .from('set_asides')

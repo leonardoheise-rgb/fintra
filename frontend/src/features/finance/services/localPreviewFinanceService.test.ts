@@ -94,6 +94,37 @@ describe('localPreviewFinanceService', () => {
     expect(workspace.transactions.find((item) => item.id === createdTransaction.id)).toBeUndefined();
   });
 
+  it('creates, updates, and discards a set-aside', async () => {
+    const service = createLocalPreviewFinanceService('user-1');
+
+    const createdSetAside = await service.createSetAside({
+      amount: 120,
+      categoryId: 'category-food',
+      subcategoryId: 'subcategory-restaurants',
+      date: '2026-03-20',
+      description: 'Dinner reserve',
+    });
+
+    expect(createdSetAside.description).toBe('Dinner reserve');
+
+    const updatedSetAside = await service.updateSetAside(createdSetAside.id, {
+      amount: 160,
+      categoryId: 'category-food',
+      subcategoryId: 'subcategory-groceries',
+      date: '2026-03-21',
+      description: 'Grocery reserve',
+    });
+
+    expect(updatedSetAside.amount).toBe(160);
+    expect(updatedSetAside.subcategoryId).toBe('subcategory-groceries');
+    expect(updatedSetAside.description).toBe('Grocery reserve');
+
+    await service.discardSetAside(createdSetAside.id);
+
+    const workspace = await service.getWorkspace();
+    expect(workspace.setAsides.find((item) => item.id === createdSetAside.id)).toBeUndefined();
+  });
+
   it('creates, updates, and deletes a budget', async () => {
     const service = createLocalPreviewFinanceService('user-1');
 

@@ -127,6 +127,7 @@ export function FinanceDataProvider({ children, service }: FinanceDataProviderPr
         async updateTransaction() {},
         async deleteTransaction() {},
         async createSetAside() {},
+        async updateSetAside() {},
         async discardSetAside() {},
         async convertSetAsideToTransaction() {},
         async createBudget() {},
@@ -208,6 +209,12 @@ export function FinanceDataProvider({ children, service }: FinanceDataProviderPr
       async createSetAside(input) {
         await runMutation(async () => {
           await financeService.createSetAside(input);
+          await loadWorkspace(financeService);
+        });
+      },
+      async updateSetAside(setAsideId, input) {
+        await runMutation(async () => {
+          await financeService.updateSetAside(setAsideId, input);
           await loadWorkspace(financeService);
         });
       },

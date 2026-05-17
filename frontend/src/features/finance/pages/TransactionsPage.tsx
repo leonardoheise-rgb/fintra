@@ -18,7 +18,12 @@ import {
 import { splitAmountIntoInstallments } from '../lib/installments';
 import { sortTransactionsByDateDesc } from '../lib/financeSelectors';
 import { buildTransactionsCsv } from '../lib/transactionsCsv';
-import type { TransactionInput, TransactionRecord } from '../finance.types';
+import type {
+  SetAsideInput,
+  SetAsideRecord,
+  TransactionInput,
+  TransactionRecord,
+} from '../finance.types';
 
 type PendingBudgetReallocation = {
   amount: number;
@@ -35,6 +40,8 @@ export function TransactionsPage() {
   } = useDisplayPreferences();
   const [transactionToEdit, setTransactionToEdit] = useState<TransactionRecord | null>(null);
   const [isUpdatingTransaction, setIsUpdatingTransaction] = useState(false);
+  const [setAsideToEdit, setSetAsideToEdit] = useState<SetAsideRecord | null>(null);
+  const [isUpdatingSetAside, setIsUpdatingSetAside] = useState(false);
   const [pendingBudgetReallocation, setPendingBudgetReallocation] =
     useState<PendingBudgetReallocation | null>(null);
   const [selectedDonorCategoryId, setSelectedDonorCategoryId] = useState('');
@@ -164,6 +171,17 @@ export function TransactionsPage() {
       setPendingBudgetReallocation(null);
     } finally {
       setIsUpdatingTransaction(false);
+    }
+  }
+
+  async function handleUpdateSetAside(setAsideId: string, input: SetAsideInput) {
+    setIsUpdatingSetAside(true);
+
+    try {
+      await financeData.updateSetAside(setAsideId, input);
+      setSetAsideToEdit(null);
+    } finally {
+      setIsUpdatingSetAside(false);
     }
   }
 
@@ -346,7 +364,12 @@ export function TransactionsPage() {
 
           <SetAsidesList
             categories={financeData.categories}
+            editingSetAside={setAsideToEdit}
+            isUpdatingSetAside={isUpdatingSetAside}
+            onCancelEdit={() => setSetAsideToEdit(null)}
             onDiscard={financeData.discardSetAside}
+            onStartEdit={setSetAsideToEdit}
+            onUpdate={handleUpdateSetAside}
             setAsides={financeData.setAsides}
             subcategories={financeData.subcategories}
           />

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 
 import { resolveAppErrorMessage } from '../../../shared/i18n/appErrors';
 import { translateAppText } from '../../../shared/i18n/appText';
+import { formatLocalIsoDate } from '../../../shared/lib/date/isoDates';
 import {
   formatDecimalInput,
   normalizeDecimalInput,
@@ -38,7 +39,7 @@ function createInitialFormState(categories: CategoryRecord[]) {
     type: 'expense' as const,
     categoryId: categories[0]?.id ?? '',
     subcategoryId: '',
-    date: new Date().toISOString().slice(0, 10),
+    date: formatLocalIsoDate(),
     description: '',
     installmentCount: '1',
   };
@@ -79,7 +80,7 @@ export function TransactionForm({
   );
   const [subcategoryId, setSubcategoryId] = useState(transactionToEdit?.subcategoryId ?? '');
   const [date, setDate] = useState(
-    transactionToEdit?.date ?? new Date().toISOString().slice(0, 10),
+    transactionToEdit?.date ?? formatLocalIsoDate(),
   );
   const [description, setDescription] = useState(transactionToEdit?.description ?? '');
   const [installmentCount, setInstallmentCount] = useState('1');
@@ -130,7 +131,7 @@ export function TransactionForm({
     setType(storedDraft.type);
     setCategoryId(nextCategoryId);
     setSubcategoryId(nextSubcategoryId);
-    setDate(storedDraft.date || initialState.date);
+    setDate(initialState.date);
     setDescription(storedDraft.description);
     setInstallmentCount(storedDraft.installmentCount || '1');
   }, [auth.user, categories, locale, subcategories, transactionToEdit]);

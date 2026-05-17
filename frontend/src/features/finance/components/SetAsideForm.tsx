@@ -22,14 +22,11 @@ type SetAsideFormProps = {
 };
 
 function createInitialFormState(categories: CategoryRecord[]) {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-
   return {
     amount: '',
     categoryId: categories[0]?.id ?? '',
     subcategoryId: '',
-    date: formatLocalIsoDate(tomorrow),
+    date: formatLocalIsoDate(),
     description: '',
   };
 }
@@ -84,7 +81,7 @@ export function SetAsideForm({
 
     const today = formatLocalIsoDate();
 
-    if (date <= today) {
+    if (date < today) {
       setFormError(translateAppText('setAsides.errorFutureDate'));
       return;
     }

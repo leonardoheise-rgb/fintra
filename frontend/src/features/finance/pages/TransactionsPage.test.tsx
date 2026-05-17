@@ -1,6 +1,7 @@
 import { screen, waitFor, waitForElementToBeRemoved, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { formatLocalIsoDate } from '../../../shared/lib/date/isoDates';
 import { createAuthServiceStub } from '../../../test/createAuthServiceStub';
 import { renderAppAtPath } from '../../../test/renderAppAtPath';
 
@@ -95,6 +96,45 @@ describe('TransactionsPage', () => {
 
       expect(createdInstallments).toHaveLength(3);
     });
+  });
+
+  it('defaults log and reserve dates to today when the page loads', async () => {
+    const user = userEvent.setup();
+    const authService = createAuthServiceStub({
+      initialSession: {
+        user: {
+          id: 'user-1',
+          email: 'owner@fintra.dev',
+        },
+      },
+    });
+
+    window.localStorage.setItem(
+      'fintra.transaction-form-draft.user-1',
+      JSON.stringify({
+        amount: '1234',
+        type: 'expense',
+        categoryId: 'category-food',
+        subcategoryId: '',
+        date: '2099-12-31',
+        description: 'Old draft',
+        installmentCount: '1',
+      }),
+    );
+
+    const { container } = await renderAppAtPath('/transactions', authService.service);
+
+    await waitForTransactionsToLoad();
+
+    expect(container.querySelector<HTMLInputElement>('input[name="date"]')).toHaveValue(
+      formatLocalIsoDate(),
+    );
+
+    await user.click(screen.getByRole('tab', { name: /reserve/i }));
+
+    expect(container.querySelector<HTMLInputElement>('input[name="setAsideDate"]')).toHaveValue(
+      formatLocalIsoDate(),
+    );
   });
 
   it('accepts decimal comma input and masks the amount using portuguese formatting', async () => {
@@ -247,6 +287,84 @@ describe('TransactionsPage', () => {
     expect(screen.queryByRole('button', { name: /discard/i })).not.toBeInTheDocument();
     await user.click(await screen.findByRole('button', { name: /expand/i }));
     expect(screen.getByRole('button', { name: /discard/i })).toBeInTheDocument();
+  });
+
+  it('edits an existing set-aside inline from the pending card', async () => {
+    const user = userEvent.setup();
+    const authService = createAuthServiceStub({
+      initialSession: {
+        user: {
+          id: 'user-1',
+          email: 'owner@fintra.dev',
+        },
+      },
+    });
+
+    const { container } = await renderAppAtPath('/transactions', authService.service);
+
+    await waitForTransactionsToLoad();
+    await user.click(screen.getByRole('tab', { name: /reserve/i }));
+
+    const amountInput = container.querySelector<HTMLInputElement>('input[name="setAsideAmount"]');
+    const categorySelect = container.querySelector<HTMLSelectElement>('select[name="setAsideCategoryId"]');
+    const subcategorySelect = container.querySelector<HTMLSelectElement>('select[name="setAsideSubcategoryId"]');
+    const dateInput = container.querySelector<HTMLInputElement>('input[name="setAsideDate"]');
+    const descriptionInput = container.querySelector<HTMLTextAreaElement>('textarea[name="setAsideDescription"]');
+
+    expect(amountInput).not.toBeNull();
+    expect(categorySelect).not.toBeNull();
+    expect(subcategorySelect).not.toBeNull();
+    expect(dateInput).not.toBeNull();
+    expect(descriptionInput).not.toBeNull();
+
+    await user.type(amountInput!, '120');
+    await user.selectOptions(categorySelect!, 'category-food');
+    await user.selectOptions(subcategorySelect!, 'subcategory-restaurants');
+    await user.clear(dateInput!);
+    await user.type(dateInput!, '2099-04-15');
+    await user.type(descriptionInput!, 'Trip dinner reserve');
+    await user.click(screen.getByRole('button', { name: /set aside money/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: /trip dinner reserve/i })).toBeInTheDocument();
+    });
+
+    const setAsideCard = screen.getByRole('heading', { name: /trip dinner reserve/i }).closest('article');
+    expect(setAsideCard).not.toBeNull();
+
+    await user.click(within(setAsideCard!).getByRole('button', { name: /expand/i }));
+    await user.click(within(setAsideCard!).getByRole('button', { name: /edit set-aside trip dinner reserve/i }));
+
+    const inlineAmountInput = setAsideCard!.querySelector<HTMLInputElement>(
+      'input[name^="inlineSetAsideAmount"]',
+    );
+    const inlineDescriptionInput = setAsideCard!.querySelector<HTMLTextAreaElement>(
+      'textarea[name^="inlineSetAsideDescription"]',
+    );
+
+    expect(inlineAmountInput).not.toBeNull();
+    expect(inlineDescriptionInput).not.toBeNull();
+
+    await user.clear(inlineAmountInput!);
+    await user.type(inlineAmountInput!, '175');
+    await user.clear(inlineDescriptionInput!);
+    await user.type(inlineDescriptionInput!, 'Updated trip dinner reserve');
+    await user.click(within(setAsideCard!).getByRole('button', { name: /update reserve/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/updated trip dinner reserve/i)).toBeInTheDocument();
+    });
+
+    const persistedWorkspace = JSON.parse(
+      window.localStorage.getItem('fintra.preview.workspace.test-finance-user') ?? '{}',
+    );
+
+    expect(
+      persistedWorkspace.setAsides.find(
+        (setAside: { description: string; amount: number }) =>
+          setAside.description === 'Updated trip dinner reserve' && setAside.amount === 175,
+      ),
+    ).toBeTruthy();
   });
 
   it('shows future transactions collapsed until the user expands them', async () => {
