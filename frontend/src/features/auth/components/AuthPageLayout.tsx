@@ -10,7 +10,7 @@ type AuthPageLayoutProps = PropsWithChildren<{
   footerPrompt: string;
   footerActionLabel: string;
   footerActionHref: string;
-  mode: 'sign-in' | 'sign-up';
+  mode: 'forgot-password' | 'sign-in' | 'sign-up';
 }>;
 
 export function AuthPageLayout({
@@ -38,7 +38,7 @@ export function AuthPageLayout({
 
         <div className="auth-page__hero-copy">
           <p className="auth-page__eyebrow">
-            {mode === 'sign-in'
+            {mode !== 'sign-up'
               ? translateAppText('auth.highlightPrivateAccess')
               : translateAppText('auth.highlightMonthlyFocus')}
           </p>
@@ -50,7 +50,7 @@ export function AuthPageLayout({
           className="auth-page__highlights"
           aria-label={translateAppText('auth.workspaceHighlights')}
         >
-          {mode === 'sign-in' ? (
+          {mode !== 'sign-up' ? (
             <>
               <article className="auth-page__highlight">
                 <span>{translateAppText('auth.highlightMonthlyFocus')}</span>

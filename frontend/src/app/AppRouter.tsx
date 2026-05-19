@@ -5,6 +5,8 @@ import { AnalyticsPage } from '../features/analytics/pages/AnalyticsPage';
 import { BudgetsPage } from '../features/budgets/pages/BudgetsPage';
 import { PublicOnlyRoute } from '../features/auth/components/PublicOnlyRoute';
 import { SettingsPage } from '../features/settings/pages/SettingsPage';
+import { ForgotPasswordPage } from '../features/auth/pages/ForgotPasswordPage';
+import { ResetPasswordPage } from '../features/auth/pages/ResetPasswordPage';
 import { SignInPage } from '../features/auth/pages/SignInPage';
 import { SignUpPage } from '../features/auth/pages/SignUpPage';
 import { DashboardPage } from '../features/dashboard/pages/DashboardPage';
@@ -32,7 +34,10 @@ function AppShell({ financeService }: AppRouterProps) {
 export function AppRouter({ financeService }: AppRouterProps) {
   return (
     <Routes>
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
+
       <Route element={<PublicOnlyRoute />}>
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/sign-in" element={<SignInPage />} />
         <Route path="/sign-up" element={<SignUpPage />} />
         <Route path="*" element={<Navigate replace to="/sign-in" />} />

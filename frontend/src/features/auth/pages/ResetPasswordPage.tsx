@@ -1,32 +1,14 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { resolveAppErrorMessage } from '../../../shared/i18n/appErrors';
 import { translateAppText } from '../../../shared/i18n/appText';
-import { useAuth } from '../useAuth';
 import { AuthPageLayout } from '../components/AuthPageLayout';
 import { validateNewPassword } from '../lib/passwordValidation';
+import { useAuth } from '../useAuth';
 
-function validateSignUpForm(email: string, password: string, confirmPassword: string) {
-  const errors: string[] = [];
-
-  if (!email.trim()) {
-    errors.push(translateAppText('auth.validationEmailRequired'));
-  }
-
-  const passwordError = validateNewPassword(password, confirmPassword);
-
-  if (passwordError) {
-    errors.push(passwordError);
-  }
-
-  return errors;
-}
-
-export function SignUpPage() {
+export function ResetPasswordPage() {
   const auth = useAuth();
-  const navigate = useNavigate();
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
@@ -38,10 +20,10 @@ export function SignUpPage() {
     auth.clearError();
     setSuccessMessage(null);
 
-    const validationErrors = validateSignUpForm(email, password, confirmPassword);
+    const validationError = validateNewPassword(password, confirmPassword);
 
-    if (validationErrors.length > 0) {
-      setFormError(validationErrors[0]);
+    if (validationError) {
+      setFormError(validationError);
       return;
     }
 
@@ -49,18 +31,12 @@ export function SignUpPage() {
     setIsSubmitting(true);
 
     try {
-      const result = await auth.signUp({
-        email,
-        password,
-      });
-
-      if (result.requiresEmailConfirmation) {
-        setSuccessMessage(translateAppText('auth.confirmEmailMessage'));
-      } else {
-        navigate('/', { replace: true });
-      }
+      await auth.updatePassword(password);
+      setPassword('');
+      setConfirmPassword('');
+      setSuccessMessage(translateAppText('auth.passwordUpdated'));
     } catch (error) {
-      setFormError(resolveAppErrorMessage(error, 'auth.errorUnableToCreateAccount'));
+      setFormError(resolveAppErrorMessage(error, 'auth.errorUnableToUpdatePassword'));
     } finally {
       setIsSubmitting(false);
     }
@@ -68,28 +44,17 @@ export function SignUpPage() {
 
   return (
     <AuthPageLayout
-      description={translateAppText('auth.signUpDescription')}
-      eyebrow={translateAppText('auth.newAccount')}
+      description={translateAppText('auth.resetPasswordDescription')}
+      eyebrow={translateAppText('auth.passwordHelp')}
       footerActionHref="/sign-in"
       footerActionLabel={translateAppText('auth.signIn')}
-      footerPrompt={translateAppText('auth.alreadyHaveAccount')}
-      mode="sign-up"
-      title={translateAppText('auth.createAccount')}
+      footerPrompt={translateAppText('auth.readyToContinue')}
+      mode="forgot-password"
+      title={translateAppText('auth.resetPassword')}
     >
       <form className="auth-form" onSubmit={handleSubmit}>
         <label className="auth-field">
-          <span>{translateAppText('auth.email')}</span>
-          <input
-            autoComplete="email"
-            name="email"
-            onChange={(event) => setEmail(event.target.value)}
-            type="email"
-            value={email}
-          />
-        </label>
-
-        <label className="auth-field">
-          <span>{translateAppText('auth.password')}</span>
+          <span>{translateAppText('auth.newPassword')}</span>
           <input
             autoComplete="new-password"
             name="password"
@@ -114,13 +79,14 @@ export function SignUpPage() {
         {successMessage ? <p className="auth-form__success">{successMessage}</p> : null}
 
         <button className="primary-button auth-form__button" disabled={isSubmitting} type="submit">
-          {isSubmitting ? translateAppText('auth.creatingAccount') : translateAppText('auth.createAccount')}
+          {isSubmitting
+            ? translateAppText('auth.updatingPassword')
+            : translateAppText('auth.updatePassword')}
         </button>
       </form>
 
       <p className="auth-card__microcopy">
-        {translateAppText('auth.preferExistingAccount')}{' '}
-        <Link to="/sign-in">{translateAppText('auth.signInHere')}</Link>
+        <Link to="/sign-in">{translateAppText('auth.backToSignIn')}</Link>
       </p>
     </AuthPageLayout>
   );

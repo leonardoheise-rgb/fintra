@@ -43,6 +43,22 @@ export function createSupabaseAuthService(): AuthService {
 
       return mapSession(data.session);
     },
+    async requestPasswordReset(email: string) {
+      const { error } = await client.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) {
+        throw error;
+      }
+    },
+    async updatePassword(password: string) {
+      const { error } = await client.auth.updateUser({ password });
+
+      if (error) {
+        throw error;
+      }
+    },
     async signIn(credentials: AuthCredentials) {
       const { error } = await client.auth.signInWithPassword(credentials);
 

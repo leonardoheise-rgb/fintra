@@ -82,6 +82,14 @@ export function AuthProvider({ children, authService }: AuthProviderProps) {
       clearError() {
         setErrorMessage(null);
       },
+      async requestPasswordReset(email) {
+        setErrorMessage(null);
+        await service.requestPasswordReset(email);
+      },
+      async updatePassword(password) {
+        setErrorMessage(null);
+        await service.updatePassword(password);
+      },
       async signIn(credentials) {
         setErrorMessage(null);
         await service.signIn(credentials);

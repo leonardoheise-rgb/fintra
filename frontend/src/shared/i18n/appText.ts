@@ -1152,6 +1152,55 @@ Object.assign(translations['pt-BR'], {
 
 translations['pt-BR'] = normalizeTranslations(translations['pt-BR']);
 
+Object.assign(translations['en-US'], {
+  'auth.backToSignIn': 'Back to sign in',
+  'auth.errorUnableToRequestPasswordReset': 'Unable to send the reset link right now.',
+  'auth.errorUnableToUpdatePassword': 'Unable to update the password right now.',
+  'auth.forgotPassword': 'Forgot password',
+  'auth.forgotPasswordDescription':
+    'Enter your email and we will send a secure link to reset your password.',
+  'auth.forgotPasswordLink': 'Forgot your password?',
+  'auth.newPassword': 'New password',
+  'auth.passwordHelp': 'Password help',
+  'auth.passwordResetEmailSent':
+    'If that email belongs to an account, a reset link is on the way.',
+  'auth.passwordUpdated': 'Your password has been updated.',
+  'auth.readyToContinue': 'Ready to continue?',
+  'auth.rememberPassword': 'Remember your password?',
+  'auth.resetPassword': 'Reset password',
+  'auth.resetPasswordDescription': 'Choose a new password for your account.',
+  'auth.sendResetLink': 'Send reset link',
+  'auth.sendingResetLink': 'Sending reset link...',
+  'auth.updatePassword': 'Update password',
+  'auth.updatingPassword': 'Updating password...',
+});
+
+Object.assign(translations['pt-BR'], {
+  'auth.backToSignIn': 'Voltar para entrar',
+  'auth.errorUnableToRequestPasswordReset':
+    'Nao foi possivel enviar o link de redefinicao agora.',
+  'auth.errorUnableToUpdatePassword': 'Nao foi possivel atualizar a senha agora.',
+  'auth.forgotPassword': 'Esqueci a senha',
+  'auth.forgotPasswordDescription':
+    'Informe seu email e enviaremos um link seguro para redefinir sua senha.',
+  'auth.forgotPasswordLink': 'Esqueceu sua senha?',
+  'auth.newPassword': 'Nova senha',
+  'auth.passwordHelp': 'Ajuda com senha',
+  'auth.passwordResetEmailSent':
+    'Se esse email pertencer a uma conta, um link de redefinicao esta a caminho.',
+  'auth.passwordUpdated': 'Sua senha foi atualizada.',
+  'auth.readyToContinue': 'Pronto para continuar?',
+  'auth.rememberPassword': 'Lembrou sua senha?',
+  'auth.resetPassword': 'Redefinir senha',
+  'auth.resetPasswordDescription': 'Escolha uma nova senha para sua conta.',
+  'auth.sendResetLink': 'Enviar link de redefinicao',
+  'auth.sendingResetLink': 'Enviando link de redefinicao...',
+  'auth.updatePassword': 'Atualizar senha',
+  'auth.updatingPassword': 'Atualizando senha...',
+});
+
+translations['pt-BR'] = normalizeTranslations(translations['pt-BR']);
+
 function getSupportedLocale(locale: string): SupportedLocale {
   if (locale.startsWith('pt')) {
     return 'pt-BR';

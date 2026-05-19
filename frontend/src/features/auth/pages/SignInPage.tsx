@@ -97,6 +97,10 @@ export function SignInPage() {
       </form>
 
       <p className="auth-card__microcopy">
+        <Link to="/forgot-password">{translateAppText('auth.forgotPasswordLink')}</Link>
+      </p>
+
+      <p className="auth-card__microcopy">
         {translateAppText('auth.newHere')} <Link to="/sign-up">{translateAppText('auth.setUpYourAccount')}</Link>
       </p>
     </AuthPageLayout>

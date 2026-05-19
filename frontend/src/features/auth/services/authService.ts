@@ -9,6 +9,8 @@ export type SignUpResult = {
 export interface AuthService {
   readonly mode: AuthMode;
   getSession(): Promise<AuthSession | null>;
+  requestPasswordReset(email: string): Promise<void>;
+  updatePassword(password: string): Promise<void>;
   signIn(credentials: AuthCredentials): Promise<void>;
   signUp(credentials: AuthCredentials): Promise<SignUpResult>;
   signOut(): Promise<void>;

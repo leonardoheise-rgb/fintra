@@ -16,6 +16,17 @@ describe('SignInPage', () => {
     expect(await screen.findByText('Email is required.')).toBeInTheDocument();
   });
 
+  it('links to the forgot password flow', async () => {
+    const authService = createAuthServiceStub();
+
+    await renderAppAtPath('/sign-in', authService.service);
+
+    expect(await screen.findByRole('link', { name: /forgot your password/i })).toHaveAttribute(
+      'href',
+      '/forgot-password',
+    );
+  });
+
   it('submits valid credentials and redirects to the dashboard', async () => {
     const user = userEvent.setup();
     const authService = createAuthServiceStub();

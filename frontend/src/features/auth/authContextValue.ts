@@ -9,6 +9,8 @@ export type AuthContextValue = {
   user: AuthUser | null;
   errorMessage: string | null;
   clearError(): void;
+  requestPasswordReset(email: string): Promise<void>;
+  updatePassword(password: string): Promise<void>;
   signIn(credentials: AuthCredentials): Promise<void>;
   signUp(credentials: AuthCredentials): Promise<{ requiresEmailConfirmation: boolean }>;
   signOut(): Promise<void>;

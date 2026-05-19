@@ -6,10 +6,12 @@ import type { AuthService } from '../features/auth/services/authService';
 type CreateAuthServiceStubOptions = {
   initialSession?: AuthSession | null;
   mode?: AuthMode;
+  requestPasswordResetError?: Error;
   signInError?: Error;
   signUpError?: Error;
   signUpRequiresEmailConfirmation?: boolean;
   signOutError?: Error;
+  updatePasswordError?: Error;
 };
 
 export function createAuthServiceStub(options: CreateAuthServiceStubOptions = {}) {
@@ -24,6 +26,16 @@ export function createAuthServiceStub(options: CreateAuthServiceStubOptions = {}
   const service: AuthService = {
     mode: options.mode ?? 'supabase',
     getSession: vi.fn(async () => session),
+    requestPasswordReset: vi.fn(async () => {
+      if (options.requestPasswordResetError) {
+        throw options.requestPasswordResetError;
+      }
+    }),
+    updatePassword: vi.fn(async () => {
+      if (options.updatePasswordError) {
+        throw options.updatePasswordError;
+      }
+    }),
     signIn: vi.fn(async ({ email }) => {
       if (options.signInError) {
         throw options.signInError;
