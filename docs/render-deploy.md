@@ -30,6 +30,7 @@ Make sure these two things are true:
 6. Wait for Render to detect the `render.yaml` file.
 7. When Render shows the service preview, confirm it includes a static site named `fintra-frontend`.
 8. In the environment variable step, fill in:
+   - `VITE_PUBLIC_APP_URL`: use the final Render app URL, for example `https://fintra-frontend.onrender.com`
    - `VITE_SUPABASE_URL`: copy the exact value from `frontend/.env`
    - `VITE_SUPABASE_ANON_KEY`: copy the exact value from `frontend/.env`
 9. Click `Apply` or `Create Blueprint`.
@@ -85,7 +86,10 @@ If you do not want to use the Blueprint flow, create a `Static Site` manually wi
 Add these environment variables manually:
 
 - `VITE_APP_NAME=Fintra`
+- `VITE_PUBLIC_APP_URL=<your deployed Render URL>`
 - `VITE_SUPABASE_URL=<copy from frontend/.env>`
 - `VITE_SUPABASE_ANON_KEY=<copy from frontend/.env>`
 - `VITE_DEFAULT_CURRENCY=BRL`
 - `VITE_DEFAULT_LOCALE=en-US`
+
+For password recovery, add `<your deployed Render URL>/reset-password` to Supabase Auth allowed redirect URLs.

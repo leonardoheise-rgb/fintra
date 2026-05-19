@@ -1,5 +1,6 @@
 import { getSupabaseBrowserClient } from '../../../shared/supabase/client';
 import type { AuthCredentials, AuthSession, AuthUser } from '../auth.types';
+import { resolvePasswordResetRedirectUrl } from '../lib/passwordResetRedirect';
 import type { AuthService, AuthStateListener, SignUpResult } from './authService';
 
 function mapUser(user: { id: string; email?: string | null }): AuthUser | null {
@@ -45,7 +46,7 @@ export function createSupabaseAuthService(): AuthService {
     },
     async requestPasswordReset(email: string) {
       const { error } = await client.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: resolvePasswordResetRedirectUrl(),
       });
 
       if (error) {

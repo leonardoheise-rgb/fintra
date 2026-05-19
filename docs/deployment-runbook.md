@@ -21,6 +21,7 @@ Before you deploy, confirm all of these are true:
 Render must have these environment variables configured:
 
 - `VITE_APP_NAME`
+- `VITE_PUBLIC_APP_URL`
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_ANON_KEY`
 - `VITE_DEFAULT_CURRENCY`
@@ -85,10 +86,19 @@ Expected result:
 
 Check Render environment variables first:
 
+- `VITE_PUBLIC_APP_URL`
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_ANON_KEY`
 
 If either is missing or still using placeholder values, update them and redeploy.
+
+### Password recovery opens the wrong domain
+
+Check these in order:
+
+1. `VITE_PUBLIC_APP_URL` points to the deployed app, for example `https://fintra-frontend.onrender.com`.
+2. Supabase Auth has `VITE_PUBLIC_APP_URL/reset-password` in the allowed redirect URLs.
+3. The app was redeployed after changing `VITE_PUBLIC_APP_URL`.
 
 ### Deep links return `404`
 

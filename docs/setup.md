@@ -44,6 +44,7 @@ After that, every commit will run `npm run check`.
 The frontend currently expects:
 
 - `VITE_APP_NAME`
+- `VITE_PUBLIC_APP_URL`
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_ANON_KEY`
 - `VITE_DEFAULT_CURRENCY`
@@ -53,6 +54,7 @@ The frontend currently expects:
 
 - Supabase auth is required through `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
 - Placeholder Supabase values are only examples and are not a local auth fallback
+- Password recovery emails redirect to `VITE_PUBLIC_APP_URL/reset-password`; keep this value aligned with the deployed app URL
 
 ## Finance data behavior
 

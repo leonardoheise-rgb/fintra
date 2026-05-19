@@ -12,6 +12,8 @@ services:
     envVars:
       - key: VITE_APP_NAME
         value: Fintra
+      - key: VITE_PUBLIC_APP_URL
+        sync: false
       - key: VITE_SUPABASE_URL
         sync: false
       - key: VITE_SUPABASE_ANON_KEY
