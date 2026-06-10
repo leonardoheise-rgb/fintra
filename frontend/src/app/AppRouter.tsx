@@ -11,6 +11,7 @@ import { SignInPage } from '../features/auth/pages/SignInPage';
 import { SignUpPage } from '../features/auth/pages/SignUpPage';
 import { DashboardPage } from '../features/dashboard/pages/DashboardPage';
 import { FinanceDataProvider } from '../features/finance/FinanceDataContext';
+import { NotificationsProvider } from '../features/notifications/NotificationsContext';
 import { NotificationsPage } from '../features/notifications/pages/NotificationsPage';
 import type { FinanceService } from '../features/finance/services/financeService';
 import { CategoriesPage } from '../features/finance/pages/CategoriesPage';
@@ -24,9 +25,11 @@ type AppRouterProps = {
 function AppShell({ financeService }: AppRouterProps) {
   return (
     <FinanceDataProvider service={financeService}>
-      <AppLayout>
-        <Outlet />
-      </AppLayout>
+      <NotificationsProvider>
+        <AppLayout>
+          <Outlet />
+        </AppLayout>
+      </NotificationsProvider>
     </FinanceDataProvider>
   );
 }

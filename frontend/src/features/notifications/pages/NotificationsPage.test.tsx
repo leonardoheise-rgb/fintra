@@ -143,5 +143,22 @@ describe('NotificationsPage', () => {
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /^read$/i })).toBeDisabled();
     });
+
+    expect(
+      JSON.parse(window.localStorage.getItem('fintra.notifications.read-state.user-1') ?? '{}')
+        .readIds,
+    ).toHaveLength(1);
+
+    await user.click(screen.getByRole('button', { name: /mark all as read/i }));
+
+    await waitFor(() => {
+      expect(screen.getAllByRole('button', { name: /^read$/i })).toHaveLength(4);
+    });
+
+    await user.click(screen.getAllByRole('link', { name: /^dashboard$/i })[0]);
+
+    await waitFor(() => {
+      expect(screen.queryByText(/unread notifications/i)).not.toBeInTheDocument();
+    });
   });
 });

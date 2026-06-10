@@ -18,3 +18,7 @@ export type FinanceNotification = {
   occurredLabel: string;
   requiresAction: boolean;
 };
+
+export type FinanceNotificationWithState = FinanceNotification & {
+  isRead: boolean;
+};

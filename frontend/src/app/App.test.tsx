@@ -1,14 +1,17 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { vi } from 'vitest';
 
 import { createPreviewWorkspace } from '../features/finance/lib/previewWorkspace';
 import { createAuthServiceStub } from '../test/createAuthServiceStub';
+import { createTestFinanceService } from '../test/createTestFinanceService';
 import { renderAppAtPath } from '../test/renderAppAtPath';
 import { getCurrentMonthKey } from '../shared/lib/date/months';
 
 describe('App authentication routing', () => {
   beforeEach(() => {
     window.localStorage.clear();
+    window.sessionStorage.clear();
   });
 
   it('redirects unauthenticated users to sign in', async () => {
@@ -37,6 +40,47 @@ describe('App authentication routing', () => {
       await screen.findByRole('heading', { name: /^dashboard$/i, level: 1 }, { timeout: 3000 }),
     ).toBeInTheDocument();
     expect(screen.getAllByText('owner@fintra.dev').length).toBeGreaterThan(0);
+    expect(screen.getByLabelText(/current month balance/i)).toBeInTheDocument();
+  });
+
+  it('renders cached finance data while refreshing the workspace', async () => {
+    const authService = createAuthServiceStub({
+      initialSession: {
+        user: {
+          id: 'user-1',
+          email: 'owner@fintra.dev',
+        },
+      },
+    });
+    const cachedWorkspace = createPreviewWorkspace();
+    cachedWorkspace.monthReviews = [
+      {
+        month: getCurrentMonthKey(new Date()),
+        plannedIncomeAmount: 0,
+        plannedIncomeDescription: '',
+        carryOverAmount: 0,
+        reviewedAt: new Date().toISOString(),
+      },
+    ];
+    const financeService = {
+      ...createTestFinanceService('test-finance-user'),
+      getWorkspace: vi.fn(() => new Promise<never>(() => {})),
+    };
+
+    window.sessionStorage.setItem(
+      'fintra.finance.workspace-cache.user-1',
+      JSON.stringify({
+        version: 1,
+        workspace: cachedWorkspace,
+      }),
+    );
+
+    await renderAppAtPath('/', authService.service, financeService);
+
+    expect(
+      await screen.findByRole('heading', { name: /^dashboard$/i, level: 1 }, { timeout: 3000 }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/loading dashboard/i)).not.toBeInTheDocument();
     expect(screen.getByLabelText(/current month balance/i)).toBeInTheDocument();
   });
 

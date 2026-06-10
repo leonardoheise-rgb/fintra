@@ -10,6 +10,7 @@ import { resolveAppErrorMessage } from '../../shared/i18n/appErrors';
 import { useAuth } from '../auth/useAuth';
 import { FinanceDataContext, type FinanceDataContextValue, type FinanceDataStatus } from './financeContextValue';
 import type { FinanceWorkspace } from './finance.types';
+import { readCachedWorkspace, writeCachedWorkspace } from './lib/workspaceCache';
 import { createFinanceService } from './services/createFinanceService';
 import type { FinanceService } from './services/financeService';
 
@@ -36,26 +37,35 @@ export function FinanceDataProvider({ children, service }: FinanceDataProviderPr
   const [workspace, setWorkspace] = useState<FinanceWorkspace>(emptyWorkspace);
   const [status, setStatus] = useState<FinanceDataStatus>('loading');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const userId = auth.user?.id ?? null;
 
   const financeService = useMemo(() => {
     if (service) {
       return service;
     }
 
-    if (!auth.user) {
+    if (!userId) {
       return null;
     }
 
-    return createFinanceService(auth.user.id);
-  }, [auth.user, service]);
+    return createFinanceService(userId);
+  }, [service, userId]);
 
-  async function loadWorkspace(activeService: FinanceService) {
-    const nextWorkspace = await activeService.getWorkspace();
+  function commitWorkspace(nextWorkspace: FinanceWorkspace) {
+    if (userId) {
+      writeCachedWorkspace(userId, nextWorkspace);
+    }
 
     startTransition(() => {
       setWorkspace(nextWorkspace);
       setStatus('ready');
     });
+  }
+
+  async function loadWorkspace(activeService: FinanceService) {
+    const nextWorkspace = await activeService.getWorkspace();
+
+    commitWorkspace(nextWorkspace);
   }
 
   useEffect(() => {
@@ -64,8 +74,14 @@ export function FinanceDataProvider({ children, service }: FinanceDataProviderPr
     }
 
     let isMounted = true;
+    const cachedWorkspace = userId ? readCachedWorkspace(userId) : null;
 
-    setStatus('loading');
+    if (cachedWorkspace) {
+      setWorkspace(cachedWorkspace);
+      setStatus('ready');
+    } else {
+      setStatus('loading');
+    }
 
     financeService
       .getWorkspace()
@@ -74,10 +90,7 @@ export function FinanceDataProvider({ children, service }: FinanceDataProviderPr
           return;
         }
 
-        startTransition(() => {
-          setWorkspace(nextWorkspace);
-          setStatus('ready');
-        });
+        commitWorkspace(nextWorkspace);
       })
       .catch((error) => {
         if (!isMounted) {
@@ -86,7 +99,7 @@ export function FinanceDataProvider({ children, service }: FinanceDataProviderPr
 
         startTransition(() => {
           setErrorMessage(normalizeServiceError(error));
-          setWorkspace(emptyWorkspace);
+          setWorkspace(cachedWorkspace ?? emptyWorkspace);
           setStatus('ready');
         });
       });
@@ -94,7 +107,7 @@ export function FinanceDataProvider({ children, service }: FinanceDataProviderPr
     return () => {
       isMounted = false;
     };
-  }, [financeService]);
+  }, [financeService, userId]);
 
   const value = useMemo<FinanceDataContextValue>(() => {
     async function runMutation(work: () => Promise<void>) {
