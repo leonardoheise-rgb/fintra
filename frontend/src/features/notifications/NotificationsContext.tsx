@@ -6,11 +6,11 @@ import { useFinanceData } from '../finance/useFinanceData';
 import { useDisplayPreferences } from '../settings/useDisplayPreferences';
 import { buildFinanceNotifications } from './lib/buildNotifications';
 import {
-  pruneNotificationReadIds,
   readNotificationReadIds,
   writeNotificationReadIds,
 } from './lib/notificationReadState';
 import { NotificationsContext, type NotificationsContextValue } from './notificationsContextValue';
+import { createNotificationReadStateService } from './services/createNotificationReadStateService';
 
 export function NotificationsProvider({ children }: PropsWithChildren) {
   const auth = useAuth();
@@ -19,6 +19,8 @@ export function NotificationsProvider({ children }: PropsWithChildren) {
     preferences: { currency, locale, monthStartDay },
   } = useDisplayPreferences();
   const [readNotificationIds, setReadNotificationIds] = useState<string[]>([]);
+  const notificationReadStateService = useMemo(() => createNotificationReadStateService(), []);
+  const userId = auth.user?.id ?? null;
   const notifications = useMemo(
     () =>
       buildFinanceNotifications(financeData, {
@@ -29,37 +31,98 @@ export function NotificationsProvider({ children }: PropsWithChildren) {
       }),
     [currency, financeData, locale, monthStartDay],
   );
+  const activeNotificationIds = useMemo(
+    () => notifications.map(({ id }) => id),
+    [notifications],
+  );
 
   useEffect(() => {
-    if (!auth.user) {
+    if (!userId) {
       setReadNotificationIds([]);
       return;
     }
 
-    setReadNotificationIds(readNotificationReadIds(auth.user.id));
-  }, [auth.user]);
+    let isMounted = true;
+    const activeUserId = userId;
+    const cachedReadIds = readNotificationReadIds(activeUserId);
+
+    setReadNotificationIds(cachedReadIds);
+
+    async function syncReadIds() {
+      try {
+        const nextReadIds =
+          financeData.status === 'ready'
+            ? await notificationReadStateService.pruneReadIds(activeUserId, activeNotificationIds)
+            : await notificationReadStateService.readReadIds(activeUserId);
+
+        if (isMounted) {
+          setReadNotificationIds(nextReadIds);
+        }
+      } catch {
+        if (isMounted) {
+          setReadNotificationIds(cachedReadIds);
+        }
+      }
+    }
+
+    void syncReadIds();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [activeNotificationIds, financeData.status, notificationReadStateService, userId]);
 
   useEffect(() => {
-    if (!auth.user) {
+    if (!userId) {
       return;
     }
 
-    setReadNotificationIds(
-      pruneNotificationReadIds(
-        auth.user.id,
-        notifications.map(({ id }) => id),
-      ),
-    );
-  }, [auth.user, notifications]);
+    const activeUserId = userId;
+
+    async function syncReadIdsFromCloud() {
+      try {
+        const nextReadIds =
+          financeData.status === 'ready'
+            ? await notificationReadStateService.pruneReadIds(activeUserId, activeNotificationIds)
+            : await notificationReadStateService.readReadIds(activeUserId);
+
+        setReadNotificationIds(nextReadIds);
+      } catch {
+        // Keep the local cache active when cloud sync is temporarily unavailable.
+      }
+    }
+
+    function handleVisibilityChange() {
+      if (document.visibilityState === 'visible') {
+        void syncReadIdsFromCloud();
+      }
+    }
+
+    function handleWindowFocus() {
+      void syncReadIdsFromCloud();
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleWindowFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleWindowFocus);
+    };
+  }, [activeNotificationIds, financeData.status, notificationReadStateService, userId]);
 
   const persistReadIds = useCallback((nextReadIds: string[]) => {
-    if (!auth.user) {
+    if (!userId) {
       return;
     }
 
-    writeNotificationReadIds(auth.user.id, nextReadIds);
+    writeNotificationReadIds(userId, nextReadIds);
     setReadNotificationIds(nextReadIds);
-  }, [auth.user]);
+    void notificationReadStateService
+      .writeReadIds(userId, nextReadIds)
+      .then(setReadNotificationIds)
+      .catch(() => {});
+  }, [notificationReadStateService, userId]);
 
   const markAsRead = useCallback((notificationId: string) => {
     if (readNotificationIds.includes(notificationId)) {

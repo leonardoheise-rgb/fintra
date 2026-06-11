@@ -9,7 +9,7 @@ function getStorageKey(userId: string) {
   return `fintra.notifications.read-state.${userId}`;
 }
 
-function normalizeReadIds(readIds: string[]) {
+export function normalizeNotificationReadIds(readIds: string[]) {
   return [...new Set(readIds)].sort((left, right) => left.localeCompare(right));
 }
 
@@ -23,7 +23,7 @@ export function readNotificationReadIds(userId: string) {
   try {
     const parsedValue = JSON.parse(rawValue) as Partial<NotificationReadState>;
 
-    return normalizeReadIds(parsedValue.readIds ?? []);
+    return normalizeNotificationReadIds(parsedValue.readIds ?? []);
   } catch {
     return [];
   }
@@ -32,7 +32,7 @@ export function readNotificationReadIds(userId: string) {
 export function writeNotificationReadIds(userId: string, readIds: string[]) {
   const nextState: NotificationReadState = {
     version: readStateVersion,
-    readIds: normalizeReadIds(readIds),
+    readIds: normalizeNotificationReadIds(readIds),
   };
 
   window.localStorage.setItem(getStorageKey(userId), JSON.stringify(nextState));
