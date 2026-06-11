@@ -285,6 +285,9 @@ describe('TransactionsPage', () => {
     });
 
     expect(screen.queryByRole('button', { name: /discard/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /summer trip dinner/i })).not.toBeInTheDocument();
+    await user.click(await screen.findByRole('button', { name: /show pending set-asides/i }));
+    expect(await screen.findByRole('heading', { name: /summer trip dinner/i })).toBeInTheDocument();
     await user.click(await screen.findByRole('button', { name: /expand/i }));
     expect(screen.getByRole('button', { name: /discard/i })).toBeInTheDocument();
   });
@@ -325,9 +328,8 @@ describe('TransactionsPage', () => {
     await user.type(descriptionInput!, 'Trip dinner reserve');
     await user.click(screen.getByRole('button', { name: /set aside money/i }));
 
-    await waitFor(() => {
-      expect(screen.getByRole('heading', { name: /trip dinner reserve/i })).toBeInTheDocument();
-    });
+    await user.click(await screen.findByRole('button', { name: /show pending set-asides/i }));
+    await screen.findByRole('heading', { name: /trip dinner reserve/i });
 
     const setAsideCard = screen.getByRole('heading', { name: /trip dinner reserve/i }).closest('article');
     expect(setAsideCard).not.toBeNull();
@@ -403,10 +405,21 @@ describe('TransactionsPage', () => {
     await user.type(descriptionInput!, 'Future travel dinner');
     await user.click(screen.getByRole('button', { name: /create transaction/i }));
 
+    const showFutureEntriesButton = await screen.findByRole('button', {
+      name: /show future entries/i,
+    });
+
+    expect(screen.queryByText(/future travel dinner/i)).not.toBeInTheDocument();
+
+    await user.click(showFutureEntriesButton);
+
     expect(screen.getByText(/future travel dinner/i)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /edit transaction future travel dinner/i })).not.toBeInTheDocument();
 
-    await user.click(screen.getAllByRole('button', { name: /expand/i })[0]);
+    const futureTransactionCard = screen.getByText(/future travel dinner/i).closest('article');
+    expect(futureTransactionCard).not.toBeNull();
+
+    await user.click(within(futureTransactionCard!).getByRole('button', { name: /expand/i }));
 
     expect(
       await screen.findByRole('button', { name: /edit transaction future travel dinner/i }),

@@ -666,6 +666,7 @@ p {
 }
 
 .budget-card__track {
+  display: flex;
   height: 0.4rem;
   overflow: hidden;
   border-radius: 999px;
@@ -674,6 +675,18 @@ p {
 
 .budget-card__fill {
   height: 100%;
+  border-radius: 0;
+}
+
+.budget-card__fill:first-child {
+  border-radius: 999px 0 0 999px;
+}
+
+.budget-card__fill:last-child {
+  border-radius: 0 999px 999px 0;
+}
+
+.budget-card__fill:only-child {
   border-radius: inherit;
 }
 
@@ -687,6 +700,14 @@ p {
 
 .budget-card__fill--over {
   background: var(--color-error);
+}
+
+.budget-card__fill--spent {
+  background: rgba(0, 108, 72, 0.6);
+}
+
+.budget-card__fill--forecast {
+  background: rgba(225, 151, 41, 0.78);
 }
 
 .budget-card__pace {

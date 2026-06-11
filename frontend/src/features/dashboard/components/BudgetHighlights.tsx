@@ -40,6 +40,14 @@ export function BudgetHighlights({ cards, month, onSelectCategory }: BudgetHighl
               budget: card.effectiveBudget,
               spent: card.spent + card.reserved,
             });
+            const spentSummary = calculateBudgetSummary({
+              budget: card.effectiveBudget,
+              spent: card.spent,
+            });
+            const forecastProgressPercentage = Math.max(
+              0,
+              summary.progressPercentage - spentSummary.progressPercentage,
+            );
             const pacing = resolveBudgetPacing(summary.rawPercentage, month, monthStartDay);
             const cardTone =
               summary.status === 'over' ? 'overused' : summary.status === 'at' ? 'used' : 'default';
@@ -112,9 +120,15 @@ export function BudgetHighlights({ cards, month, onSelectCategory }: BudgetHighl
                   role="progressbar"
                 >
                   <div
-                    className={`budget-card__fill budget-card__fill--${summary.status}`}
-                    style={{ width: `${summary.progressPercentage}%` }}
+                    className="budget-card__fill budget-card__fill--spent"
+                    style={{ width: `${spentSummary.progressPercentage}%` }}
                   />
+                  {forecastProgressPercentage > 0 ? (
+                    <div
+                      className="budget-card__fill budget-card__fill--forecast"
+                      style={{ width: `${forecastProgressPercentage}%` }}
+                    />
+                  ) : null}
                 </div>
 
                 <div className="budget-card__footer">

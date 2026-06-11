@@ -45,8 +45,18 @@ export function TransactionsList({
 }: TransactionsListProps) {
   const csvRows = buildTransactionsCsvRows(transactions, categories, subcategories);
   const [isTableViewVisible, setIsTableViewVisible] = useState(false);
+  const [isFutureEntriesVisible, setIsFutureEntriesVisible] = useState(false);
   const [expandedFutureTransactionIds, setExpandedFutureTransactionIds] = useState<string[]>([]);
   const todayIsoDate = formatLocalIsoDate();
+  const futureTransactionsCount = transactions.filter(
+    (transaction) => transaction.date > todayIsoDate,
+  ).length;
+  const visibleTransactions = transactions.filter(
+    (transaction) =>
+      transaction.date <= todayIsoDate ||
+      isFutureEntriesVisible ||
+      editingTransaction?.id === transaction.id,
+  );
 
   function getTransactionTitle(transaction: TransactionRecord) {
     return transaction.description || translateAppText('transactions.noDescription');
@@ -68,6 +78,20 @@ export function TransactionsList({
           <h2>{translateAppText('transactions.recentEntries')}</h2>
         </div>
         <div className="transaction-card__actions">
+          {futureTransactionsCount > 0 ? (
+            <button
+              aria-expanded={isFutureEntriesVisible}
+              className="secondary-button"
+              onClick={() => setIsFutureEntriesVisible((currentValue) => !currentValue)}
+              type="button"
+            >
+              {isFutureEntriesVisible
+                ? translateAppText('transactions.hideFutureEntries')
+                : translateAppText('transactions.showFutureEntries', {
+                    count: futureTransactionsCount,
+                  })}
+            </button>
+          ) : null}
           <button
             className="secondary-button"
             onClick={() => setIsTableViewVisible((currentValue) => !currentValue)}
@@ -122,7 +146,7 @@ export function TransactionsList({
               <span>{translateAppText('transactions.actions')}</span>
             </div>
 
-            {transactions.map((transaction) => {
+            {visibleTransactions.map((transaction) => {
               const isEditing = editingTransaction?.id === transaction.id;
               const isFutureTransaction = transaction.date > todayIsoDate;
               const isFutureTransactionExpanded =

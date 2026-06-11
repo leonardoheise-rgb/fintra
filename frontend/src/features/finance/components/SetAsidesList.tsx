@@ -41,6 +41,7 @@ export function SetAsidesList({
   subcategories,
 }: SetAsidesListProps) {
   const sortedSetAsides = sortSetAsidesByDateAsc(setAsides);
+  const [isPendingListVisible, setIsPendingListVisible] = useState(false);
   const [expandedSetAsideIds, setExpandedSetAsideIds] = useState<string[]>([]);
 
   function toggleExpandedSetAside(setAsideId: string) {
@@ -58,11 +59,25 @@ export function SetAsidesList({
           <p className="finance-panel__eyebrow">{translateAppText('setAsides.listEyebrow')}</p>
           <h2>{translateAppText('setAsides.listHeading')}</h2>
         </div>
+        {sortedSetAsides.length > 0 ? (
+          <button
+            aria-expanded={isPendingListVisible}
+            className="secondary-button"
+            onClick={() => setIsPendingListVisible((currentValue) => !currentValue)}
+            type="button"
+          >
+            {isPendingListVisible
+              ? translateAppText('setAsides.hidePending')
+              : translateAppText('setAsides.showPending', {
+                  count: sortedSetAsides.length,
+                })}
+          </button>
+        ) : null}
       </div>
 
       {sortedSetAsides.length === 0 ? (
         <p className="finance-empty-state">{translateAppText('setAsides.empty')}</p>
-      ) : (
+      ) : isPendingListVisible ? (
         <div className="finance-list">
           {sortedSetAsides.map((setAside) => {
             const isExpanded = expandedSetAsideIds.includes(setAside.id);
@@ -149,7 +164,7 @@ export function SetAsidesList({
             );
           })}
         </div>
-      )}
+      ) : null}
     </section>
   );
 }
