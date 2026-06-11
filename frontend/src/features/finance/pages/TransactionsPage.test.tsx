@@ -419,11 +419,20 @@ describe('TransactionsPage', () => {
     const futureTransactionCard = screen.getByText(/future travel dinner/i).closest('article');
     expect(futureTransactionCard).not.toBeNull();
 
-    await user.click(within(futureTransactionCard!).getByRole('button', { name: /expand/i }));
+    const expandFutureTransactionButton = within(futureTransactionCard!).getByRole('button', {
+      name: /expand/i,
+    });
+
+    expect(expandFutureTransactionButton).toHaveTextContent(String.fromCharCode(9660));
+
+    await user.click(expandFutureTransactionButton);
 
     expect(
       await screen.findByRole('button', { name: /edit transaction future travel dinner/i }),
     ).toBeInTheDocument();
+    expect(
+      within(futureTransactionCard!).getByRole('button', { name: /collapse/i }),
+    ).toHaveTextContent(String.fromCharCode(9650));
   });
 
   it('offers to rebalance the month after an expense pushes a category over budget', async () => {

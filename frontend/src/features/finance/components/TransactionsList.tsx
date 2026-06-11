@@ -205,11 +205,14 @@ export function TransactionsList({
                   {isFutureTransaction ? (
                     <div className="ledger-row__actions ledger-row__actions--toggle">
                       <button
+                        aria-label={isFutureTransactionExpanded ? 'Collapse' : 'Expand'}
                         className="secondary-button"
                         onClick={() => toggleFutureTransaction(transaction.id)}
                         type="button"
                       >
-                        {isFutureTransactionExpanded ? 'Collapse' : 'Expand'}
+                        <span aria-hidden="true">
+                          {isFutureTransactionExpanded ? <>&#9650;</> : <>&#9660;</>}
+                        </span>
                       </button>
                     </div>
                   ) : null}

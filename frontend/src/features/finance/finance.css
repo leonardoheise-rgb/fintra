@@ -423,6 +423,12 @@
   justify-content: flex-end;
 }
 
+.ledger-row__actions--toggle .secondary-button {
+  flex: 0 0 2.875rem;
+  width: 2.875rem;
+  padding: 0;
+}
+
 .ledger-row__editor {
   grid-column: 1 / -1;
 }
