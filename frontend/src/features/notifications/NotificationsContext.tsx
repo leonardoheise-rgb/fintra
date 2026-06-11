@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type PropsWithChildren } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type PropsWithChildren } from 'react';
 
 import { formatLocalIsoDate } from '../../shared/lib/date/isoDates';
 import { useAuth } from '../auth/useAuth';
@@ -19,6 +19,7 @@ export function NotificationsProvider({ children }: PropsWithChildren) {
     preferences: { currency, locale, monthStartDay },
   } = useDisplayPreferences();
   const [readNotificationIds, setReadNotificationIds] = useState<string[]>([]);
+  const readStateMutationVersion = useRef(0);
   const notificationReadStateService = useMemo(() => createNotificationReadStateService(), []);
   const userId = auth.user?.id ?? null;
   const notifications = useMemo(
@@ -45,6 +46,7 @@ export function NotificationsProvider({ children }: PropsWithChildren) {
     let isMounted = true;
     const activeUserId = userId;
     const cachedReadIds = readNotificationReadIds(activeUserId);
+    const syncMutationVersion = readStateMutationVersion.current;
 
     setReadNotificationIds(cachedReadIds);
 
@@ -55,11 +57,11 @@ export function NotificationsProvider({ children }: PropsWithChildren) {
             ? await notificationReadStateService.pruneReadIds(activeUserId, activeNotificationIds)
             : await notificationReadStateService.readReadIds(activeUserId);
 
-        if (isMounted) {
+        if (isMounted && readStateMutationVersion.current === syncMutationVersion) {
           setReadNotificationIds(nextReadIds);
         }
       } catch {
-        if (isMounted) {
+        if (isMounted && readStateMutationVersion.current === syncMutationVersion) {
           setReadNotificationIds(cachedReadIds);
         }
       }
@@ -80,13 +82,17 @@ export function NotificationsProvider({ children }: PropsWithChildren) {
     const activeUserId = userId;
 
     async function syncReadIdsFromCloud() {
+      const syncMutationVersion = readStateMutationVersion.current;
+
       try {
         const nextReadIds =
           financeData.status === 'ready'
             ? await notificationReadStateService.pruneReadIds(activeUserId, activeNotificationIds)
             : await notificationReadStateService.readReadIds(activeUserId);
 
-        setReadNotificationIds(nextReadIds);
+        if (readStateMutationVersion.current === syncMutationVersion) {
+          setReadNotificationIds(nextReadIds);
+        }
       } catch {
         // Keep the local cache active when cloud sync is temporarily unavailable.
       }
@@ -116,11 +122,18 @@ export function NotificationsProvider({ children }: PropsWithChildren) {
       return;
     }
 
+    const mutationVersion = readStateMutationVersion.current + 1;
+
+    readStateMutationVersion.current = mutationVersion;
     writeNotificationReadIds(userId, nextReadIds);
     setReadNotificationIds(nextReadIds);
     void notificationReadStateService
       .writeReadIds(userId, nextReadIds)
-      .then(setReadNotificationIds)
+      .then((persistedReadIds) => {
+        if (readStateMutationVersion.current === mutationVersion) {
+          setReadNotificationIds(persistedReadIds);
+        }
+      })
       .catch(() => {});
   }, [notificationReadStateService, userId]);
 

@@ -18,10 +18,11 @@ describe('NotificationsPage', () => {
 
   it('renders notifications and lets the user mark them as read', async () => {
     const user = userEvent.setup();
+    const notificationUserId = 'notifications-user';
     const authService = createAuthServiceStub({
       initialSession: {
         user: {
-          id: 'user-1',
+          id: notificationUserId,
           email: 'owner@fintra.dev',
         },
       },
@@ -136,23 +137,28 @@ describe('NotificationsPage', () => {
       await screen.findByRole('heading', { name: /^notifications$/i, level: 1 }),
     ).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /reserved money needs a decision/i, level: 3 })).toBeInTheDocument();
-    expect(screen.getAllByRole('button', { name: /mark as read/i })).toHaveLength(4);
+    const unreadNotificationButtons = screen.getAllByRole('button', { name: /mark as read/i });
 
-    await user.click(screen.getAllByRole('button', { name: /mark as read/i })[0]);
+    expect(unreadNotificationButtons).toHaveLength(4);
+
+    await user.click(unreadNotificationButtons[0]);
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /^read$/i })).toBeDisabled();
     });
 
-    expect(
-      JSON.parse(window.localStorage.getItem('fintra.notifications.read-state.user-1') ?? '{}')
-        .readIds,
-    ).toHaveLength(1);
+    const readState = JSON.parse(
+      window.localStorage.getItem(`fintra.notifications.read-state.${notificationUserId}`) ?? '{}',
+    );
+
+    expect(readState.readIds).toHaveLength(1);
 
     await user.click(screen.getByRole('button', { name: /mark all as read/i }));
 
     await waitFor(() => {
-      expect(screen.getAllByRole('button', { name: /^read$/i })).toHaveLength(4);
+      expect(screen.getAllByRole('button', { name: /^read$/i })).toHaveLength(
+        unreadNotificationButtons.length,
+      );
     });
 
     await user.click(screen.getAllByRole('link', { name: /^dashboard$/i })[0]);

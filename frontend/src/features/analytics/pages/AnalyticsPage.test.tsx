@@ -12,8 +12,19 @@ async function waitForAnalyticsToLoad() {
   }
 }
 
+async function anchorPreviewActivityMonth(user: {
+  clear(element: Element): Promise<void>;
+  type(element: Element, text: string): Promise<void>;
+}) {
+  const anchorMonthInput = screen.getByLabelText(/anchor month/i);
+
+  await user.clear(anchorMonthInput);
+  await user.type(anchorMonthInput, '2026-03');
+}
+
 describe('AnalyticsPage', () => {
   it('renders the analytics route with historical overview content', async () => {
+    const user = userEvent.setup();
     const authService = createAuthServiceStub({
       initialSession: {
         user: {
@@ -26,6 +37,7 @@ describe('AnalyticsPage', () => {
     await renderAppAtPath('/analytics', authService.service);
 
     await waitForAnalyticsToLoad();
+    await anchorPreviewActivityMonth(user);
 
     expect(
       await screen.findByRole('heading', { name: /^analytics$/i, level: 1 }, { timeout: 5000 }),
@@ -50,6 +62,7 @@ describe('AnalyticsPage', () => {
     await renderAppAtPath('/analytics', authService.service);
 
     await waitForAnalyticsToLoad();
+    await anchorPreviewActivityMonth(user);
 
     await user.click(await screen.findByRole('tab', { name: /categories/i }));
 
@@ -74,6 +87,7 @@ describe('AnalyticsPage', () => {
     await renderAppAtPath('/analytics', authService.service);
 
     await waitForAnalyticsToLoad();
+    await anchorPreviewActivityMonth(user);
 
     await user.click(await screen.findByRole('tab', { name: /categories/i }));
     await user.selectOptions(screen.getByLabelText(/category filter/i), 'category-food');

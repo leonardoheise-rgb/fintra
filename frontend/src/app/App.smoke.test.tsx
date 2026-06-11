@@ -35,6 +35,16 @@ function createAuthenticatedAuthService() {
   });
 }
 
+async function anchorAnalyticsPreviewActivityMonth(user: {
+  clear(element: Element): Promise<void>;
+  type(element: Element, text: string): Promise<void>;
+}) {
+  const anchorMonthInput = screen.getByLabelText(/anchor month/i);
+
+  await user.clear(anchorMonthInput);
+  await user.type(anchorMonthInput, '2026-03');
+}
+
 describe('Fintra smoke flows', () => {
   it('completes the auth journey from sign in to sign out', async () => {
     const { user } = await signInFromPublicRoute();
@@ -165,6 +175,7 @@ describe('Fintra smoke flows', () => {
       await screen.findByRole('heading', { name: /^analytics$/i, level: 1 }, { timeout: 8000 }),
     ).toBeInTheDocument();
 
+    await anchorAnalyticsPreviewActivityMonth(user);
     await user.selectOptions(screen.getByLabelText(/range preset/i), 'custom');
 
     expect(screen.getByLabelText(/start month/i)).toBeInTheDocument();

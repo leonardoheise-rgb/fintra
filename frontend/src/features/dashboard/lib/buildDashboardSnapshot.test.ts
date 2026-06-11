@@ -7,6 +7,7 @@ import type {
   SetAsideRecord,
   TransactionRecord,
 } from '../../finance/finance.types';
+import { formatCurrency } from '../../../shared/lib/formatters/currency';
 
 const categories: CategoryRecord[] = [
   { id: 'category-salary', name: 'Salary', icon: null },
@@ -293,7 +294,8 @@ describe('buildDashboardSnapshot', () => {
       referenceDate,
     );
 
-    expect(snapshot.insight).toMatch(/Food and dining is over plan by \$200\.00/i);
+    expect(snapshot.insight).toContain('Food and dining is over plan by');
+    expect(snapshot.insight).toContain(formatCurrency(200));
     expect(snapshot.insight).not.toMatch(/Housing/);
   });
 
