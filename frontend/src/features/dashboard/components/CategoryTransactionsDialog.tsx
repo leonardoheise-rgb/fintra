@@ -1,6 +1,6 @@
 import { translateAppText } from '../../../shared/i18n/appText';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
-import { formatMonthLabel } from '../../../shared/lib/formatters/date';
+import { formatIsoDateLabel, formatMonthLabel } from '../../../shared/lib/formatters/date';
 import type {
   SubcategoryRecord,
   TransactionRecord,
@@ -88,7 +88,7 @@ export function CategoryTransactionsDialog({
                       {transaction.description || translateAppText('transactions.noDescription')}
                     </strong>
                     <p className="analytics-transaction-card__meta">
-                      {transaction.date} · {getSubcategoryName(subcategories, transaction.subcategoryId)}
+                      {formatIsoDateLabel(transaction.date)} · {getSubcategoryName(subcategories, transaction.subcategoryId)}
                     </p>
                   </div>
                   <div className="analytics-transaction-card__amounts">

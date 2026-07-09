@@ -1,4 +1,5 @@
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
+import { formatIsoDateLabel } from '../../../shared/lib/formatters/date';
 import { translateAppText } from '../../../shared/i18n/appText';
 import type { SetAsideRecord } from '../finance.types';
 
@@ -31,7 +32,7 @@ export function SetAsideDecisionPrompt({
       <p className="finance-header__copy">
         {translateAppText('setAsides.promptDescription', {
           title,
-          date: setAside.date,
+          date: formatIsoDateLabel(setAside.date),
           amount: formatCurrency(setAside.amount),
         })}
       </p>

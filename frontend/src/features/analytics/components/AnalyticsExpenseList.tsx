@@ -1,5 +1,5 @@
-import { getDisplayPreferences } from '../../../shared/preferences/displayPreferences';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
+import { formatIsoDateLabel } from '../../../shared/lib/formatters/date';
 import { translateAppText } from '../../../shared/i18n/appText';
 import { getCategoryName, getSubcategoryName } from '../../finance/lib/financeSelectors';
 import type { CategoryRecord, SubcategoryRecord } from '../../finance/finance.types';
@@ -10,28 +10,6 @@ type AnalyticsExpenseListProps = {
   categories: CategoryRecord[];
   subcategories: SubcategoryRecord[];
 };
-
-function formatDateLabel(date: string, locale = getDisplayPreferences().locale) {
-  const [yearText, monthText, dayText] = date.split('-');
-  const year = Number(yearText);
-  const monthIndex = Number(monthText) - 1;
-  const day = Number(dayText);
-
-  if (
-    Number.isNaN(year) ||
-    Number.isNaN(monthIndex) ||
-    Number.isNaN(day) ||
-    monthIndex < 0 ||
-    monthIndex > 11
-  ) {
-    return date;
-  }
-
-  return new Intl.DateTimeFormat(locale, {
-    dateStyle: 'medium',
-    timeZone: 'UTC',
-  }).format(new Date(Date.UTC(year, monthIndex, day)));
-}
 
 export function AnalyticsExpenseList({
   transactions,
@@ -64,7 +42,7 @@ export function AnalyticsExpenseList({
               </div>
               <div className="analytics-transaction-card__amounts">
                 <strong>{formatCurrency(transaction.amount)}</strong>
-                <span>{formatDateLabel(transaction.date)}</span>
+                <span>{formatIsoDateLabel(transaction.date)}</span>
               </div>
             </article>
           ))}

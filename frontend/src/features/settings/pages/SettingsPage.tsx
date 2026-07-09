@@ -5,7 +5,7 @@ import { translateAppText } from '../../../shared/i18n/appText';
 import { FinancePageHeader } from '../../finance/components/FinancePageHeader';
 import { CategoriesSummaryCard } from '../../finance/components/CategoriesSummaryCard';
 import { getCurrentMonthKey } from '../../../shared/lib/date/months';
-import { formatMonthLabel } from '../../../shared/lib/formatters/date';
+import { formatIsoDateLabel, formatMonthLabel } from '../../../shared/lib/formatters/date';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { formatDayOfMonthLabel } from '../../../shared/lib/formatters/dayOfMonth';
 import { getDefaultDisplayPreferences, type DisplayPreferences } from '../../../shared/preferences/displayPreferences';
@@ -21,6 +21,7 @@ function areDisplayPreferencesEqual(
 ) {
   return (
     leftPreferences.currency === rightPreferences.currency &&
+    leftPreferences.dateFormat === rightPreferences.dateFormat &&
     leftPreferences.locale === rightPreferences.locale &&
     leftPreferences.monthStartDay === rightPreferences.monthStartDay
   );
@@ -30,8 +31,14 @@ export function SettingsPage() {
   const auth = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const { currencyOptions, localeOptions, preferences, resetPreferences, updatePreferences } =
-    useDisplayPreferences();
+  const {
+    currencyOptions,
+    dateFormatOptions,
+    localeOptions,
+    preferences,
+    resetPreferences,
+    updatePreferences,
+  } = useDisplayPreferences();
   const [draftPreferences, setDraftPreferences] = useState(preferences);
   const [saveState, setSaveState] = useState<SaveState>('idle');
   const [saveErrorMessage, setSaveErrorMessage] = useState<string | null>(null);
@@ -97,6 +104,7 @@ export function SettingsPage() {
       <section className="finance-summary-grid" aria-label={translateAppText('settings.summary')}>
         <CategoriesSummaryCard label={translateAppText('settings.defaultCurrency')} value={preferences.currency} />
         <CategoriesSummaryCard label={translateAppText('settings.defaultLocale')} value={preferences.locale} />
+        <CategoriesSummaryCard label={translateAppText('settings.dateFormat')} value={preferences.dateFormat} />
         <CategoriesSummaryCard
           label={translateAppText('settings.monthStartsOn')}
           value={formatDayOfMonthLabel(preferences.monthStartDay)}
@@ -156,6 +164,28 @@ export function SettingsPage() {
                 {localeOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {translateAppText(`settings.localeOption.${option.value}`) || option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="finance-field">
+              <span>{translateAppText('settings.dateFormat')}</span>
+              <select
+                name="dateFormat"
+                onChange={(event) => {
+                  setDraftPreferences((currentPreferences) => ({
+                    ...currentPreferences,
+                    dateFormat: event.target.value as DisplayPreferences['dateFormat'],
+                  }));
+                  setSaveState('idle');
+                  setSaveErrorMessage(null);
+                }}
+                value={draftPreferences.dateFormat}
+              >
+                {dateFormatOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {translateAppText(`settings.dateFormatOption.${option.value}`) || option.label}
                   </option>
                 ))}
               </select>
@@ -243,6 +273,10 @@ export function SettingsPage() {
                   locale: draftPreferences.locale,
                 })}
               </strong>
+            </article>
+            <article className="settings-preview-card">
+              <span className="finance-summary-card__label">{translateAppText('settings.datePreview')}</span>
+              <strong>{formatIsoDateLabel('2026-03-04', draftPreferences.dateFormat)}</strong>
             </article>
             <article className="settings-preview-card">
               <span className="finance-summary-card__label">{translateAppText('settings.monthPreview')}</span>

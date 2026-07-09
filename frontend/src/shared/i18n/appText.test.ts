@@ -27,4 +27,22 @@ describe('translateAppText', () => {
       'Destaques do espaço de trabalho',
     );
   });
+
+  it('returns translated date-format and repaired table labels', () => {
+    expect(translateAppText('settings.dateFormat', undefined, 'en-US')).toBe('Date format');
+    expect(translateAppText('settings.dateFormat', undefined, 'pt-BR')).toBe('Formato de data');
+    expect(translateAppText('settings.datePreview', undefined, 'pt-BR')).toBe('Prévia de data');
+    expect(translateAppText('transactions.csvTableLabel', undefined, 'pt-BR')).toBe(
+      'Visualização de tabela de transações',
+    );
+    expect(translateAppText('transactions.tableView', undefined, 'pt-BR')).toBe(
+      'Visualização de tabela',
+    );
+    expect(translateAppText('budgets.formTabs', undefined, 'pt-BR')).toBe(
+      'Formulários de orçamento',
+    );
+    expect(translateAppText('dashboard.budgetPosture', undefined, 'en-US')).toBe(
+      'Budget status',
+    );
+  });
 });

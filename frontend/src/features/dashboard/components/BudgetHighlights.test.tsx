@@ -13,6 +13,7 @@ function renderBudgetHighlights() {
         value={{
           preferences: getDefaultDisplayPreferences(),
           currencyOptions: [],
+          dateFormatOptions: [],
           localeOptions: [],
           updatePreferences: vi.fn(),
           resetPreferences: vi.fn(),

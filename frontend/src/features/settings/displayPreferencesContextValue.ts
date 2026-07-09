@@ -5,6 +5,7 @@ import type { DisplayPreferenceOption, DisplayPreferences } from '../../shared/p
 export type DisplayPreferencesContextValue = {
   preferences: DisplayPreferences;
   currencyOptions: DisplayPreferenceOption[];
+  dateFormatOptions: DisplayPreferenceOption[];
   localeOptions: DisplayPreferenceOption[];
   updatePreferences(preferences: DisplayPreferences): Promise<void>;
   resetPreferences(): Promise<void>;

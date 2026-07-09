@@ -1,16 +1,24 @@
 export type DisplayPreferences = {
   currency: string;
+  dateFormat: DateFormatPreference;
   locale: string;
   monthStartDay: number;
 };
+
+export type DateFormatPreference = 'YYYY-MM-dd' | 'dd-MM-YYYY';
 
 export type DisplayPreferenceOption = {
   value: string;
   label: string;
 };
 
+type DisplayPreferencesInput = Partial<Omit<DisplayPreferences, 'dateFormat'>> & {
+  dateFormat?: string | null;
+};
+
 const defaultLocale = import.meta.env.VITE_DEFAULT_LOCALE ?? 'en-US';
 const defaultCurrency = import.meta.env.VITE_DEFAULT_CURRENCY ?? 'USD';
+const defaultDateFormat = import.meta.env.VITE_DEFAULT_DATE_FORMAT ?? 'YYYY-MM-dd';
 const defaultMonthStartDay = Number(import.meta.env.VITE_DEFAULT_MONTH_START_DAY ?? '1');
 
 export const supportedCurrencyOptions: DisplayPreferenceOption[] = [
@@ -24,11 +32,28 @@ export const supportedLocaleOptions: DisplayPreferenceOption[] = [
   { value: 'pt-BR', label: 'Portuguese (Brazil)' },
 ];
 
+export const supportedDateFormatOptions: DisplayPreferenceOption[] = [
+  { value: 'YYYY-MM-dd', label: 'YYYY-MM-dd' },
+  { value: 'dd-MM-YYYY', label: 'dd-MM-YYYY' },
+];
+
 const supportedCurrencyValues = new Set(supportedCurrencyOptions.map((option) => option.value));
 const supportedLocaleValues = new Set(supportedLocaleOptions.map((option) => option.value));
+const supportedDateFormatValues = new Set(supportedDateFormatOptions.map((option) => option.value));
+
+function getFallbackDateFormat(): DateFormatPreference {
+  return supportedDateFormatValues.has(defaultDateFormat)
+    ? (defaultDateFormat as DateFormatPreference)
+    : 'YYYY-MM-dd';
+}
+
+function isSupportedDateFormat(value: string | null | undefined): value is DateFormatPreference {
+  return Boolean(value && supportedDateFormatValues.has(value));
+}
 
 const defaultDisplayPreferences = sanitizeDisplayPreferences({
   currency: defaultCurrency,
+  dateFormat: getFallbackDateFormat(),
   locale: defaultLocale,
 });
 
@@ -43,9 +68,10 @@ export function getDefaultDisplayPreferences(): DisplayPreferences {
 }
 
 export function sanitizeDisplayPreferences(
-  input?: Partial<DisplayPreferences> | null,
+  input?: DisplayPreferencesInput | null,
 ): DisplayPreferences {
   const currency = input?.currency;
+  const dateFormat = input?.dateFormat;
   const locale = input?.locale;
   const monthStartDay = input?.monthStartDay;
 
@@ -55,6 +81,9 @@ export function sanitizeDisplayPreferences(
       : supportedCurrencyValues.has(defaultCurrency)
         ? defaultCurrency
         : 'USD',
+    dateFormat: isSupportedDateFormat(dateFormat)
+      ? dateFormat
+      : getFallbackDateFormat(),
     locale: locale && supportedLocaleValues.has(locale)
       ? locale
       : supportedLocaleValues.has(defaultLocale)

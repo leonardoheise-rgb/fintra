@@ -16,7 +16,7 @@ export function NotificationsProvider({ children }: PropsWithChildren) {
   const auth = useAuth();
   const financeData = useFinanceData();
   const {
-    preferences: { currency, locale, monthStartDay },
+    preferences: { currency, dateFormat, locale, monthStartDay },
   } = useDisplayPreferences();
   const [readNotificationIds, setReadNotificationIds] = useState<string[]>([]);
   const readStateMutationVersion = useRef(0);
@@ -26,11 +26,12 @@ export function NotificationsProvider({ children }: PropsWithChildren) {
     () =>
       buildFinanceNotifications(financeData, {
         currency,
+        dateFormat,
         locale,
         monthStartDay,
         todayIsoDate: formatLocalIsoDate(),
       }),
-    [currency, financeData, locale, monthStartDay],
+    [currency, dateFormat, financeData, locale, monthStartDay],
   );
   const activeNotificationIds = useMemo(
     () => notifications.map(({ id }) => id),

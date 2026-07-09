@@ -106,6 +106,7 @@ describe('buildFinanceNotifications', () => {
   it('builds notifications for budget overruns, reallocations, due set-asides, and installment completion', () => {
     const notifications = buildFinanceNotifications(createWorkspaceForNotifications(), {
       currency: 'USD',
+      dateFormat: 'dd-MM-YYYY',
       locale: 'en-US',
       monthStartDay: 1,
       todayIsoDate: '2026-04-15',
@@ -119,6 +120,8 @@ describe('buildFinanceNotifications', () => {
     ]);
     expect(notifications[0]).toMatchObject({
       actionHref: '/transactions',
+      description: '$125.00 was reserved for 04-04-2026. Confirm whether it was spent or discard it.',
+      occurredLabel: '04-04-2026',
       requiresAction: true,
       title: 'Reserved money needs a decision for Birthday dinner',
     });

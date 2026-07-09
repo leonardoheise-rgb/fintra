@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { translateAppText } from '../../../shared/i18n/appText';
 import { formatLocalIsoDate } from '../../../shared/lib/date/isoDates';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
+import { formatIsoDateLabel } from '../../../shared/lib/formatters/date';
 import type {
   CategoryRecord,
   SubcategoryRecord,
@@ -123,7 +124,7 @@ export function TransactionsList({
         role="row"
       >
         <div className="ledger-row__date">
-          <span>{transaction.date}</span>
+          <span>{formatIsoDateLabel(transaction.date)}</span>
         </div>
 
         <div className="ledger-row__description">

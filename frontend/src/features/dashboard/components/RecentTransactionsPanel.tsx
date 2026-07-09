@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 
 import { translateAppText } from '../../../shared/i18n/appText';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
+import { formatIsoDateLabel } from '../../../shared/lib/formatters/date';
 import { getInstallmentLabel } from '../../finance/lib/installments';
 import {
   getCategoryName,
@@ -63,7 +64,7 @@ export function RecentTransactionsPanel({
                     })}
                   </p>
                 ) : null}
-                <span>{transaction.date}</span>
+                <span>{formatIsoDateLabel(transaction.date)}</span>
               </div>
               <strong
                 className={

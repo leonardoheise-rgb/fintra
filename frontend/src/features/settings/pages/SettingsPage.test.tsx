@@ -2,7 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
-import { formatMonthLabel } from '../../../shared/lib/formatters/date';
+import { formatIsoDateLabel, formatMonthLabel } from '../../../shared/lib/formatters/date';
 import { getCurrentMonthKey } from '../../../shared/lib/date/months';
 import { setRuntimeDisplayPreferences } from '../../../shared/preferences/displayPreferences';
 import { createAuthServiceStub } from '../../../test/createAuthServiceStub';
@@ -23,6 +23,7 @@ describe('SettingsPage', () => {
     const displayPreferencesService = createDisplayPreferencesServiceStub({
       initialPreferences: {
         currency: 'BRL',
+        dateFormat: 'YYYY-MM-dd',
         locale: 'en-US',
         monthStartDay: 1,
       },
@@ -36,6 +37,7 @@ describe('SettingsPage', () => {
     expect(screen.getByLabelText(/settings summary/i)).toBeInTheDocument();
     expect(screen.getByText(/^brl$/i)).toBeInTheDocument();
     expect(screen.getByText(/^en-us$/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/^YYYY-MM-dd$/).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/^1st$/i).length).toBeGreaterThan(0);
     expect(
       screen.getAllByText(
@@ -49,6 +51,7 @@ describe('SettingsPage', () => {
     expect(screen.getByText(/unsaved preference changes/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /save preferences/i })).toBeEnabled();
     await user.selectOptions(screen.getByLabelText(/language and region/i), 'pt-BR');
+    await user.selectOptions(screen.getByLabelText(/date format/i), 'dd-MM-YYYY');
     await user.selectOptions(screen.getByLabelText(/month starts on/i), '15');
     await user.click(screen.getByRole('button', { name: /save preferences/i }));
 
@@ -64,11 +67,13 @@ describe('SettingsPage', () => {
       JSON.parse(window.localStorage.getItem('fintra.display-preferences.user-1') ?? '{}'),
     ).toEqual({
       currency: 'USD',
+      dateFormat: 'dd-MM-YYYY',
       locale: 'pt-BR',
       monthStartDay: 15,
     });
     expect(displayPreferencesService.getPreferences()).toEqual({
       currency: 'USD',
+      dateFormat: 'dd-MM-YYYY',
       locale: 'pt-BR',
       monthStartDay: 15,
     });
@@ -98,12 +103,14 @@ describe('SettingsPage', () => {
   it('applies runtime preferences to shared amount and month formatting', async () => {
     setRuntimeDisplayPreferences({
       currency: 'EUR',
+      dateFormat: 'dd-MM-YYYY',
       locale: 'pt-BR',
       monthStartDay: 1,
     });
 
     await waitFor(() => {
       expect(formatCurrency(12450.75)).toContain('12.450,75');
+      expect(formatIsoDateLabel('2026-03-04')).toBe('04-03-2026');
       expect(formatMonthLabel('2026-03')).toBe('março de 2026');
     });
   });

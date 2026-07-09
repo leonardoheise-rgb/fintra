@@ -1,6 +1,7 @@
 import { getMonthKey } from '../../../shared/lib/date/months';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
-import { formatMonthLabel } from '../../../shared/lib/formatters/date';
+import { formatIsoDateLabel, formatMonthLabel } from '../../../shared/lib/formatters/date';
+import type { DateFormatPreference } from '../../../shared/preferences/displayPreferences';
 import { translateAppText } from '../../../shared/i18n/appText';
 import { buildDashboardSnapshot, filterTransactionsByMonth } from '../../dashboard/lib/buildDashboardSnapshot';
 import { findPreferredDonorBudgetTarget, findPreferredSourceBudgetTarget } from '../../finance/lib/budgetReallocation';
@@ -11,32 +12,11 @@ import type { FinanceNotification, FinanceNotificationSeverity } from '../notifi
 
 type BuildNotificationsOptions = {
   currency: string;
+  dateFormat: DateFormatPreference;
   locale: string;
   monthStartDay: number;
   todayIsoDate: string;
 };
-
-function formatIsoDateLabel(date: string, locale: string) {
-  const [yearText, monthText, dayText] = date.split('-');
-  const year = Number(yearText);
-  const monthIndex = Number(monthText) - 1;
-  const day = Number(dayText);
-
-  if (
-    Number.isNaN(year) ||
-    Number.isNaN(monthIndex) ||
-    Number.isNaN(day) ||
-    monthIndex < 0 ||
-    monthIndex > 11
-  ) {
-    return date;
-  }
-
-  return new Intl.DateTimeFormat(locale, {
-    dateStyle: 'medium',
-    timeZone: 'UTC',
-  }).format(new Date(Date.UTC(year, monthIndex, day)));
-}
 
 function compareSeverity(
   left: FinanceNotificationSeverity,
@@ -116,7 +96,7 @@ function buildInstallmentCompletionNotifications(
         description: translateAppText(
           'notifications.installmentCompleteBody',
           {
-            date: formatIsoDateLabel(lastInstallment.date, options.locale),
+            date: formatIsoDateLabel(lastInstallment.date, options.dateFormat),
             installmentCount: lastInstallment.installmentCount,
           },
           options.locale,
@@ -124,7 +104,7 @@ function buildInstallmentCompletionNotifications(
         actionHref: '/transactions',
         actionLabel: translateAppText('notifications.openTransactions', undefined, options.locale),
         occurredOn: lastInstallment.date,
-        occurredLabel: formatIsoDateLabel(lastInstallment.date, options.locale),
+        occurredLabel: formatIsoDateLabel(lastInstallment.date, options.dateFormat),
         requiresAction: false,
       });
 
@@ -279,14 +259,14 @@ export function buildFinanceNotifications(
             locale: options.locale,
             currency: options.currency,
           }),
-          date: formatIsoDateLabel(setAside.date, options.locale),
+          date: formatIsoDateLabel(setAside.date, options.dateFormat),
         },
         options.locale,
       ),
       actionHref: '/transactions',
       actionLabel: translateAppText('notifications.openTransactions', undefined, options.locale),
       occurredOn: setAside.date,
-      occurredLabel: formatIsoDateLabel(setAside.date, options.locale),
+      occurredLabel: formatIsoDateLabel(setAside.date, options.dateFormat),
       requiresAction: true,
     });
   });

@@ -1,4 +1,5 @@
 import { translateAppText } from '../../../shared/i18n/appText';
+import { formatIsoDateLabel } from '../../../shared/lib/formatters/date';
 import type {
   CategoryRecord,
   SubcategoryRecord,
@@ -31,7 +32,7 @@ export function buildTransactionsCsvRows(
       translateAppText('transactions.amount'),
     ],
     ...transactions.map((transaction) => [
-      transaction.date,
+      formatIsoDateLabel(transaction.date),
       transaction.type === 'income'
         ? translateAppText('transactions.incomeOption')
         : translateAppText('transactions.expense'),

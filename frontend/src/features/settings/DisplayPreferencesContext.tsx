@@ -13,6 +13,7 @@ import {
   sanitizeDisplayPreferences,
   setRuntimeDisplayPreferences,
   supportedCurrencyOptions,
+  supportedDateFormatOptions,
   supportedLocaleOptions,
   writeStoredDisplayPreferences,
 } from '../../shared/preferences/displayPreferences';
@@ -121,6 +122,7 @@ export function DisplayPreferencesProvider({
     () => ({
       preferences,
       currencyOptions: supportedCurrencyOptions,
+      dateFormatOptions: supportedDateFormatOptions,
       localeOptions: supportedLocaleOptions,
       async updatePreferences(nextPreferences) {
         const sanitizedPreferences = sanitizeDisplayPreferences(nextPreferences);

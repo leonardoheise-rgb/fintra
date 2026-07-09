@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
+import { formatIsoDateLabel } from '../../../shared/lib/formatters/date';
 import { translateAppText } from '../../../shared/i18n/appText';
 import type {
   CategoryRecord,
@@ -97,7 +98,7 @@ export function SetAsidesList({
                     <div>
                       <p className="transaction-card__eyebrow">{translateAppText('setAsides.arrivesOn')}</p>
                       <h3>{setAside.description || translateAppText('setAsides.defaultDescription')}</h3>
-                      <p className="transaction-card__meta">{setAside.date}</p>
+                      <p className="transaction-card__meta">{formatIsoDateLabel(setAside.date)}</p>
                     </div>
                   </div>
                   <div className="transaction-card__amounts">

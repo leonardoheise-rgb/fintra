@@ -8,6 +8,7 @@ import type { DisplayPreferencesService } from './displayPreferencesService';
 
 type DisplayPreferencesRow = {
   currency: string;
+  date_format: string | null;
   locale: string;
   month_start_day: number;
 };
@@ -21,6 +22,7 @@ function mapRowToDisplayPreferences(
 
   return sanitizeDisplayPreferences({
     currency: row.currency,
+    dateFormat: row.date_format ?? undefined,
     locale: row.locale,
     monthStartDay: row.month_start_day,
   });
@@ -33,7 +35,7 @@ export function createSupabaseDisplayPreferencesService(): DisplayPreferencesSer
     async readPreferences(userId: string): Promise<DisplayPreferences> {
       const { data, error } = await client
         .from('display_preferences')
-        .select('currency, locale, month_start_day')
+        .select('currency, date_format, locale, month_start_day')
         .eq('user_id', userId)
         .maybeSingle();
 
@@ -54,12 +56,13 @@ export function createSupabaseDisplayPreferencesService(): DisplayPreferencesSer
           {
             user_id: userId,
             currency: sanitizedPreferences.currency,
+            date_format: sanitizedPreferences.dateFormat,
             locale: sanitizedPreferences.locale,
             month_start_day: sanitizedPreferences.monthStartDay,
           },
           { onConflict: 'user_id' },
         )
-        .select('currency, locale, month_start_day')
+        .select('currency, date_format, locale, month_start_day')
         .single();
 
       if (error) {
