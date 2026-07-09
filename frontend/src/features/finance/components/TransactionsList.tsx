@@ -241,6 +241,20 @@ export function TransactionsList({
             <h2>{translateAppText('transactions.recentEntries')}</h2>
           </div>
           <div className="transaction-card__actions">
+            {futureTransactions.length > 0 ? (
+              <button
+                aria-expanded={isFutureEntriesExpanded}
+                className="secondary-button"
+                onClick={() => setIsFutureEntriesVisible((currentValue) => !currentValue)}
+                type="button"
+              >
+                {isFutureEntriesExpanded
+                  ? translateAppText('transactions.hideFutureEntries')
+                  : translateAppText('transactions.showFutureEntries', {
+                      count: futureTransactions.length,
+                    })}
+              </button>
+            ) : null}
             <button
               className="secondary-button"
               onClick={() => setIsTableViewVisible((currentValue) => !currentValue)}
@@ -287,45 +301,14 @@ export function TransactionsList({
 
             <div aria-label={translateAppText('transactions.tableLabel')} className="ledger-table" role="table">
               {renderLedgerHeader()}
+              {isFutureEntriesExpanded
+                ? futureTransactions.map((transaction) => renderTransactionRow(transaction, true))
+                : null}
               {currentTransactions.map((transaction) => renderTransactionRow(transaction, false))}
             </div>
           </>
         )}
       </section>
-
-      {futureTransactions.length > 0 ? (
-        <section className="finance-panel ledger-panel">
-          <div className="finance-panel__heading">
-            <div>
-              <p className="finance-panel__eyebrow">{translateAppText('transactions.ledgerEyebrow')}</p>
-              <h2>{translateAppText('transactions.futureEntries')}</h2>
-            </div>
-            <button
-              aria-expanded={isFutureEntriesExpanded}
-              className="secondary-button"
-              onClick={() => setIsFutureEntriesVisible((currentValue) => !currentValue)}
-              type="button"
-            >
-              {isFutureEntriesExpanded
-                ? translateAppText('transactions.hideFutureEntries')
-                : translateAppText('transactions.showFutureEntries', {
-                    count: futureTransactions.length,
-                  })}
-            </button>
-          </div>
-
-          {isFutureEntriesExpanded ? (
-            <div
-              aria-label={translateAppText('transactions.futureTableLabel')}
-              className="ledger-table"
-              role="table"
-            >
-              {renderLedgerHeader()}
-              {futureTransactions.map((transaction) => renderTransactionRow(transaction, true))}
-            </div>
-          ) : null}
-        </section>
-      ) : null}
     </>
   );
 }

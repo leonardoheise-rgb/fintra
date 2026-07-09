@@ -466,28 +466,28 @@ describe('TransactionsPage', () => {
       name: /show future entries/i,
     });
     const recentEntriesPanel = screen.getByRole('heading', { name: /recent entries/i }).closest('section');
-    const futureEntriesPanel = screen.getByRole('heading', { name: /future entries/i }).closest('section');
 
     expect(screen.queryByText(/future travel dinner/i)).not.toBeInTheDocument();
     expect(showFutureEntriesButton).toHaveClass('secondary-button');
-    expect(recentEntriesPanel).not.toBe(futureEntriesPanel);
+    expect(recentEntriesPanel).not.toBeNull();
+    expect(within(recentEntriesPanel!).getByRole('button', { name: /show future entries/i })).toBeInTheDocument();
 
     await user.click(showFutureEntriesButton);
 
     expect(screen.getByText(/future travel dinner/i)).toBeInTheDocument();
     expect(screen.getByText(/later future conference/i)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /edit transaction future travel dinner/i })).not.toBeInTheDocument();
-    expect(futureEntriesPanel).not.toBeNull();
-    expectTextBefore(futureEntriesPanel!, /future travel dinner/i, /later future conference/i);
+    expectTextBefore(recentEntriesPanel!, /future travel dinner/i, /later future conference/i);
+    expectTextBefore(recentEntriesPanel!, /2099-09-22/i, /2026-03-19/i);
+
+    const futureTransactionCard = within(recentEntriesPanel!).getByText(/future travel dinner/i).closest('article');
+    expect(futureTransactionCard).not.toBeNull();
 
     await user.click(screen.getByRole('button', { name: /table view/i }));
 
     const tableView = screen.getByRole('table', { name: /transactions table view/i });
 
     expectTextBefore(tableView, /future travel dinner/i, /later future conference/i);
-
-    const futureTransactionCard = within(futureEntriesPanel!).getByText(/future travel dinner/i).closest('article');
-    expect(futureTransactionCard).not.toBeNull();
 
     const expandFutureTransactionButton = within(futureTransactionCard!).getByRole('button', {
       name: /expand/i,
