@@ -16,7 +16,7 @@ import {
   findPreferredSourceBudgetTarget,
 } from '../lib/budgetReallocation';
 import { splitAmountIntoInstallments } from '../lib/installments';
-import { sortTransactionsByDateDesc } from '../lib/financeSelectors';
+import { sortTransactionsForLedger } from '../lib/financeSelectors';
 import { buildTransactionsCsv } from '../lib/transactionsCsv';
 import type {
   SetAsideInput,
@@ -48,7 +48,8 @@ export function TransactionsPage() {
   const [isReallocatingBudget, setIsReallocatingBudget] = useState(false);
   const [reallocationErrorMessage, setReallocationErrorMessage] = useState<string | null>(null);
   const [activeOperation, setActiveOperation] = useState<'log' | 'reserve'>('log');
-  const sortedTransactions = sortTransactionsByDateDesc(financeData.transactions);
+  const todayIsoDate = formatLocalIsoDate();
+  const ledgerTransactions = sortTransactionsForLedger(financeData.transactions, todayIsoDate);
 
   const donorCategoryOptions = useMemo(() => {
     if (!pendingBudgetReallocation) {
@@ -262,7 +263,7 @@ export function TransactionsPage() {
 
   function handleExportCsv() {
     const csvContent = buildTransactionsCsv(
-      sortedTransactions,
+      ledgerTransactions,
       financeData.categories,
       financeData.subcategories,
     );
@@ -390,7 +391,7 @@ export function TransactionsPage() {
             editingTransaction={transactionToEdit}
             isUpdatingTransaction={isUpdatingTransaction}
             subcategories={financeData.subcategories}
-            transactions={sortedTransactions}
+            transactions={ledgerTransactions}
           />
         </div>
       )}

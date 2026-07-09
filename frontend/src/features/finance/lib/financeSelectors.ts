@@ -100,3 +100,14 @@ export function sortTransactionsByDateAsc(transactions: TransactionRecord[]) {
     return left.id.localeCompare(right.id);
   });
 }
+
+export function sortTransactionsForLedger(transactions: TransactionRecord[], todayIsoDate: string) {
+  const currentTransactions = sortTransactionsByDateDesc(
+    transactions.filter((transaction) => transaction.date <= todayIsoDate),
+  );
+  const futureTransactions = sortTransactionsByDateAsc(
+    transactions.filter((transaction) => transaction.date > todayIsoDate),
+  );
+
+  return [...currentTransactions, ...futureTransactions];
+}

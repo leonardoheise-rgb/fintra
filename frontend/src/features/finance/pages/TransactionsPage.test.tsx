@@ -449,8 +449,8 @@ describe('TransactionsPage', () => {
     await user.selectOptions(categorySelect!, 'category-food');
     await user.selectOptions(subcategorySelect!, 'subcategory-restaurants');
     await user.clear(dateInput!);
-    await user.type(dateInput!, '2099-08-20');
-    await user.type(descriptionInput!, 'Future travel dinner');
+    await user.type(dateInput!, '2099-09-22');
+    await user.type(descriptionInput!, 'Later future conference');
     await user.click(screen.getByRole('button', { name: /create transaction/i }));
 
     await user.clear(amountInput!);
@@ -458,8 +458,8 @@ describe('TransactionsPage', () => {
     await user.selectOptions(categorySelect!, 'category-food');
     await user.selectOptions(subcategorySelect!, 'subcategory-restaurants');
     await user.clear(dateInput!);
-    await user.type(dateInput!, '2099-09-22');
-    await user.type(descriptionInput!, 'Later future conference');
+    await user.type(dateInput!, '2099-08-20');
+    await user.type(descriptionInput!, 'Future travel dinner');
     await user.click(screen.getByRole('button', { name: /create transaction/i }));
 
     const showFutureEntriesButton = await screen.findByRole('button', {
@@ -480,7 +480,13 @@ describe('TransactionsPage', () => {
     expect(futureEntriesPanel).not.toBeNull();
     expectTextBefore(futureEntriesPanel!, /future travel dinner/i, /later future conference/i);
 
-    const futureTransactionCard = screen.getByText(/future travel dinner/i).closest('article');
+    await user.click(screen.getByRole('button', { name: /table view/i }));
+
+    const tableView = screen.getByRole('table', { name: /transactions table view/i });
+
+    expectTextBefore(tableView, /future travel dinner/i, /later future conference/i);
+
+    const futureTransactionCard = within(futureEntriesPanel!).getByText(/future travel dinner/i).closest('article');
     expect(futureTransactionCard).not.toBeNull();
 
     const expandFutureTransactionButton = within(futureTransactionCard!).getByRole('button', {

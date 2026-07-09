@@ -1,4 +1,8 @@
-import { sortTransactionsByDateAsc, sortTransactionsByDateDesc } from './financeSelectors';
+import {
+  sortTransactionsByDateAsc,
+  sortTransactionsByDateDesc,
+  sortTransactionsForLedger,
+} from './financeSelectors';
 import type { TransactionRecord } from '../finance.types';
 
 function createTransaction(overrides: Partial<TransactionRecord>): TransactionRecord {
@@ -70,5 +74,32 @@ describe('sortTransactionsByDateAsc', () => {
       'transaction-earlier',
       'transaction-later',
     ]);
+  });
+});
+
+describe('sortTransactionsForLedger', () => {
+  it('keeps current entries newest first and future entries oldest first', () => {
+    const transactions = [
+      createTransaction({
+        id: 'future-later',
+        date: '2026-08-20',
+      }),
+      createTransaction({
+        id: 'current-newer',
+        date: '2026-07-08',
+      }),
+      createTransaction({
+        id: 'future-earlier',
+        date: '2026-07-20',
+      }),
+      createTransaction({
+        id: 'current-older',
+        date: '2026-07-02',
+      }),
+    ];
+
+    expect(
+      sortTransactionsForLedger(transactions, '2026-07-09').map((transaction) => transaction.id),
+    ).toEqual(['current-newer', 'current-older', 'future-earlier', 'future-later']);
   });
 });
