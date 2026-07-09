@@ -1209,6 +1209,18 @@ Object.assign(translations['pt-BR'], {
 
 translations['pt-BR'] = normalizeTranslations(translations['pt-BR']);
 
+Object.assign(translations['en-US'], {
+  'transactions.futureEntries': 'Future entries',
+  'transactions.futureTableLabel': 'Future transactions ledger',
+  'transactions.futureEntry': 'Future entry',
+});
+
+Object.assign(translations['pt-BR'], {
+  'transactions.futureEntries': 'Entradas futuras',
+  'transactions.futureTableLabel': 'Livro de entradas futuras',
+  'transactions.futureEntry': 'Entrada futura',
+});
+
 function getSupportedLocale(locale: string): SupportedLocale {
   if (locale.startsWith('pt')) {
     return 'pt-BR';

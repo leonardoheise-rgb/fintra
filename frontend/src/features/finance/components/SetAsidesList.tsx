@@ -14,7 +14,7 @@ import {
   getSubcategoryIcon,
   getSubcategoryName,
 } from '../lib/financeSelectors';
-import { sortSetAsidesByDateAsc } from '../lib/setAsides';
+import { sortSetAsidesByDateDesc } from '../lib/setAsides';
 import { SetAsideInlineEditor } from './SetAsideInlineEditor';
 
 type SetAsidesListProps = {
@@ -40,7 +40,7 @@ export function SetAsidesList({
   setAsides,
   subcategories,
 }: SetAsidesListProps) {
-  const sortedSetAsides = sortSetAsidesByDateAsc(setAsides);
+  const sortedSetAsides = sortSetAsidesByDateDesc(setAsides);
   const [isPendingListVisible, setIsPendingListVisible] = useState(false);
   const [expandedSetAsideIds, setExpandedSetAsideIds] = useState<string[]>([]);
 

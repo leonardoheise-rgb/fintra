@@ -16,6 +16,12 @@ export function sortSetAsidesByDateAsc(setAsides: SetAsideRecord[]) {
   );
 }
 
+export function sortSetAsidesByDateDesc(setAsides: SetAsideRecord[]) {
+  return [...setAsides].sort(
+    (left, right) => right.date.localeCompare(left.date) || right.description.localeCompare(left.description),
+  );
+}
+
 export function getDueSetAsides(setAsides: SetAsideRecord[], todayIsoDate: string) {
   return sortSetAsidesByDateAsc(
     setAsides.filter((item) => addDaysToIsoDate(item.date, 1) <= todayIsoDate),

@@ -13,6 +13,15 @@ async function waitForTransactionsToLoad() {
   }
 }
 
+function expectTextBefore(container: HTMLElement, earlierText: RegExp, laterText: RegExp) {
+  const earlierElement = within(container).getByText(earlierText);
+  const laterElement = within(container).getByText(laterText);
+
+  expect(
+    earlierElement.compareDocumentPosition(laterElement) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+}
+
 describe('TransactionsPage', () => {
   beforeEach(() => {
     window.localStorage.clear();
@@ -284,12 +293,51 @@ describe('TransactionsPage', () => {
       ).toBe(true);
     });
 
+    await user.clear(amountInput!);
+    await user.type(amountInput!, '90');
+    await user.selectOptions(categorySelect!, 'category-food');
+    await user.selectOptions(subcategorySelect!, 'subcategory-restaurants');
+    await user.clear(dateInput!);
+    await user.type(dateInput!, '2099-05-10');
+    await user.type(descriptionInput!, 'Winter trip brunch');
+    await user.click(screen.getByRole('button', { name: /set aside money/i }));
+
+    await waitFor(() => {
+      const persistedWorkspace = JSON.parse(
+        window.localStorage.getItem('fintra.preview.workspace.test-finance-user') ?? '{}',
+      );
+
+      expect(
+        persistedWorkspace.setAsides.some(
+          (setAside: { description: string }) => setAside.description === 'Winter trip brunch',
+        ),
+      ).toBe(true);
+    });
+
     expect(screen.queryByRole('button', { name: /discard/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: /summer trip dinner/i })).not.toBeInTheDocument();
-    await user.click(await screen.findByRole('button', { name: /show pending set-asides/i }));
+    const showPendingSetAsidesButton = await screen.findByRole('button', {
+      name: /show pending set-asides/i,
+    });
+
+    expect(showPendingSetAsidesButton).toHaveClass('secondary-button');
+
+    await user.click(showPendingSetAsidesButton);
     expect(await screen.findByRole('heading', { name: /summer trip dinner/i })).toBeInTheDocument();
-    await user.click(await screen.findByRole('button', { name: /expand/i }));
-    expect(screen.getByRole('button', { name: /discard/i })).toBeInTheDocument();
+
+    const pendingSetAsidesPanel = screen
+      .getByRole('heading', { name: /pending set-asides/i })
+      .closest('section');
+
+    expect(pendingSetAsidesPanel).not.toBeNull();
+    expectTextBefore(pendingSetAsidesPanel!, /winter trip brunch/i, /summer trip dinner/i);
+
+    const summerSetAsideCard = screen.getByRole('heading', { name: /summer trip dinner/i }).closest('article');
+
+    expect(summerSetAsideCard).not.toBeNull();
+
+    await user.click(within(summerSetAsideCard!).getByRole('button', { name: /expand/i }));
+    expect(within(summerSetAsideCard!).getByRole('button', { name: /discard/i })).toBeInTheDocument();
   });
 
   it('edits an existing set-aside inline from the pending card', async () => {
@@ -405,16 +453,32 @@ describe('TransactionsPage', () => {
     await user.type(descriptionInput!, 'Future travel dinner');
     await user.click(screen.getByRole('button', { name: /create transaction/i }));
 
+    await user.clear(amountInput!);
+    await user.type(amountInput!, '9600');
+    await user.selectOptions(categorySelect!, 'category-food');
+    await user.selectOptions(subcategorySelect!, 'subcategory-restaurants');
+    await user.clear(dateInput!);
+    await user.type(dateInput!, '2099-09-22');
+    await user.type(descriptionInput!, 'Later future conference');
+    await user.click(screen.getByRole('button', { name: /create transaction/i }));
+
     const showFutureEntriesButton = await screen.findByRole('button', {
       name: /show future entries/i,
     });
+    const recentEntriesPanel = screen.getByRole('heading', { name: /recent entries/i }).closest('section');
+    const futureEntriesPanel = screen.getByRole('heading', { name: /future entries/i }).closest('section');
 
     expect(screen.queryByText(/future travel dinner/i)).not.toBeInTheDocument();
+    expect(showFutureEntriesButton).toHaveClass('secondary-button');
+    expect(recentEntriesPanel).not.toBe(futureEntriesPanel);
 
     await user.click(showFutureEntriesButton);
 
     expect(screen.getByText(/future travel dinner/i)).toBeInTheDocument();
+    expect(screen.getByText(/later future conference/i)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /edit transaction future travel dinner/i })).not.toBeInTheDocument();
+    expect(futureEntriesPanel).not.toBeNull();
+    expectTextBefore(futureEntriesPanel!, /later future conference/i, /future travel dinner/i);
 
     const futureTransactionCard = screen.getByText(/future travel dinner/i).closest('article');
     expect(futureTransactionCard).not.toBeNull();
