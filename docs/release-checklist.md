@@ -1,4 +1,4 @@
-# Sprint 6 Release Checklist
+# Release Checklist
 
 Use this checklist before any MVP demo or production release.
 
@@ -15,12 +15,14 @@ Use this checklist before any MVP demo or production release.
 - Render frontend is connected to the correct GitHub repository and branch
 - Render environment variables are set:
   - `VITE_APP_NAME`
+  - `VITE_PUBLIC_APP_URL`
   - `VITE_SUPABASE_URL`
   - `VITE_SUPABASE_ANON_KEY`
   - `VITE_DEFAULT_CURRENCY`
   - `VITE_DEFAULT_LOCALE`
 - Render rewrite rule is active for `/*` to `/index.html`
 - Supabase email/password auth is enabled
+- Supabase Auth allows the deployed `/reset-password` redirect URL
 - Supabase migrations have been applied in order from `database/migrations`
 
 ## Manual smoke checks
@@ -56,6 +58,14 @@ Use this checklist before any MVP demo or production release.
 3. Switch to the categories tab.
 4. Change the range preset to `Custom range`.
 5. Confirm the page stays stable and values update.
+
+### Notifications and settings
+
+1. Open `/notifications`.
+2. Confirm generated notifications or the empty state render without errors.
+3. Mark a notification as read, if available.
+4. Open `/settings`.
+5. Update display preferences and confirm saved values affect currency, locale, or month labels.
 
 ## Responsive and accessibility checks
 

@@ -1,13 +1,13 @@
 # Post-MVP Backlog
 
-These are the next logical investments after the Sprint 6 MVP release.
+These are the next logical investments after the current MVP release.
 
 ## Product improvements
 
-- Persist display preferences through Supabase so currency and locale follow the user across devices
-- Add password reset, profile settings, and account management flows
+- Add profile settings and broader account management flows
 - Add recurring transactions and recurring budget templates
 - Add CSV or bank statement import flows
+- Add richer transaction export options beyond the current CSV flow
 
 ## Analytics improvements
 
@@ -25,4 +25,4 @@ These are the next logical investments after the Sprint 6 MVP release.
 
 - Add a documented Supabase migration and seed deployment workflow
 - Add environment validation during startup
-- Add a production deployment runbook with rollback steps
+- Expand the production deployment runbook with release evidence templates

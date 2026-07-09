@@ -8,4 +8,4 @@ This folder is reserved for future server-side code if we later add:
 - scheduled analytics jobs
 - third-party integrations that should not run in the browser
 
-For phase 0, no standalone backend service is required.
+No standalone backend service is required for the current app.

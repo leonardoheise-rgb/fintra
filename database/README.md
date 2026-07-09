@@ -2,16 +2,25 @@
 
 This folder holds database assets for Supabase-backed development.
 
-Planned contents:
+Current contents:
 
 - `migrations/`: versioned PostgreSQL migrations
-- `seeds/`: development seed data and fixtures
-- `policies/`: row-level security policy references when they become large enough to deserve their own module
+- `seeds/`: illustrative local/development seed data
 
-Sprint 2 now includes the first real migrations for:
+Current migrations cover:
 
 - categories
 - subcategories
 - transactions
-- updated_at triggers
-- row-level security policies
+- transaction installment metadata
+- budgets and monthly budget overrides
+- set-asides
+- display preferences
+- monthly reviews
+- category and subcategory icons
+- notification read state
+- shared `updated_at` triggers
+- row-level security policies for user-owned data
+
+Apply migrations in timestamp order. Do not edit historical migrations for normal
+schema changes; add a new migration instead.

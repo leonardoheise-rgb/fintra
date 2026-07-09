@@ -59,21 +59,24 @@ The frontend currently expects:
 ## Finance data behavior
 
 - Finance data is read from and written to Supabase
-- Supabase expects the current migrations inside `database/migrations/` to be applied, including `20260329201000_create_budgets.sql` and `20260330091000_create_budget_overrides.sql`
-- The app now includes protected routes for `/transactions`, `/categories`, `/budgets`, and `/analytics`
+- Supabase expects all migrations inside `database/migrations/` to be applied in timestamp order
+- Display preferences and notification read state use Supabase when configured and local storage fallbacks otherwise
+- The app includes protected routes for `/`, `/transactions`, `/categories`, `/budgets`, `/analytics`, `/notifications`, and `/settings`
+- Password recovery redirects to `/reset-password`, so Supabase Auth must allow that deployed redirect URL
 
 ## Deployment flow
 
 ### Frontend
 
-- Deploy the `frontend` app on Vercel or Render static hosting
+- Deploy the `frontend` app on Render static hosting using `render.yaml`
 - Reuse the same environment variables from the local `.env` file
 
 ### Database and auth
 
 - Create the Supabase project
 - Enable email/password auth
-- Apply future migrations from the `database` folder as they are added
+- Apply migrations from the `database/migrations/` folder in timestamp order
+- Add `<your deployed URL>/reset-password` to the Supabase Auth allowed redirect URLs
 
 ### CI baseline
 

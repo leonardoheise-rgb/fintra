@@ -1,6 +1,6 @@
 # Known Limitations
 
-These are the current MVP limitations accepted for Sprint 6.
+These are the current MVP limitations accepted for the app.
 
 ## Data and sync
 
@@ -12,7 +12,7 @@ These are the current MVP limitations accepted for Sprint 6.
 
 - There is no import flow for bank statements or CSV files yet.
 - There are no recurring transaction rules yet.
-- There is no password reset or account profile management UI yet.
+- Password reset exists, but there is no broader account profile management UI yet.
 - There is no dedicated admin or support tooling.
 
 ## Reporting and analytics

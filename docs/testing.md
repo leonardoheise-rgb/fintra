@@ -1,6 +1,6 @@
 # Testing Guide
 
-This guide covers the current Sprint 6 testing flow for Fintra.
+This guide covers the current testing flow for Fintra.
 
 ## Automated checks
 
@@ -61,6 +61,10 @@ The current suite validates:
 - analytics route rendering and tab switching behavior
 - category and transaction route rendering
 - category, transaction, budget, and budget override persistence rules
+- set-aside behavior and due-date handling
+- notification generation and read-state persistence
+- display preference persistence and reset behavior
+- password reset redirect and validation helpers
 - budget summary calculation behavior
 - currency formatting behavior
 - month label formatting behavior
@@ -83,6 +87,12 @@ Make sure Supabase is configured and the migrations have been applied:
 - `database/migrations/20260329195000_enable_finance_rls.sql`
 - `database/migrations/20260329201000_create_budgets.sql`
 - `database/migrations/20260330091000_create_budget_overrides.sql`
+- `database/migrations/20260401211000_add_transaction_installments.sql`
+- `database/migrations/20260403103000_create_set_asides.sql`
+- `database/migrations/20260419110000_create_display_preferences.sql`
+- `database/migrations/20260419113000_create_monthly_reviews.sql`
+- `database/migrations/20260425113000_add_icons_to_categories_and_subcategories.sql`
+- `database/migrations/20260610120000_create_notification_read_states.sql`
 
 ### Browser checks
 
@@ -91,7 +101,7 @@ Make sure Supabase is configured and the migrations have been applied:
 3. Confirm the sign-in page renders a `Sign in` heading and form fields for email and password.
 4. Confirm the sign-up page renders a `Create your account` heading and the confirmation field.
 5. Confirm signing in takes you to the dashboard.
-6. Confirm the left sidebar shows enabled links for Dashboard, Transactions, Categories, Budgets, and Analytics.
+6. Confirm the left sidebar shows enabled links for Dashboard, Transactions, Categories, Budgets, Analytics, Notifications, and Settings.
 7. Confirm the top shell shows the current user email and a `Sign out` button.
 8. Confirm the dashboard still loads from the protected root route.
 9. Open `/categories` and confirm existing categories such as Housing and Food and dining are visible, if your test account has seeded data.
@@ -111,9 +121,14 @@ Make sure Supabase is configured and the migrations have been applied:
 23. Switch to the Categories tab and confirm category trend cards render with non-zero historical values.
 24. Change the analytics range preset and confirm the totals and charts update without crashing.
 25. Switch analytics to `Custom range`, choose a start and end month, and confirm the range normalizes correctly.
-26. Confirm signing out returns you to the sign-in page.
-27. Confirm the layout remains readable on a narrow browser width similar to a phone.
-28. Confirm there are no obvious overlapping panels, clipped text, or horizontal scrollbars.
+26. Open `/notifications` and confirm generated notification cards render or the empty state is stable.
+27. Mark a notification as read, if one exists, and confirm the read state survives a refresh.
+28. Open `/settings`, change currency, locale, or financial month start day, and confirm previews update.
+29. Save settings and confirm dashboard or finance values reflect the selected display preferences.
+30. Open `/forgot-password` from sign-in and confirm the reset request form validates email input.
+31. Confirm signing out returns you to the sign-in page.
+32. Confirm the layout remains readable on a narrow browser width similar to a phone.
+33. Confirm there are no obvious overlapping panels, clipped text, or horizontal scrollbars.
 
 ### Regression checks after UI edits
 
@@ -140,8 +155,7 @@ Add new unit tests when:
 - dashboard month aggregation, override resolution, or budget calculations change
 - analytics range, comparison, or category trend logic changes
 - a bug fix changes rendered output or validation rules
-
-When auth and data flows are added, expand this guide with route protection, loading state, and form validation checks.
+- auth, notification, or display-preference flows change
 
 ## CI behavior
 

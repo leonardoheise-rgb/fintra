@@ -56,8 +56,9 @@ If you are using the Blueprint flow, keep `render.yaml` in sync with these same 
 ### 3. Watch the build
 
 1. Open the deploy logs.
-2. Confirm install, test, and build steps finish without red errors.
-3. Confirm the deploy points at the expected commit.
+2. Confirm install and build steps finish without red errors.
+3. If Render is configured to run extra checks before deploy, confirm those checks pass too.
+4. Confirm the deploy points at the expected commit.
 
 ### 4. Validate the deployed app
 
@@ -78,7 +79,7 @@ Expected result:
 - No `404` on refresh
 - Data writes succeed
 - Route protection still works
-- Settings persist on the current device
+- Settings persist for the signed-in user when Supabase is configured
 
 ## Failure handling
 
