@@ -97,6 +97,14 @@ describe('DashboardPage', () => {
     expect(
       within((categoryDialog as HTMLElement | null) ?? document.body).getByText(/apartment rent/i),
     ).toBeInTheDocument();
+    const categorySummary = within((categoryDialog as HTMLElement | null) ?? document.body).getByLabelText(
+      /category transaction summary/i,
+    );
+
+    expect(within(categorySummary).getByText(/total spent/i)).toBeInTheDocument();
+    expect(within(categorySummary).getByText(/2,100\.00/)).toBeInTheDocument();
+    expect(within(categorySummary).getByText(/total income/i)).toBeInTheDocument();
+    expect(within(categorySummary).getByText(/^(R\$|\$)?0\.00$/)).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /close details/i }));
 

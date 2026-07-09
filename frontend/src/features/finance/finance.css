@@ -119,6 +119,14 @@
   letter-spacing: -0.03em;
 }
 
+.finance-summary-grid--compact .finance-summary-card {
+  min-height: auto;
+}
+
+.finance-summary-grid--compact .finance-summary-card strong {
+  font-size: 1.35rem;
+}
+
 .dashboard-toolbar {
   align-items: end;
 }

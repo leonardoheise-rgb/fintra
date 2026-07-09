@@ -13,6 +13,7 @@ import {
   getCategoryName,
   getSubcategoryName,
   getTransactionDisplayIcon,
+  sortTransactionsByDateAsc,
   sortTransactionsByDateDesc,
 } from '../lib/financeSelectors';
 import { getInstallmentLabel } from '../lib/installments';
@@ -52,7 +53,7 @@ export function TransactionsList({
   const currentTransactions = sortTransactionsByDateDesc(
     transactions.filter((transaction) => transaction.date <= todayIsoDate),
   );
-  const futureTransactions = sortTransactionsByDateDesc(
+  const futureTransactions = sortTransactionsByDateAsc(
     transactions.filter((transaction) => transaction.date > todayIsoDate),
   );
   const isFutureEntriesExpanded =

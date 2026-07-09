@@ -1,6 +1,6 @@
-import { formatMonthLabel } from '../../../shared/lib/formatters/date';
-import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { translateAppText } from '../../../shared/i18n/appText';
+import { formatCurrency } from '../../../shared/lib/formatters/currency';
+import { formatMonthLabel } from '../../../shared/lib/formatters/date';
 import type {
   SubcategoryRecord,
   TransactionRecord,
@@ -15,6 +15,12 @@ type CategoryTransactionsDialogProps = {
   transactions: TransactionRecord[];
 };
 
+function getTransactionTotal(transactions: TransactionRecord[], type: TransactionRecord['type']) {
+  return transactions
+    .filter((transaction) => transaction.type === type)
+    .reduce((total, transaction) => total + transaction.amount, 0);
+}
+
 export function CategoryTransactionsDialog({
   categoryName,
   month,
@@ -22,6 +28,9 @@ export function CategoryTransactionsDialog({
   subcategories,
   transactions,
 }: CategoryTransactionsDialogProps) {
+  const totalSpent = getTransactionTotal(transactions, 'expense');
+  const totalIncome = getTransactionTotal(transactions, 'income');
+
   return (
     <div
       aria-labelledby="category-transactions-title"
@@ -52,37 +61,57 @@ export function CategoryTransactionsDialog({
             {translateAppText('dashboard.noCategoryTransactions', { category: categoryName })}
           </p>
         ) : (
-          <div className="finance-list">
-            {transactions.map((transaction) => (
-              <article className="analytics-transaction-card" key={transaction.id}>
-                <div>
-                  <strong>
-                    {transaction.description || translateAppText('transactions.noDescription')}
-                  </strong>
-                  <p className="analytics-transaction-card__meta">
-                    {transaction.date} · {getSubcategoryName(subcategories, transaction.subcategoryId)}
-                  </p>
-                </div>
-                <div className="analytics-transaction-card__amounts">
-                  <strong
-                    className={
-                      transaction.type === 'income'
-                        ? 'transaction-card__amount transaction-card__amount--income'
-                        : 'transaction-card__amount transaction-card__amount--expense'
-                    }
-                  >
-                    {transaction.type === 'income' ? '+' : '-'}
-                    {formatCurrency(transaction.amount)}
-                  </strong>
-                  <span>
-                    {transaction.type === 'income'
-                      ? translateAppText('transactions.incomeOption')
-                      : translateAppText('transactions.expense')}
-                  </span>
-                </div>
+          <>
+            <section
+              aria-label={translateAppText('dashboard.categoryTransactionsSummary')}
+              className="finance-summary-grid finance-summary-grid--compact"
+            >
+              <article className="finance-summary-card">
+                <span className="finance-summary-card__label">
+                  {translateAppText('dashboard.categoryTotalSpent')}
+                </span>
+                <strong>{formatCurrency(totalSpent)}</strong>
               </article>
-            ))}
-          </div>
+              <article className="finance-summary-card">
+                <span className="finance-summary-card__label">
+                  {translateAppText('dashboard.categoryTotalIncome')}
+                </span>
+                <strong>{formatCurrency(totalIncome)}</strong>
+              </article>
+            </section>
+
+            <div className="finance-list">
+              {transactions.map((transaction) => (
+                <article className="analytics-transaction-card" key={transaction.id}>
+                  <div>
+                    <strong>
+                      {transaction.description || translateAppText('transactions.noDescription')}
+                    </strong>
+                    <p className="analytics-transaction-card__meta">
+                      {transaction.date} · {getSubcategoryName(subcategories, transaction.subcategoryId)}
+                    </p>
+                  </div>
+                  <div className="analytics-transaction-card__amounts">
+                    <strong
+                      className={
+                        transaction.type === 'income'
+                          ? 'transaction-card__amount transaction-card__amount--income'
+                          : 'transaction-card__amount transaction-card__amount--expense'
+                      }
+                    >
+                      {transaction.type === 'income' ? '+' : '-'}
+                      {formatCurrency(transaction.amount)}
+                    </strong>
+                    <span>
+                      {transaction.type === 'income'
+                        ? translateAppText('transactions.incomeOption')
+                        : translateAppText('transactions.expense')}
+                    </span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </>
         )}
       </section>
     </div>

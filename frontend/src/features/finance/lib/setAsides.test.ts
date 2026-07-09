@@ -1,5 +1,5 @@
 import type { SetAsideRecord } from '../finance.types';
-import { filterSetAsidesByMonth, getDueSetAsides, sortSetAsidesByDateDesc } from './setAsides';
+import { filterSetAsidesByMonth, getDueSetAsides, sortSetAsidesByDateAsc } from './setAsides';
 
 const setAsides: SetAsideRecord[] = [
   {
@@ -37,10 +37,10 @@ describe('set-asides helpers', () => {
     ]);
   });
 
-  it('sorts set-asides from newest to oldest for pending lists', () => {
-    expect(sortSetAsidesByDateDesc(setAsides).map((item) => item.id)).toEqual([
-      'set-aside-1',
+  it('sorts set-asides from oldest to newest for pending lists', () => {
+    expect(sortSetAsidesByDateAsc(setAsides).map((item) => item.id)).toEqual([
       'set-aside-2',
+      'set-aside-1',
     ]);
   });
 });

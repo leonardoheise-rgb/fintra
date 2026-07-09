@@ -330,7 +330,7 @@ describe('TransactionsPage', () => {
       .closest('section');
 
     expect(pendingSetAsidesPanel).not.toBeNull();
-    expectTextBefore(pendingSetAsidesPanel!, /winter trip brunch/i, /summer trip dinner/i);
+    expectTextBefore(pendingSetAsidesPanel!, /summer trip dinner/i, /winter trip brunch/i);
 
     const summerSetAsideCard = screen.getByRole('heading', { name: /summer trip dinner/i }).closest('article');
 
@@ -478,7 +478,7 @@ describe('TransactionsPage', () => {
     expect(screen.getByText(/later future conference/i)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /edit transaction future travel dinner/i })).not.toBeInTheDocument();
     expect(futureEntriesPanel).not.toBeNull();
-    expectTextBefore(futureEntriesPanel!, /later future conference/i, /future travel dinner/i);
+    expectTextBefore(futureEntriesPanel!, /future travel dinner/i, /later future conference/i);
 
     const futureTransactionCard = screen.getByText(/future travel dinner/i).closest('article');
     expect(futureTransactionCard).not.toBeNull();

@@ -82,3 +82,21 @@ export function sortTransactionsByDateDesc(transactions: TransactionRecord[]) {
     return right.id.localeCompare(left.id);
   });
 }
+
+export function sortTransactionsByDateAsc(transactions: TransactionRecord[]) {
+  return [...transactions].sort((left, right) => {
+    const dateComparison = left.date.localeCompare(right.date);
+
+    if (dateComparison !== 0) {
+      return dateComparison;
+    }
+
+    const recordedAtComparison = (left.recordedAt ?? '').localeCompare(right.recordedAt ?? '');
+
+    if (recordedAtComparison !== 0) {
+      return recordedAtComparison;
+    }
+
+    return left.id.localeCompare(right.id);
+  });
+}
