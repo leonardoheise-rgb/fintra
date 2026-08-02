@@ -93,6 +93,8 @@ Make sure Supabase is configured and the migrations have been applied:
 - `database/migrations/20260419113000_create_monthly_reviews.sql`
 - `database/migrations/20260425113000_add_icons_to_categories_and_subcategories.sql`
 - `database/migrations/20260610120000_create_notification_read_states.sql`
+- `database/migrations/20260709120000_add_date_format_to_display_preferences.sql`
+- `database/migrations/20260802120000_add_transaction_recorded_at.sql`
 
 ### Browser checks
 

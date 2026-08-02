@@ -1,6 +1,7 @@
 import { createLocalId } from '../lib/createLocalId';
 import { buildInstallmentDates, splitAmountIntoInstallments } from '../lib/installments';
 import { createPreviewWorkspace } from '../lib/previewWorkspace';
+import { createRecordedAtTimestamp } from '../lib/recordedAt';
 import type {
   BudgetInput,
   BudgetOverrideInput,
@@ -25,10 +26,6 @@ import {
 import type { FinanceService } from './financeService';
 
 type PreviewFinanceStore = FinanceWorkspace;
-
-function createRecordedAtTimestamp() {
-  return new Date().toISOString();
-}
 
 function buildFallbackRecordedAt(date: string, index: number) {
   const fallbackDate = new Date(`${date}T12:00:00.000Z`);
