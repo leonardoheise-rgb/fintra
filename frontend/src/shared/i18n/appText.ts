@@ -41,7 +41,9 @@ const translations: Record<SupportedLocale, Record<string, string>> = {
     'shell.bottomNavigation': 'Bottom navigation',
     'shell.signOut': 'Sign out',
     'shell.defaultTitle': 'Finance Tracker',
-    'shell.currentMonthBalance': 'Current month balance',
+    'shell.walletValue': 'Wallet value',
+    'shell.walletValueDefinition':
+      'Current-month income, planned income, and carry-over, minus expenses and reserved money.',
     'shell.defaultDescription':
       'Keep your spending, categories, budgets, and preferences in one place.',
     'page.title.dashboard': 'Dashboard',
@@ -463,7 +465,9 @@ const translations: Record<SupportedLocale, Record<string, string>> = {
     'shell.bottomNavigation': 'Navegação inferior',
     'shell.signOut': 'Sair',
     'shell.defaultTitle': 'Finance Tracker',
-    'shell.currentMonthBalance': 'Saldo do mÃªs atual',
+    'shell.walletValue': 'Valor em carteira',
+    'shell.walletValueDefinition':
+      'Receitas, renda planejada e saldo trazido para o mês atual, menos despesas e valores reservados.',
     'shell.defaultDescription':
       'Mantenha seus gastos, categorias, orçamentos e preferências em um só lugar.',
     'page.title.dashboard': 'Painel',

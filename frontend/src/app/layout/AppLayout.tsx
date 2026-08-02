@@ -23,8 +23,8 @@ import {
   getCurrentMonthKey,
   shiftMonthKey,
 } from '../../shared/lib/date/months';
-import { formatCurrency } from '../../shared/lib/formatters/currency';
 import { SidebarNavigation } from './SidebarNavigation';
+import { WalletValueChip } from './WalletValueChip';
 
 function getUserInitials(email: string | undefined) {
   if (!email) {
@@ -384,20 +384,7 @@ export function AppLayout({ children }: PropsWithChildren) {
 
           <div className="topbar__meta">
             {currentMonthBalance !== null ? (
-              <div
-                aria-label={translateAppText('shell.currentMonthBalance')}
-                className="topbar__balance-chip"
-              >
-                <svg aria-hidden="true" viewBox="0 0 24 24">
-                  <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-9Z" />
-                  <path d="M4 9h16" />
-                  <path d="M15.5 13h2.5" />
-                </svg>
-                <div>
-                  <span>{translateAppText('shell.currentMonthBalance')}</span>
-                  <strong>{formatCurrency(currentMonthBalance)}</strong>
-                </div>
-              </div>
+              <WalletValueChip amount={currentMonthBalance} />
             ) : null}
             {unreadCount > 0 ? (
               <NavLink className="topbar__notifications" to="/notifications">

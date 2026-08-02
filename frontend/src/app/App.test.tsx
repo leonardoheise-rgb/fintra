@@ -40,7 +40,7 @@ describe('App authentication routing', () => {
       await screen.findByRole('heading', { name: /^dashboard$/i, level: 1 }, { timeout: 3000 }),
     ).toBeInTheDocument();
     expect(screen.getAllByText('owner@fintra.dev').length).toBeGreaterThan(0);
-    expect(screen.getByLabelText(/current month balance/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /wallet value/i })).toBeInTheDocument();
   });
 
   it('renders cached finance data while refreshing the workspace', async () => {
@@ -81,7 +81,7 @@ describe('App authentication routing', () => {
       await screen.findByRole('heading', { name: /^dashboard$/i, level: 1 }, { timeout: 3000 }),
     ).toBeInTheDocument();
     expect(screen.queryByText(/loading dashboard/i)).not.toBeInTheDocument();
-    expect(screen.getByLabelText(/current month balance/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /wallet value/i })).toBeInTheDocument();
   });
 
   it('redirects authenticated users away from the sign-in page', async () => {

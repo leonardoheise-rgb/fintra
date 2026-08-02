@@ -318,6 +318,10 @@ p {
   gap: 0.65rem;
 }
 
+.topbar__wallet-value {
+  position: relative;
+}
+
 .topbar__balance-chip {
   display: inline-flex;
   align-items: center;
@@ -329,6 +333,9 @@ p {
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.45),
     var(--shadow-soft);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
 }
 
 .topbar__balance-chip svg {
@@ -342,12 +349,12 @@ p {
   color: var(--color-primary-container);
 }
 
-.topbar__balance-chip div {
+.topbar__balance-copy {
   display: grid;
   gap: 0.1rem;
 }
 
-.topbar__balance-chip span {
+.topbar__balance-copy > span {
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -358,6 +365,22 @@ p {
   color: var(--color-on-surface);
   font-size: 0.95rem;
   white-space: nowrap;
+}
+
+.topbar__balance-tooltip {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 20;
+  width: min(18rem, calc(100vw - 2rem));
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--color-outline-soft);
+  border-radius: 0.75rem;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+  color: var(--color-on-surface-variant);
+  font-size: 0.8rem;
+  line-height: 1.45;
 }
 
 .topbar__notifications {
@@ -384,7 +407,7 @@ p {
     padding-inline: 0.7rem;
   }
 
-  .topbar__balance-chip span {
+  .topbar__balance-copy > span {
     display: none;
   }
 }

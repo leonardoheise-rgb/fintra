@@ -28,6 +28,14 @@ describe('translateAppText', () => {
     );
   });
 
+  it('returns the wallet-value label and definition in both locales', () => {
+    expect(translateAppText('shell.walletValue', undefined, 'en-US')).toBe('Wallet value');
+    expect(translateAppText('shell.walletValue', undefined, 'pt-BR')).toBe('Valor em carteira');
+    expect(translateAppText('shell.walletValueDefinition', undefined, 'pt-BR')).toContain(
+      'valores reservados',
+    );
+  });
+
   it('returns translated date-format and repaired table labels', () => {
     expect(translateAppText('settings.dateFormat', undefined, 'en-US')).toBe('Date format');
     expect(translateAppText('settings.dateFormat', undefined, 'pt-BR')).toBe('Formato de data');
