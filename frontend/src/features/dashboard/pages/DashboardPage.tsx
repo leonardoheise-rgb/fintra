@@ -61,7 +61,6 @@ export function DashboardPage() {
     selectedMonth,
     monthStartDay,
   );
-  const recentTransactions = sortTransactionsByDateDesc(financeData.transactions);
   const selectedCategoryCard = snapshot.cards.find((card) => card.id === selectedCategoryId) ?? null;
 
   return (
@@ -132,7 +131,7 @@ export function DashboardPage() {
       <RecentTransactionsPanel
         categories={financeData.categories}
         subcategories={financeData.subcategories}
-        transactions={recentTransactions}
+        transactions={financeData.transactions}
       />
     </div>
   );

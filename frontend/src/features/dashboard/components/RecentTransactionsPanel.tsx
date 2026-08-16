@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { translateAppText } from '../../../shared/i18n/appText';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
 import { formatIsoDateLabel } from '../../../shared/lib/formatters/date';
-import { getInstallmentLabel } from '../../finance/lib/installments';
 import {
   getCategoryName,
   getSubcategoryName,
@@ -14,6 +13,7 @@ import type {
   SubcategoryRecord,
   TransactionRecord,
 } from '../../finance/finance.types';
+import { buildRecentTransactionItems } from '../lib/buildRecentTransactionItems';
 
 type RecentTransactionsPanelProps = {
   categories: CategoryRecord[];
@@ -26,6 +26,8 @@ export function RecentTransactionsPanel({
   subcategories,
   transactions,
 }: RecentTransactionsPanelProps) {
+  const recentTransactionItems = buildRecentTransactionItems(transactions);
+
   return (
     <section
       aria-labelledby="recent-activity-title"
@@ -44,7 +46,7 @@ export function RecentTransactionsPanel({
         <p className="finance-empty-state">{translateAppText('dashboard.addFirstTransaction')}</p>
       ) : (
         <div className="recent-activity-list">
-          {transactions.slice(0, 5).map((transaction) => (
+          {recentTransactionItems.slice(0, 5).map((transaction) => (
             <article className="recent-activity-item" key={transaction.id}>
               <div className="recent-activity-item__icon" aria-hidden="true">
                 {getTransactionDisplayIcon(categories, subcategories, transaction)}
@@ -56,11 +58,10 @@ export function RecentTransactionsPanel({
                   {' / '}
                   {getSubcategoryName(subcategories, transaction.subcategoryId)}
                 </p>
-                {getInstallmentLabel(transaction.installmentIndex, transaction.installmentCount) ? (
+                {transaction.installmentGroupId && transaction.installmentCount ? (
                   <p>
-                    {translateAppText('transactions.installmentCaption', {
-                      installment:
-                        getInstallmentLabel(transaction.installmentIndex, transaction.installmentCount) ?? '',
+                    {translateAppText('dashboard.installmentPlanCaption', {
+                      count: transaction.installmentCount,
                     })}
                   </p>
                 ) : null}

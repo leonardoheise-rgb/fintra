@@ -142,6 +142,7 @@ const translations: Record<SupportedLocale, Record<string, string>> = {
     'dashboard.alignedWithIdeal': 'On the ideal pace',
     'dashboard.recentActivity': 'Recent activity',
     'dashboard.latestEntries': 'Latest entries',
+    'dashboard.installmentPlanCaption': 'Split into {count} installments',
     'dashboard.viewAll': 'View all',
     'dashboard.addFirstTransaction':
       'Add your first transaction to start building your recent activity list.',
@@ -566,6 +567,7 @@ const translations: Record<SupportedLocale, Record<string, string>> = {
     'dashboard.needsAttention': 'Precisa de atenção',
     'dashboard.onTrack': 'No caminho certo',
     'dashboard.latestEntries': 'Últimos lançamentos',
+    'dashboard.installmentPlanCaption': 'Parcelado em {count}x',
     'dashboard.recentActivity': 'Atividade recente',
     'dashboard.viewAll': 'Ver tudo',
     'dashboard.addFirstTransaction':
