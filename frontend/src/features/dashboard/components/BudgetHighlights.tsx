@@ -1,23 +1,16 @@
 import { Link } from 'react-router-dom';
 
-import { useDisplayPreferences } from '../../settings/useDisplayPreferences';
 import { translateAppText } from '../../../shared/i18n/appText';
 import { calculateBudgetSummary } from '../../../shared/lib/budget/budgetSummary';
 import { formatCurrency } from '../../../shared/lib/formatters/currency';
-import { resolveBudgetPacing } from '../lib/budgetPacing';
 import type { BudgetCard } from '../dashboard.types';
 
 type BudgetHighlightsProps = {
   cards: BudgetCard[];
-  month: string;
   onSelectCategory(categoryId: string): void;
 };
 
-export function BudgetHighlights({ cards, month, onSelectCategory }: BudgetHighlightsProps) {
-  const {
-    preferences: { monthStartDay },
-  } = useDisplayPreferences();
-
+export function BudgetHighlights({ cards, onSelectCategory }: BudgetHighlightsProps) {
   return (
     <section className="section-stack" aria-labelledby="budget-highlights-title">
       <div className="section-heading">
@@ -48,27 +41,8 @@ export function BudgetHighlights({ cards, month, onSelectCategory }: BudgetHighl
               0,
               summary.progressPercentage - spentSummary.progressPercentage,
             );
-            const pacing = resolveBudgetPacing(summary.rawPercentage, month, monthStartDay);
             const cardTone =
               summary.status === 'over' ? 'overused' : summary.status === 'at' ? 'used' : 'default';
-            const paceLabel =
-              summary.status === 'over'
-                ? translateAppText('dashboard.overused')
-                : summary.status === 'at'
-                  ? translateAppText('dashboard.allUsed')
-                  : pacing.status === 'above'
-                    ? translateAppText('dashboard.aboveIdeal')
-                    : pacing.status === 'below'
-                      ? translateAppText('dashboard.belowIdeal')
-                      : translateAppText('dashboard.alignedWithIdeal');
-            const paceTone =
-              summary.status === 'over' || summary.status === 'at'
-                ? 'alert'
-                : pacing.status === 'above'
-                  ? 'alert'
-                  : pacing.status === 'below'
-                    ? 'calm'
-                    : 'neutral';
 
             return (
               <button
@@ -93,10 +67,18 @@ export function BudgetHighlights({ cards, month, onSelectCategory }: BudgetHighl
 
                 <p className="budget-card__amount">{formatCurrency(summary.remaining)}</p>
                 <p className="budget-card__caption">
-                  {translateAppText('dashboard.todayAvailableToSpend', {
-                    amount: formatCurrency(card.todayAvailableToSpend),
+                  {translateAppText('dashboard.idealPaceAmount', {
+                    percent: Math.round(card.idealPacePercentage),
+                    amount: formatCurrency(card.idealPaceAmount),
                   })}
                 </p>
+                {card.historicalMonthlyAverage !== null ? (
+                  <p className="budget-card__caption">
+                    {translateAppText('dashboard.historicalMonthlyAverage', {
+                      amount: formatCurrency(card.historicalMonthlyAverage),
+                    })}
+                  </p>
+                ) : null}
                 <p className="budget-card__caption">
                   {translateAppText('dashboard.spentOfBudget', {
                     spent: formatCurrency(card.spent),
@@ -137,8 +119,8 @@ export function BudgetHighlights({ cards, month, onSelectCategory }: BudgetHighl
                       percent: Math.round(summary.rawPercentage),
                     })}
                   </span>
-                  <span className={`budget-card__pace budget-card__pace--${paceTone}`}>
-                    {paceLabel}
+                  <span className="budget-card__pace budget-card__pace--neutral">
+                    {translateAppText('dashboard.idealPace')}
                   </span>
                 </div>
               </button>

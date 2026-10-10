@@ -1260,6 +1260,18 @@ Object.assign(translations['pt-BR'], {
   'transactions.futureEntry': 'Entrada futura',
 });
 
+Object.assign(translations['en-US'], {
+  'dashboard.idealPace': 'Ideal pace',
+  'dashboard.idealPaceAmount': '{percent}% of the financial month · up to {amount} on pace',
+  'dashboard.historicalMonthlyAverage': 'Typical monthly spend: {amount}',
+});
+
+Object.assign(translations['pt-BR'], {
+  'dashboard.idealPace': 'Ritmo ideal',
+  'dashboard.idealPaceAmount': '{percent}% do mês financeiro · até {amount} no ritmo',
+  'dashboard.historicalMonthlyAverage': 'Gasto mensal típico: {amount}',
+});
+
 function getSupportedLocale(locale: string): SupportedLocale {
   if (locale.startsWith('pt')) {
     return 'pt-BR';

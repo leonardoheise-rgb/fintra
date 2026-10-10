@@ -30,12 +30,13 @@ function renderBudgetHighlights() {
               effectiveBudget: 500,
               spent: 200,
               reserved: 100,
-              todayAvailableToSpend: 20,
+              idealPacePercentage: 65,
+              idealPaceAmount: 325,
+              historicalMonthlyAverage: null,
               overrideAmount: null,
               isOverridden: false,
             },
           ]}
-          month="2026-03"
           onSelectCategory={vi.fn()}
         />
       </DisplayPreferencesContext.Provider>

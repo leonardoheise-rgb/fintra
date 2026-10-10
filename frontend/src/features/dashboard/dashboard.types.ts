@@ -7,7 +7,9 @@ export type BudgetCard = {
   effectiveBudget: number;
   spent: number;
   reserved: number;
-  todayAvailableToSpend: number;
+  idealPacePercentage: number;
+  idealPaceAmount: number;
+  historicalMonthlyAverage: number | null;
   overrideAmount: number | null;
   isOverridden: boolean;
 };

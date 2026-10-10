@@ -43,7 +43,7 @@ describe('DashboardPage', () => {
     expect(screen.getByText(/available this month/i)).toBeInTheDocument();
     expect(screen.getByText(/planned budget/i)).toBeInTheDocument();
     expect(screen.getByText(/^expenses$/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/you can spend today up to/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/of the financial month/i).length).toBeGreaterThan(0);
     expect(
       await screen.findByRole('heading', { name: /^housing$/i, level: 4 }, { timeout: 8000 }),
     ).toBeInTheDocument();

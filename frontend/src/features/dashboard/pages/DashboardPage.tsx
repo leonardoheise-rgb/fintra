@@ -125,7 +125,6 @@ export function DashboardPage() {
       <InsightsPanel insight={snapshot.insight} />
       <BudgetHighlights
         cards={snapshot.cards}
-        month={selectedMonth}
         onSelectCategory={setSelectedCategoryId}
       />
       <RecentTransactionsPanel

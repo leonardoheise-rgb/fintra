@@ -14,7 +14,8 @@ import { filterSetAsidesByMonth } from '../../finance/lib/setAsides';
 import { findMonthReview } from '../../finance/lib/monthReviews';
 import { resolveEffectiveBudgets } from '../../budgets/lib/effectiveBudgetResolver';
 import type { BudgetCard, CategoryAvailability, DashboardSnapshot } from '../dashboard.types';
-import { calculateCategoryTodayAvailableToSpend } from './categoryHighlights';
+import { calculateCategoryHistoricalMonthlyAverage } from './categoryHighlights';
+import { resolveBudgetPacing } from './budgetPacing';
 
 type DashboardSource = {
   categories: CategoryRecord[];
@@ -107,14 +108,17 @@ function buildBudgetCards(
         reserved: getReservedTotalForCategory(setAsides, category.id),
       };
 
+      const pacing = resolveBudgetPacing(0, month, monthStartDay, now);
+
       return {
         ...card,
-        todayAvailableToSpend: calculateCategoryTodayAvailableToSpend(
-          card,
+        idealPacePercentage: pacing.expectedPercentage,
+        idealPaceAmount: (card.effectiveBudget * pacing.expectedPercentage) / 100,
+        historicalMonthlyAverage: calculateCategoryHistoricalMonthlyAverage(
           allTransactions,
+          category.id,
           month,
           monthStartDay,
-          now,
         ),
       };
     })

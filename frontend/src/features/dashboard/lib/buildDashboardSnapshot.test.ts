@@ -180,7 +180,9 @@ describe('buildDashboardSnapshot', () => {
         isOverridden: false,
         spent: 2100,
         reserved: 0,
-        todayAvailableToSpend: 0,
+        idealPacePercentage: 64.51612903225806,
+        idealPaceAmount: 1612.9032258064515,
+        historicalMonthlyAverage: null,
       },
       {
         id: 'category-food',
@@ -193,7 +195,9 @@ describe('buildDashboardSnapshot', () => {
         isOverridden: true,
         spent: 180,
         reserved: 120,
-        todayAvailableToSpend: 0,
+        idealPacePercentage: 64.51612903225806,
+        idealPaceAmount: 483.87096774193543,
+        historicalMonthlyAverage: null,
       },
     ]);
   });
