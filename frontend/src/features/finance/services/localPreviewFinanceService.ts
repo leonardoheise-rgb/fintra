@@ -1,7 +1,9 @@
 import { createLocalId } from '../lib/createLocalId';
+import { formatLocalIsoDate } from '../../../shared/lib/date/isoDates';
 import { buildInstallmentDates, splitAmountIntoInstallments } from '../lib/installments';
 import { createPreviewWorkspace } from '../lib/previewWorkspace';
 import { createRecordedAtTimestamp } from '../lib/recordedAt';
+import { buildRecurringTransactionDates } from '../lib/recurringTransactions';
 import type {
   BudgetInput,
   BudgetOverrideInput,
@@ -18,6 +20,7 @@ import type {
   SubcategoryRecord,
   TransactionInput,
   TransactionRecord,
+  RecurringTransactionRecord,
 } from '../finance.types';
 import {
   findBudgetForOverrideScope,
@@ -53,6 +56,21 @@ function normalizeStoredTransactionRecord(
     installmentGroupId: transaction.installmentGroupId ?? null,
     installmentIndex: transaction.installmentIndex ?? null,
     installmentCount: transaction.installmentCount ?? null,
+    recurringTransactionId: transaction.recurringTransactionId ?? null,
+  };
+}
+
+function normalizeStoredRecurringTransactionRecord(
+  transaction: Partial<RecurringTransactionRecord>,
+): RecurringTransactionRecord {
+  return {
+    id: transaction.id ?? createLocalId('recurring-transaction'),
+    amount: transaction.amount ?? 0,
+    type: transaction.type === 'income' ? 'income' : 'expense',
+    categoryId: transaction.categoryId ?? '',
+    subcategoryId: transaction.subcategoryId ?? null,
+    startDate: transaction.startDate ?? '',
+    description: transaction.description ?? '',
   };
 }
 
@@ -124,6 +142,37 @@ function ensureValidSetAside(input: SetAsideInput) {
   }
 }
 
+function materializeRecurringTransactions(workspace: PreviewFinanceStore) {
+  const existingOccurrences = new Set(
+    workspace.transactions
+      .filter((transaction) => transaction.recurringTransactionId)
+      .map((transaction) => `${transaction.recurringTransactionId}:${transaction.date}`),
+  );
+  const recordedAt = createRecordedAtTimestamp();
+  const occurrences = workspace.recurringTransactions.flatMap((recurringTransaction) =>
+    buildRecurringTransactionDates(recurringTransaction.startDate)
+      .filter((date) => !existingOccurrences.has(`${recurringTransaction.id}:${date}`))
+      .map((date) => ({
+        id: createLocalId('transaction'),
+        amount: recurringTransaction.amount,
+        type: recurringTransaction.type,
+        categoryId: recurringTransaction.categoryId,
+        subcategoryId: recurringTransaction.subcategoryId,
+        date,
+        recordedAt,
+        description: recurringTransaction.description,
+        installmentGroupId: null,
+        installmentIndex: null,
+        installmentCount: null,
+        recurringTransactionId: recurringTransaction.id,
+      })),
+  );
+
+  return occurrences.length === 0
+    ? workspace
+    : { ...workspace, transactions: [...occurrences, ...workspace.transactions] };
+}
+
 function ensureValidBudget(input: BudgetInput) {
   if (!input.categoryId) {
     throw new Error('A category is required.');
@@ -174,7 +223,7 @@ function readWorkspace(userId: string): PreviewFinanceStore {
   try {
     const parsedValue = JSON.parse(rawValue) as Partial<PreviewFinanceStore>;
 
-    return {
+    return materializeRecurringTransactions({
       categories: (parsedValue.categories ?? []).map((category) => ({
         id: category.id ?? createLocalId('category'),
         name: category.name ?? '',
@@ -187,11 +236,14 @@ function readWorkspace(userId: string): PreviewFinanceStore {
         icon: normalizeStoredIcon(subcategory.icon),
       })),
       transactions: (parsedValue.transactions ?? []).map(normalizeStoredTransactionRecord),
+      recurringTransactions: (parsedValue.recurringTransactions ?? []).map(
+        normalizeStoredRecurringTransactionRecord,
+      ),
       setAsides: parsedValue.setAsides ?? [],
       budgets: parsedValue.budgets ?? [],
       budgetOverrides: parsedValue.budgetOverrides ?? [],
       monthReviews: (parsedValue.monthReviews ?? []).map(normalizeStoredMonthReviewRecord),
-    };
+    });
   } catch {
     const seededWorkspace = createPreviewWorkspace();
     writeWorkspace(userId, seededWorkspace);
@@ -267,7 +319,9 @@ function hasMatchingBudgetOverrideScope(
 export function createLocalPreviewFinanceService(userId: string): FinanceService {
   return {
     async getWorkspace() {
-      return readWorkspace(userId);
+      const workspace = readWorkspace(userId);
+      writeWorkspace(userId, workspace);
+      return workspace;
     },
     async createCategory(input: CategoryInput): Promise<CategoryRecord> {
       ensureValidCategoryName(input.name);
@@ -461,6 +515,26 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
         }
       }
 
+      if (input.repeatEveryMonth) {
+        const recurringTransaction: RecurringTransactionRecord = {
+          id: createLocalId('recurring-transaction'),
+          amount: input.amount,
+          type: input.type,
+          categoryId: input.categoryId,
+          subcategoryId: input.subcategoryId,
+          startDate: input.date,
+          description: input.description.trim(),
+        };
+        const nextWorkspace = materializeRecurringTransactions({
+          ...workspace,
+          recurringTransactions: [...workspace.recurringTransactions, recurringTransaction],
+        });
+        writeWorkspace(userId, nextWorkspace);
+        return nextWorkspace.transactions.filter(
+          (transaction) => transaction.recurringTransactionId === recurringTransaction.id,
+        );
+      }
+
       const installmentAmounts = splitAmountIntoInstallments(input.amount, input.installmentCount);
       const installmentDates = buildInstallmentDates(input.date, input.installmentCount);
       const installmentGroupId =
@@ -478,6 +552,7 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
         installmentGroupId,
         installmentIndex: input.installmentCount > 1 ? index + 1 : null,
         installmentCount: input.installmentCount > 1 ? input.installmentCount : null,
+        recurringTransactionId: null,
       }));
 
       writeWorkspace(userId, {
@@ -532,6 +607,17 @@ export function createLocalPreviewFinanceService(userId: string): FinanceService
       writeWorkspace(userId, {
         ...workspace,
         transactions: workspace.transactions.filter((item) => item.id !== transactionId),
+      });
+    },
+    async cancelRecurringTransaction(recurringTransactionId: string) {
+      const workspace = readWorkspace(userId);
+      const today = formatLocalIsoDate();
+      writeWorkspace(userId, {
+        ...workspace,
+        recurringTransactions: workspace.recurringTransactions.filter((item) => item.id !== recurringTransactionId),
+        transactions: workspace.transactions.filter(
+          (item) => item.recurringTransactionId !== recurringTransactionId || item.date <= today,
+        ),
       });
     },
     async createSetAside(input: SetAsideInput): Promise<SetAsideRecord> {

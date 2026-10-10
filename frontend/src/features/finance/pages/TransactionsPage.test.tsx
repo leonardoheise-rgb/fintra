@@ -107,6 +107,34 @@ describe('TransactionsPage', () => {
     });
   });
 
+  it('creates and cancels a monthly subscription from the transaction page', async () => {
+    const user = userEvent.setup();
+    const authService = createAuthServiceStub({
+      initialSession: { user: { id: 'user-1', email: 'owner@fintra.dev' } },
+    });
+    const { container } = await renderAppAtPath('/transactions', authService.service);
+
+    await waitForTransactionsToLoad();
+    const amountInput = container.querySelector<HTMLInputElement>('input[name="amount"]');
+    const dateInput = container.querySelector<HTMLInputElement>('input[name="date"]');
+    const descriptionInput = container.querySelector<HTMLTextAreaElement>('textarea[name="description"]');
+    const recurringInput = container.querySelector<HTMLInputElement>('input[name="repeatEveryMonth"]');
+
+    expect(recurringInput).not.toBeNull();
+    await user.type(amountInput!, '1990');
+    await user.clear(dateInput!);
+    await user.type(dateInput!, '2026-01-10');
+    await user.type(descriptionInput!, 'Streaming subscription');
+    await user.click(recurringInput!);
+    await user.click(screen.getByRole('button', { name: /create transaction/i }));
+
+    expect(await screen.findByRole('heading', { name: /subscriptions/i })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /cancel subscription/i }));
+    await waitFor(() => {
+      expect(screen.queryByRole('heading', { name: /subscriptions/i })).not.toBeInTheDocument();
+    });
+  });
+
   it('defaults log and reserve dates to today when the page loads', async () => {
     const user = userEvent.setup();
     const authService = createAuthServiceStub({

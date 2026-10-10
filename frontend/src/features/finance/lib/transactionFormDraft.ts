@@ -8,6 +8,7 @@ export type TransactionFormDraft = {
   date: string;
   description: string;
   installmentCount: string;
+  repeatEveryMonth: boolean;
 };
 
 function getStorageKey(userId: string) {
@@ -38,6 +39,7 @@ export function readTransactionFormDraft(userId: string): TransactionFormDraft |
         typeof parsedValue.installmentCount === 'string'
           ? parsedValue.installmentCount
           : '1',
+      repeatEveryMonth: parsedValue.repeatEveryMonth === true,
     };
   } catch {
     return null;

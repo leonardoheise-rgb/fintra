@@ -233,5 +233,6 @@ export function createPreviewWorkspace(): FinanceWorkspace {
       },
     ],
     monthReviews: [],
+    recurringTransactions: [],
   };
 }

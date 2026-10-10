@@ -11,6 +11,7 @@ import { SetAsidesList } from '../components/SetAsidesList';
 import { useFinanceData } from '../useFinanceData';
 import { TransactionForm } from '../components/TransactionForm';
 import { TransactionsList } from '../components/TransactionsList';
+import { RecurringTransactionsPanel } from '../components/RecurringTransactionsPanel';
 import {
   findPreferredDonorBudgetTarget,
   findPreferredSourceBudgetTarget,
@@ -379,6 +380,11 @@ export function TransactionsPage() {
             onUpdate={handleUpdateSetAside}
             setAsides={financeData.setAsides}
             subcategories={financeData.subcategories}
+          />
+
+          <RecurringTransactionsPanel
+            onCancel={financeData.cancelRecurringTransaction}
+            recurringTransactions={financeData.recurringTransactions}
           />
 
           <TransactionsList

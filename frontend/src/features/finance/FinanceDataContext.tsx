@@ -18,6 +18,7 @@ const emptyWorkspace: FinanceWorkspace = {
   categories: [],
   subcategories: [],
   transactions: [],
+  recurringTransactions: [],
   setAsides: [],
   budgets: [],
   budgetOverrides: [],
@@ -139,6 +140,7 @@ export function FinanceDataProvider({ children, service }: FinanceDataProviderPr
         async createTransaction() {},
         async updateTransaction() {},
         async deleteTransaction() {},
+        async cancelRecurringTransaction() {},
         async createSetAside() {},
         async updateSetAside() {},
         async discardSetAside() {},
@@ -216,6 +218,12 @@ export function FinanceDataProvider({ children, service }: FinanceDataProviderPr
       async deleteTransaction(transactionId) {
         await runMutation(async () => {
           await financeService.deleteTransaction(transactionId);
+          await loadWorkspace(financeService);
+        });
+      },
+      async cancelRecurringTransaction(recurringTransactionId) {
+        await runMutation(async () => {
+          await financeService.cancelRecurringTransaction(recurringTransactionId);
           await loadWorkspace(financeService);
         });
       },

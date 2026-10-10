@@ -203,6 +203,10 @@ export function TransactionsList({
                   transaction={transaction}
                 />
               </div>
+            ) : transaction.recurringTransactionId ? (
+              <div className="ledger-row__actions">
+                <span className="ledger-row__tag">{translateAppText('transactions.repeatsMonthly')}</span>
+              </div>
             ) : (
               <div className="transaction-card__actions ledger-row__actions">
                 <button

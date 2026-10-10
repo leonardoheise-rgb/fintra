@@ -90,6 +90,7 @@ export function TransactionInlineEditor({
         date,
         description,
         installmentCount: 1,
+        repeatEveryMonth: false,
       });
     } catch (error) {
       setFormError(resolveAppErrorMessage(error, 'transactions.errorSave'));

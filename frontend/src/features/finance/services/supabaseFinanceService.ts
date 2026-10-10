@@ -1,5 +1,6 @@
 import { getSupabaseBrowserClient } from '../../../shared/supabase/client';
 import { buildInstallmentDates, splitAmountIntoInstallments } from '../lib/installments';
+import { buildRecurringTransactionDates } from '../lib/recurringTransactions';
 import type {
   BudgetInput,
   BudgetOverrideInput,
@@ -16,6 +17,7 @@ import type {
   SubcategoryRecord,
   TransactionInput,
   TransactionRecord,
+  RecurringTransactionRecord,
 } from '../finance.types';
 import type { FinanceService } from './financeService';
 
@@ -59,6 +61,7 @@ function mapTransaction(record: {
   installment_group_id: string | null;
   installment_index: number | null;
   installment_count: number | null;
+  recurring_transaction_id?: string | null;
 }): TransactionRecord {
   return {
     id: record.id,
@@ -72,6 +75,27 @@ function mapTransaction(record: {
     installmentGroupId: record.installment_group_id,
     installmentIndex: record.installment_index,
     installmentCount: record.installment_count,
+    recurringTransactionId: record.recurring_transaction_id ?? null,
+  };
+}
+
+function mapRecurringTransaction(record: {
+  id: string;
+  amount: number;
+  type: 'income' | 'expense';
+  category_id: string;
+  subcategory_id: string | null;
+  start_date: string;
+  description: string | null;
+}): RecurringTransactionRecord {
+  return {
+    id: record.id,
+    amount: Number(record.amount),
+    type: record.type,
+    categoryId: record.category_id,
+    subcategoryId: record.subcategory_id,
+    startDate: record.start_date,
+    description: record.description ?? '',
   };
 }
 
@@ -186,6 +210,7 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
         { data: setAsides, error: setAsidesError },
         { data: budgets, error: budgetsError },
         { data: budgetOverrides, error: budgetOverridesError },
+        { data: recurringTransactions, error: recurringTransactionsError },
         { data: monthReviews, error: monthReviewsError },
       ] = await withTimeout(
         Promise.all([
@@ -198,7 +223,7 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
           client
             .from('transactions')
             .select(
-              'id, amount, type, category_id, subcategory_id, date, recorded_at, description, installment_group_id, installment_index, installment_count',
+              'id, amount, type, category_id, subcategory_id, date, recorded_at, description, installment_group_id, installment_index, installment_count, recurring_transaction_id',
             )
             .eq('user_id', userId)
             .order('date', { ascending: false })
@@ -219,6 +244,11 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
             .eq('user_id', userId)
             .order('month', { ascending: false }),
           client
+            .from('recurring_transactions')
+            .select('id, amount, type, category_id, subcategory_id, start_date, description')
+            .eq('user_id', userId)
+            .is('cancelled_at', null),
+          client
             .from('monthly_reviews')
             .select(
               'month, planned_income_amount, planned_income_description, carry_over_amount, reviewed_at',
@@ -235,6 +265,7 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
         setAsidesError ||
         budgetsError ||
         budgetOverridesError ||
+        recurringTransactionsError ||
         monthReviewsError
       ) {
         throw (
@@ -244,18 +275,56 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
           setAsidesError ??
           budgetsError ??
           budgetOverridesError ??
+          recurringTransactionsError ??
           monthReviewsError
         );
+      }
+
+      const existingRecurringOccurrences = new Set(
+        (transactions ?? [])
+          .filter((transaction) => transaction.recurring_transaction_id)
+          .map((transaction) => `${transaction.recurring_transaction_id}:${transaction.date}`),
+      );
+      const missingRecurringOccurrences = (recurringTransactions ?? []).flatMap((recurringTransaction) =>
+        buildRecurringTransactionDates(recurringTransaction.start_date)
+          .filter((date) => !existingRecurringOccurrences.has(`${recurringTransaction.id}:${date}`))
+          .map((date) => ({
+            user_id: userId,
+            amount: recurringTransaction.amount,
+            type: recurringTransaction.type,
+            category_id: recurringTransaction.category_id,
+            subcategory_id: recurringTransaction.subcategory_id,
+            date,
+            description: recurringTransaction.description ?? '',
+            recurring_transaction_id: recurringTransaction.id,
+          })),
+      );
+      let materializedTransactions = transactions ?? [];
+
+      if (missingRecurringOccurrences.length > 0) {
+        const { data: addedTransactions, error: addedTransactionsError } = await client
+          .from('transactions')
+          .insert(missingRecurringOccurrences)
+          .select(
+            'id, amount, type, category_id, subcategory_id, date, recorded_at, description, installment_group_id, installment_index, installment_count, recurring_transaction_id',
+          );
+
+        if (addedTransactionsError) {
+          throw addedTransactionsError;
+        }
+
+        materializedTransactions = [...materializedTransactions, ...(addedTransactions ?? [])];
       }
 
       return {
         categories: (categories ?? []).map(mapCategory),
         subcategories: (subcategories ?? []).map(mapSubcategory),
-        transactions: (transactions ?? []).map(mapTransaction),
+        transactions: materializedTransactions.map(mapTransaction),
         setAsides: (setAsides ?? []).map(mapSetAside),
         budgets: (budgets ?? []).map(mapBudget),
         budgetOverrides: (budgetOverrides ?? []).map(mapBudgetOverride),
         monthReviews: (monthReviews ?? []).map(mapMonthReview),
+        recurringTransactions: (recurringTransactions ?? []).map(mapRecurringTransaction),
       };
     },
     async createCategory(input: CategoryInput) {
@@ -350,6 +419,48 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
     },
     async createTransaction(input: TransactionInput) {
       const normalizedDescription = input.description.trim();
+      if (input.repeatEveryMonth) {
+        const { data, error } = await client
+          .from('recurring_transactions')
+          .insert({
+            user_id: userId,
+            amount: input.amount,
+            type: input.type,
+            category_id: input.categoryId,
+            subcategory_id: input.subcategoryId,
+            start_date: input.date,
+            description: normalizedDescription,
+          })
+          .select('id, amount, type, category_id, subcategory_id, start_date, description')
+          .single();
+
+        if (error) {
+          throw error;
+        }
+
+        const recurringTransaction = mapRecurringTransaction(data);
+        const { data: transactions, error: transactionsError } = await client
+          .from('transactions')
+          .insert(
+            buildRecurringTransactionDates(input.date).map((date) => ({
+              user_id: userId,
+              amount: input.amount,
+              type: input.type,
+              category_id: input.categoryId,
+              subcategory_id: input.subcategoryId,
+              date,
+              description: normalizedDescription,
+              recurring_transaction_id: recurringTransaction.id,
+            })),
+          )
+          .select('id, amount, type, category_id, subcategory_id, date, recorded_at, description, installment_group_id, installment_index, installment_count, recurring_transaction_id');
+
+        if (transactionsError) {
+          throw transactionsError;
+        }
+
+        return (transactions ?? []).map(mapTransaction);
+      }
       const installmentAmounts = splitAmountIntoInstallments(input.amount, input.installmentCount);
       const installmentDates = buildInstallmentDates(input.date, input.installmentCount);
       const installmentGroupId =
@@ -413,6 +524,29 @@ export function createSupabaseFinanceService(userId: string): FinanceService {
 
       if (error) {
         throw error;
+      }
+    },
+    async cancelRecurringTransaction(recurringTransactionId: string) {
+      const today = new Date().toISOString().slice(0, 10);
+      const { error: scheduleError } = await client
+        .from('recurring_transactions')
+        .update({ cancelled_at: new Date().toISOString() })
+        .eq('id', recurringTransactionId)
+        .eq('user_id', userId);
+
+      if (scheduleError) {
+        throw scheduleError;
+      }
+
+      const { error: futureTransactionsError } = await client
+        .from('transactions')
+        .delete()
+        .eq('user_id', userId)
+        .eq('recurring_transaction_id', recurringTransactionId)
+        .gt('date', today);
+
+      if (futureTransactionsError) {
+        throw futureTransactionsError;
       }
     },
     async createSetAside(input: SetAsideInput) {

@@ -177,6 +177,18 @@
   grid-column: auto;
 }
 
+.finance-field--checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 3.15rem;
+}
+
+.finance-field--checkbox input {
+  width: 1.15rem;
+  min-height: 1.15rem;
+}
+
 .finance-field input,
 .finance-field select,
 .finance-field textarea {

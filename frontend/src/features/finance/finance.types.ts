@@ -25,6 +25,17 @@ export type TransactionRecord = {
   installmentGroupId: string | null;
   installmentIndex: number | null;
   installmentCount: number | null;
+  recurringTransactionId?: string | null;
+};
+
+export type RecurringTransactionRecord = {
+  id: string;
+  amount: number;
+  type: TransactionType;
+  categoryId: string;
+  subcategoryId: string | null;
+  startDate: string;
+  description: string;
 };
 
 export type SetAsideRecord = {
@@ -63,6 +74,7 @@ export type FinanceWorkspace = {
   categories: CategoryRecord[];
   subcategories: SubcategoryRecord[];
   transactions: TransactionRecord[];
+  recurringTransactions: RecurringTransactionRecord[];
   setAsides: SetAsideRecord[];
   budgets: BudgetRecord[];
   budgetOverrides: BudgetOverrideRecord[];
@@ -88,6 +100,7 @@ export type TransactionInput = {
   date: string;
   description: string;
   installmentCount: number;
+  repeatEveryMonth?: boolean;
 };
 
 export type SetAsideInput = {

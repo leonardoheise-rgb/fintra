@@ -42,6 +42,7 @@ function createInitialFormState(categories: CategoryRecord[]) {
     date: formatLocalIsoDate(),
     description: '',
     installmentCount: '1',
+    repeatEveryMonth: false,
   };
 }
 
@@ -84,6 +85,7 @@ export function TransactionForm({
   );
   const [description, setDescription] = useState(transactionToEdit?.description ?? '');
   const [installmentCount, setInstallmentCount] = useState('1');
+  const [repeatEveryMonth, setRepeatEveryMonth] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -101,6 +103,7 @@ export function TransactionForm({
       setDate(transactionToEdit.date);
       setDescription(transactionToEdit.description);
       setInstallmentCount(String(transactionToEdit.installmentCount ?? 1));
+      setRepeatEveryMonth(false);
       return;
     }
 
@@ -115,6 +118,7 @@ export function TransactionForm({
       setDate(initialState.date);
       setDescription(initialState.description);
       setInstallmentCount(initialState.installmentCount);
+      setRepeatEveryMonth(initialState.repeatEveryMonth);
       return;
     }
 
@@ -134,6 +138,7 @@ export function TransactionForm({
     setDate(initialState.date);
     setDescription(storedDraft.description);
     setInstallmentCount(storedDraft.installmentCount || '1');
+    setRepeatEveryMonth(storedDraft.repeatEveryMonth);
   }, [auth.user, categories, locale, subcategories, transactionToEdit]);
 
   useEffect(() => {
@@ -149,6 +154,7 @@ export function TransactionForm({
       date,
       description,
       installmentCount,
+      repeatEveryMonth,
     });
   }, [
     amount,
@@ -157,6 +163,7 @@ export function TransactionForm({
     date,
     description,
     installmentCount,
+    repeatEveryMonth,
     subcategoryId,
     transactionToEdit,
     type,
@@ -203,6 +210,7 @@ export function TransactionForm({
         date,
         description,
         installmentCount: transactionToEdit ? 1 : parsedInstallmentCount,
+        repeatEveryMonth: transactionToEdit ? false : repeatEveryMonth,
       });
 
       const initialState = createInitialFormState(categories);
@@ -213,6 +221,7 @@ export function TransactionForm({
       setDate(initialState.date);
       setDescription(initialState.description);
       setInstallmentCount(initialState.installmentCount);
+      setRepeatEveryMonth(initialState.repeatEveryMonth);
 
       if (auth.user && !transactionToEdit) {
         clearTransactionFormDraft(auth.user.id);
@@ -324,17 +333,30 @@ export function TransactionForm({
         </label>
 
         {!transactionToEdit ? (
-          <label className="finance-field">
-            <span>{translateAppText('transactions.installmentCount')}</span>
-            <input
-              inputMode="numeric"
-              min="1"
-              name="installmentCount"
-              onChange={(event) => setInstallmentCount(event.target.value)}
-              type="number"
-              value={installmentCount}
-            />
-          </label>
+          <>
+            <label className="finance-field finance-field--checkbox">
+              <span>{translateAppText('transactions.repeatEveryMonth')}</span>
+              <input
+                checked={repeatEveryMonth}
+                name="repeatEveryMonth"
+                onChange={(event) => setRepeatEveryMonth(event.target.checked)}
+                type="checkbox"
+              />
+            </label>
+            {!repeatEveryMonth ? (
+              <label className="finance-field">
+                <span>{translateAppText('transactions.installmentCount')}</span>
+                <input
+                  inputMode="numeric"
+                  min="1"
+                  name="installmentCount"
+                  onChange={(event) => setInstallmentCount(event.target.value)}
+                  type="number"
+                  value={installmentCount}
+                />
+              </label>
+            ) : null}
+          </>
         ) : null}
 
         <label className="finance-field finance-field--full">

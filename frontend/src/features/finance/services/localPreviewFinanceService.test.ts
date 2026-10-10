@@ -94,6 +94,44 @@ describe('localPreviewFinanceService', () => {
     expect(workspace.transactions.find((item) => item.id === createdTransaction.id)).toBeUndefined();
   });
 
+  it('creates a monthly subscription and removes its future occurrences when cancelled', async () => {
+    const service = createLocalPreviewFinanceService('user-1');
+
+    await service.createTransaction({
+      amount: 19.9,
+      type: 'expense',
+      categoryId: 'category-food',
+      subcategoryId: 'subcategory-restaurants',
+      date: '2026-01-10',
+      description: 'Streaming subscription',
+      installmentCount: 1,
+      repeatEveryMonth: true,
+    });
+
+    const createdWorkspace = await service.getWorkspace();
+    const subscription = createdWorkspace.recurringTransactions.find(
+      (item) => item.description === 'Streaming subscription',
+    );
+
+    expect(subscription).toBeTruthy();
+    expect(
+      createdWorkspace.transactions.filter(
+        (item) => item.recurringTransactionId === subscription?.id,
+      ).length,
+    ).toBeGreaterThan(12);
+
+    await service.cancelRecurringTransaction(subscription!.id);
+
+    const cancelledWorkspace = await service.getWorkspace();
+    expect(cancelledWorkspace.recurringTransactions).not.toContainEqual(subscription);
+    expect(
+      cancelledWorkspace.transactions.some(
+        (item) =>
+          item.recurringTransactionId === subscription!.id && item.date > '2026-10-10',
+      ),
+    ).toBe(false);
+  });
+
   it('creates, updates, and discards a set-aside', async () => {
     const service = createLocalPreviewFinanceService('user-1');
 
