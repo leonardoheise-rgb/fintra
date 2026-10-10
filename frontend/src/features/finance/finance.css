@@ -184,7 +184,7 @@
   min-height: 3.15rem;
 }
 
-.finance-field--checkbox input {
+.finance-field.finance-field--checkbox input {
   width: 1.15rem;
   min-height: 1.15rem;
 }
