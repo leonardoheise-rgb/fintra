@@ -361,6 +361,7 @@ export function TransactionsPage() {
               onSubmit={handleSubmit}
               subcategories={financeData.subcategories}
               transactionToEdit={null}
+              transactions={financeData.transactions}
             />
           ) : (
             <SetAsideForm

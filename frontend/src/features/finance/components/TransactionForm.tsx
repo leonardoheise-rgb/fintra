@@ -18,7 +18,10 @@ import type {
   TransactionInput,
   TransactionRecord,
 } from '../finance.types';
-import { getSubcategoriesForCategory } from '../lib/financeSelectors';
+import {
+  getMostRecentlyRecordedTransaction,
+  getSubcategoriesForCategory,
+} from '../lib/financeSelectors';
 import {
   clearTransactionFormDraft,
   readTransactionFormDraft,
@@ -28,17 +31,32 @@ import {
 type TransactionFormProps = {
   categories: CategoryRecord[];
   subcategories: SubcategoryRecord[];
+  transactions: TransactionRecord[];
   transactionToEdit: TransactionRecord | null;
   onCancelEdit(): void;
   onSubmit(input: TransactionInput): Promise<void>;
 };
 
-function createInitialFormState(categories: CategoryRecord[]) {
+function createInitialFormState(
+  categories: CategoryRecord[],
+  subcategories: SubcategoryRecord[],
+  transactions: TransactionRecord[],
+) {
+  const mostRecentTransaction = getMostRecentlyRecordedTransaction(transactions);
+  const categoryId = categories.some((category) => category.id === mostRecentTransaction?.categoryId)
+    ? mostRecentTransaction?.categoryId ?? ''
+    : categories[0]?.id ?? '';
+  const subcategoryId =
+    mostRecentTransaction &&
+    isSubcategoryValid(subcategories, categoryId, mostRecentTransaction.subcategoryId ?? '')
+      ? mostRecentTransaction.subcategoryId ?? ''
+      : '';
+
   return {
     amount: '',
     type: 'expense' as const,
-    categoryId: categories[0]?.id ?? '',
-    subcategoryId: '',
+    categoryId,
+    subcategoryId,
     date: formatLocalIsoDate(),
     description: '',
     installmentCount: '1',
@@ -67,6 +85,7 @@ export function TransactionForm({
   onSubmit,
   subcategories,
   transactionToEdit,
+  transactions,
 }: TransactionFormProps) {
   const auth = useAuth();
   const {
@@ -107,7 +126,7 @@ export function TransactionForm({
       return;
     }
 
-    const initialState = createInitialFormState(categories);
+    const initialState = createInitialFormState(categories, subcategories, transactions);
     const storedDraft = auth.user ? readTransactionFormDraft(auth.user.id) : null;
 
     if (!storedDraft) {
@@ -139,7 +158,7 @@ export function TransactionForm({
     setDescription(storedDraft.description);
     setInstallmentCount(storedDraft.installmentCount || '1');
     setRepeatEveryMonth(storedDraft.repeatEveryMonth);
-  }, [auth.user, categories, locale, subcategories, transactionToEdit]);
+  }, [auth.user, categories, locale, subcategories, transactionToEdit, transactions]);
 
   useEffect(() => {
     if (!auth.user || transactionToEdit) {
@@ -213,7 +232,7 @@ export function TransactionForm({
         repeatEveryMonth: transactionToEdit ? false : repeatEveryMonth,
       });
 
-      const initialState = createInitialFormState(categories);
+      const initialState = createInitialFormState(categories, subcategories, transactions);
       setAmount(initialState.amount);
       setType(initialState.type);
       setCategoryId(initialState.categoryId);

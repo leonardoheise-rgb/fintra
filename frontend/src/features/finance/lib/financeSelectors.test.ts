@@ -1,4 +1,5 @@
 import {
+  getMostRecentlyRecordedTransaction,
   sortTransactionsByDateAsc,
   sortTransactionsByDateDesc,
   sortTransactionsForLedger,
@@ -74,6 +75,31 @@ describe('sortTransactionsByDateAsc', () => {
       'transaction-earlier',
       'transaction-later',
     ]);
+  });
+});
+
+describe('getMostRecentlyRecordedTransaction', () => {
+  it('returns the transaction registered most recently regardless of its transaction date', () => {
+    const transactions = [
+      createTransaction({
+        id: 'future-transaction',
+        categoryId: 'category-food',
+        date: '2026-10-01',
+        recordedAt: '2026-04-10T08:15:00.000Z',
+      }),
+      createTransaction({
+        id: 'latest-entry',
+        categoryId: 'category-transport',
+        date: '2026-03-01',
+        recordedAt: '2026-04-11T07:00:00.000Z',
+      }),
+    ];
+
+    expect(getMostRecentlyRecordedTransaction(transactions)?.id).toBe('latest-entry');
+  });
+
+  it('returns null when there are no transactions', () => {
+    expect(getMostRecentlyRecordedTransaction([])).toBeNull();
   });
 });
 

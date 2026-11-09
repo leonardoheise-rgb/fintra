@@ -55,6 +55,28 @@ describe('TransactionsPage', () => {
     ).toBeGreaterThan(0);
   }, 10000);
 
+  it('defaults the category and subcategory to the most recently recorded transaction', async () => {
+    const authService = createAuthServiceStub({
+      initialSession: {
+        user: {
+          id: 'user-1',
+          email: 'owner@fintra.dev',
+        },
+      },
+    });
+
+    const { container } = await renderAppAtPath('/transactions', authService.service);
+
+    await waitForTransactionsToLoad();
+
+    expect(container.querySelector<HTMLSelectElement>('select[name="categoryId"]')).toHaveValue(
+      'category-transport',
+    );
+    expect(container.querySelector<HTMLSelectElement>('select[name="subcategoryId"]')).toHaveValue(
+      'subcategory-transit',
+    );
+  });
+
   it('creates a split transaction from the form', async () => {
     const user = userEvent.setup();
     const authService = createAuthServiceStub({

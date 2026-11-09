@@ -101,6 +101,18 @@ export function sortTransactionsByDateAsc(transactions: TransactionRecord[]) {
   });
 }
 
+export function getMostRecentlyRecordedTransaction(transactions: TransactionRecord[]) {
+  return [...transactions].sort((left, right) => {
+    const recordedAtComparison = (right.recordedAt ?? '').localeCompare(left.recordedAt ?? '');
+
+    if (recordedAtComparison !== 0) {
+      return recordedAtComparison;
+    }
+
+    return right.id.localeCompare(left.id);
+  })[0] ?? null;
+}
+
 export function sortTransactionsForLedger(transactions: TransactionRecord[], todayIsoDate: string) {
   const currentTransactions = sortTransactionsByDateDesc(
     transactions.filter((transaction) => transaction.date <= todayIsoDate),
