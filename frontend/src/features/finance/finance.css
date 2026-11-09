@@ -346,6 +346,28 @@
   gap: 0.9rem;
 }
 
+.ledger-panel__icon-button {
+  flex: 0 0 2.75rem;
+  width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  font-size: 1.25rem;
+}
+
+.ledger-panel__filter-field {
+  max-width: 28rem;
+}
+
+.ledger-panel__period-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.ledger-panel__period-filter .ledger-panel__filter-field {
+  flex: 1 1 12rem;
+}
+
 .ledger-table__head {
   display: none;
 }

@@ -77,6 +77,36 @@ describe('TransactionsPage', () => {
     );
   });
 
+  it('searches transactions and filters them by a selected period', async () => {
+    const user = userEvent.setup();
+    const authService = createAuthServiceStub({
+      initialSession: {
+        user: {
+          id: 'user-1',
+          email: 'owner@fintra.dev',
+        },
+      },
+    });
+
+    await renderAppAtPath('/transactions', authService.service);
+
+    await waitForTransactionsToLoad();
+
+    await user.click(screen.getByRole('button', { name: /search transactions/i }));
+    await user.type(screen.getByRole('searchbox', { name: /search transactions/i }), 'client dinner');
+
+    expect(screen.getByText(/client dinner/i)).toBeInTheDocument();
+    expect(screen.queryByText(/transit pass/i)).not.toBeInTheDocument();
+
+    await user.clear(screen.getByRole('searchbox', { name: /search transactions/i }));
+    await user.click(screen.getByRole('button', { name: /filter by period/i }));
+    await user.type(screen.getByLabelText(/start date/i), '2026-03-19');
+    await user.type(screen.getByLabelText(/end date/i), '2026-03-19');
+
+    expect(screen.getByText(/transit pass/i)).toBeInTheDocument();
+    expect(screen.queryByText(/client dinner/i)).not.toBeInTheDocument();
+  });
+
   it('creates a split transaction from the form', async () => {
     const user = userEvent.setup();
     const authService = createAuthServiceStub({

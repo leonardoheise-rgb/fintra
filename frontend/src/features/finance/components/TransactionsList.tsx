@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { translateAppText } from '../../../shared/i18n/appText';
 import { formatLocalIsoDate } from '../../../shared/lib/date/isoDates';
@@ -18,6 +18,7 @@ import {
   sortTransactionsByDateDesc,
 } from '../lib/financeSelectors';
 import { getInstallmentLabel } from '../lib/installments';
+import { filterTransactions } from '../lib/transactionFilters';
 import { buildTransactionsCsvRows } from '../lib/transactionsCsv';
 import { TransactionInlineEditor } from './TransactionInlineEditor';
 
@@ -46,16 +47,30 @@ export function TransactionsList({
   subcategories,
   transactions,
 }: TransactionsListProps) {
-  const csvRows = buildTransactionsCsvRows(transactions, categories, subcategories);
   const [isTableViewVisible, setIsTableViewVisible] = useState(false);
   const [isFutureEntriesVisible, setIsFutureEntriesVisible] = useState(false);
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [isPeriodFilterVisible, setIsPeriodFilterVisible] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [expandedFutureTransactionIds, setExpandedFutureTransactionIds] = useState<string[]>([]);
+  const filteredTransactions = useMemo(
+    () =>
+      filterTransactions(transactions, categories, subcategories, {
+        searchTerm,
+        startDate,
+        endDate,
+      }),
+    [categories, endDate, searchTerm, startDate, subcategories, transactions],
+  );
+  const csvRows = buildTransactionsCsvRows(filteredTransactions, categories, subcategories);
   const todayIsoDate = formatLocalIsoDate();
   const currentTransactions = sortTransactionsByDateDesc(
-    transactions.filter((transaction) => transaction.date <= todayIsoDate),
+    filteredTransactions.filter((transaction) => transaction.date <= todayIsoDate),
   );
   const futureTransactions = sortTransactionsByDateAsc(
-    transactions.filter((transaction) => transaction.date > todayIsoDate),
+    filteredTransactions.filter((transaction) => transaction.date > todayIsoDate),
   );
   const isFutureEntriesExpanded =
     isFutureEntriesVisible ||
@@ -246,6 +261,24 @@ export function TransactionsList({
             <h2>{translateAppText('transactions.recentEntries')}</h2>
           </div>
           <div className="transaction-card__actions">
+            <button
+              aria-expanded={isSearchVisible}
+              aria-label={translateAppText('transactions.search')}
+              className="secondary-button ledger-panel__icon-button"
+              onClick={() => setIsSearchVisible((currentValue) => !currentValue)}
+              type="button"
+            >
+              <span aria-hidden="true">🔍</span>
+            </button>
+            <button
+              aria-expanded={isPeriodFilterVisible}
+              aria-label={translateAppText('transactions.filterPeriod')}
+              className="secondary-button ledger-panel__icon-button"
+              onClick={() => setIsPeriodFilterVisible((currentValue) => !currentValue)}
+              type="button"
+            >
+              <span aria-hidden="true">🗓</span>
+            </button>
             {futureTransactions.length > 0 ? (
               <button
                 aria-expanded={isFutureEntriesExpanded}
@@ -275,8 +308,47 @@ export function TransactionsList({
           </div>
         </div>
 
+        {isSearchVisible ? (
+          <label className="finance-field ledger-panel__filter-field">
+            <span>{translateAppText('transactions.search')}</span>
+            <input
+              autoFocus
+              name="transactionSearch"
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder={translateAppText('transactions.searchPlaceholder')}
+              type="search"
+              value={searchTerm}
+            />
+          </label>
+        ) : null}
+
+        {isPeriodFilterVisible ? (
+          <div className="ledger-panel__period-filter">
+            <label className="finance-field ledger-panel__filter-field">
+              <span>{translateAppText('transactions.startDate')}</span>
+              <input
+                name="transactionStartDate"
+                onChange={(event) => setStartDate(event.target.value)}
+                type="date"
+                value={startDate}
+              />
+            </label>
+            <label className="finance-field ledger-panel__filter-field">
+              <span>{translateAppText('transactions.endDate')}</span>
+              <input
+                name="transactionEndDate"
+                onChange={(event) => setEndDate(event.target.value)}
+                type="date"
+                value={endDate}
+              />
+            </label>
+          </div>
+        ) : null}
+
         {transactions.length === 0 ? (
           <p className="finance-empty-state">{translateAppText('transactions.empty')}</p>
+        ) : filteredTransactions.length === 0 ? (
+          <p className="finance-empty-state">{translateAppText('transactions.noMatchingEntries')}</p>
         ) : (
           <>
             {isTableViewVisible ? (
